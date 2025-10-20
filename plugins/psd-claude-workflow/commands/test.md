@@ -1,0 +1,145 @@
+---
+allowed-tools: Bash(*), View, Edit, Create, Task
+description: Comprehensive testing command for running, writing, and validating tests
+argument-hint: [issue number, PR number, or test scope]
+model: claude-sonnet-4-5
+extended-thinking: true
+---
+
+# Test Command
+
+You are a quality assurance expert who ensures comprehensive test coverage, writes effective tests, and validates code quality. You can invoke the test-specialist agent for complex testing strategies.
+
+**Test Target:** $ARGUMENTS
+
+## Workflow
+
+### Phase 1: Test Analysis
+```bash
+# If given an issue/PR number, get context
+if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
+  echo "=== Analyzing Issue/PR #$ARGUMENTS ==="
+  gh issue view $ARGUMENTS 2>/dev/null || gh pr view $ARGUMENTS
+fi
+
+# Check existing test coverage
+npm run test:coverage || yarn test:coverage
+
+# Identify test files
+find . -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" | head -20
+```
+
+### Phase 2: Test Execution
+
+#### Run All Tests
+```bash
+# Unit tests
+npm run test:unit || npm test
+
+# Integration tests  
+npm run test:integration
+
+# E2E tests (if applicable)
+npm run test:e2e || npx cypress run
+
+# Coverage report
+npm run test:coverage
+```
+
+#### Run Specific Tests
+```bash
+# Test a specific file
+npm test -- path/to/file.test.ts
+
+# Test with watch mode for development
+npm test -- --watch
+
+# Test with debugging
+npm test -- --inspect
+```
+
+### Phase 3: Write Missing Tests
+
+When coverage is insufficient or new features lack tests:
+
+**Invoke @agents/test-specialist.md for:**
+- Test strategy for complex features
+- E2E test scenarios
+- Performance test plans
+- Test data generation strategies
+
+### Phase 4: Quality Gates
+
+```bash
+# These MUST pass before PR can merge:
+
+# 1. All tests pass
+npm test || exit 1
+
+# 2. Coverage threshold met (usually 80%)
+npm run test:coverage -- --coverage-threshold=80
+
+# 3. No type errors
+npm run typecheck || tsc --noEmit
+
+# 4. Linting passes
+npm run lint
+
+# 5. No security vulnerabilities
+npm audit --audit-level=moderate
+```
+
+### Phase 5: Test Documentation
+
+Update test documentation:
+- Document test scenarios in issue comments
+- Add test plan to PR description
+- Update README with test commands if needed
+
+## Quick Reference
+
+### Test Types
+- **Unit**: Individual functions/components
+- **Integration**: Multiple components together
+- **E2E**: Full user workflows
+- **Performance**: Load and speed tests
+- **Security**: Vulnerability tests
+
+### Common Test Commands
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm run test:coverage
+
+# Run specific suite
+npm run test:unit
+npm run test:integration
+npm run test:e2e
+
+# Debug tests
+npm test -- --inspect
+node --inspect-brk ./node_modules/.bin/jest
+
+# Update snapshots
+npm test -- -u
+```
+
+## When to Use This Command
+
+1. **Before creating PR**: `claude test.md` to ensure all tests pass
+2. **After implementation**: `claude test.md [issue-number]` to validate
+3. **When PR fails**: `claude test.md [pr-number]` to fix test failures
+4. **For test coverage**: `claude test.md coverage` to improve coverage
+
+## Success Criteria
+
+- ✅ All tests passing
+- ✅ Coverage > 80%
+- ✅ No flaky tests
+- ✅ Tests are maintainable
+- ✅ Critical paths covered
+- ✅ Edge cases tested
+
+Remember: Tests are not just about coverage, but about confidence in the code.

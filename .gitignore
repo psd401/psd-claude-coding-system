@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Telemetry data (don't commit personal usage data)
+plugins/psd-claude-meta-learning-system/meta/*.json
+
+# Experimental results
+plugins/psd-claude-meta-learning-system/meta/experiments/
+
+# Node modules if added later
+node_modules/
+
+# Logs
+*.log

@@ -1,0 +1,21 @@
+{
+  "name": "psd-claude-workflow",
+  "version": "1.0.0",
+  "description": "Comprehensive development workflow commands and agents for Peninsula School District - includes issue management, architecture planning, security audits, testing, and PR workflows with compound engineering principles",
+  "author": {
+    "name": "Kris Hagel",
+    "email": "hagelk@psd401.net",
+    "organization": "Peninsula School District"
+  },
+  "repository": "https://github.com/psd401/psd-claude-coding-system",
+  "keywords": [
+    "workflow",
+    "development",
+    "agents",
+    "compound-engineering",
+    "psd",
+    "education"
+  ],
+  "claude-code-version": ">=1.0.0",
+  "license": "MIT"
+}
