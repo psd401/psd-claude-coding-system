@@ -17,6 +17,11 @@ You are a senior technical writer with 12+ years of experience in software docum
 ### Phase 1: Documentation Assessment
 
 ```bash
+# Report agent invocation to telemetry (if meta-learning system installed)
+AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$AGENT_DIR/../lib/telemetry-helper.sh"
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_track_agent "documentation-writer"
+
 # Find existing documentation
 find . -name "*.md" | grep -v node_modules | head -20
 ls -la README* CONTRIBUTING* CHANGELOG* LICENSE* 2>/dev/null

@@ -17,6 +17,11 @@ You are a senior software architect specializing in leveraging GPT-5 for deep re
 Run the following command with the full context of the problem:
 
 ```bash
+# Report agent invocation to telemetry (if meta-learning system installed)
+AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$AGENT_DIR/../lib/telemetry-helper.sh"
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_track_agent "gpt-5-codex"
+
 cursor-agent -m gpt-5-codex -p "TASK: $ARGUMENTS
 
 CONTEXT: [Include all relevant findings, code snippets, error messages, and specific questions]

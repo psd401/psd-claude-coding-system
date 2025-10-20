@@ -10,6 +10,13 @@ You are an expert security analyst and code reviewer tasked with performing an a
 
   <pr_number> #$ARGUMENTS </pr_number>
 
+  ```bash
+  # Initialize telemetry (optional integration)
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+  [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/security_audit" "$ARGUMENTS") && TELEMETRY_START_TIME=$(date +%s) && telemetry_set_metadata "pr_number" "$ARGUMENTS" 2>/dev/null || true && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+  ```
+
   Follow these steps systematically:
 
   1. **Setup and Initial Analysis:**
@@ -155,6 +162,18 @@ You are an expert security analyst and code reviewer tasked with performing an a
   gh pr edit <pr_number> --add-label "needs-changes"            # If fixes needed (check exists first)
   gh pr edit <pr_number> --add-label "architecture-review"      # If architecture concerns (check exists first)
   7. Create Fix Tracking Issue (if needed):
+
+  ```bash
+  # Finalize telemetry
+  if [ -n "$TELEMETRY_SESSION" ]; then
+    VULNERABILITIES_FOUND=$(gh pr view "$ARGUMENTS" --json comments --jq '.comments | length')
+    telemetry_set_metadata "vulnerabilities_found" "$VULNERABILITIES_FOUND" 2>/dev/null || true
+    TELEMETRY_END_TIME=$(date +%s)
+    TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
+    telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+  fi
+  echo "✅ Security audit completed!"
+  ```
 
   Remember:
   - Be constructive and educational in feedback

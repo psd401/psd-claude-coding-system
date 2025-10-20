@@ -14,6 +14,21 @@ You are a senior product manager with 15+ years of experience in software produc
 
 ## Workflow
 
+### Phase 0: Initialize Telemetry (Optional Integration)
+
+```bash
+# Source telemetry helper
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+
+if [ -f "$TELEMETRY_HELPER" ]; then
+  source "$TELEMETRY_HELPER"
+  TELEMETRY_SESSION=$(telemetry_init "/product-manager" "$ARGUMENTS")
+  TELEMETRY_START_TIME=$(date +%s)
+  trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+fi
+```
+
 ### Phase 1: Discovery & Research
 ```bash
 # Understand current product
@@ -267,5 +282,16 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 - ✅ Success metrics defined
 - ✅ Team aligned
 - ✅ Risks identified
+
+```bash
+# Finalize telemetry
+if [ -n "$TELEMETRY_SESSION" ]; then
+  TELEMETRY_END_TIME=$(date +%s)
+  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
+  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+fi
+
+echo "✅ Product specification completed successfully!"
+```
 
 Remember: Great products solve real problems. Focus on value delivery, not feature delivery.

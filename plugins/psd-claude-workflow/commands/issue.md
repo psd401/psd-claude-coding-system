@@ -14,11 +14,27 @@ You are an experienced software developer and technical writer who creates compr
 
 ## Workflow
 
+### Phase 0: Initialize Telemetry (Optional Integration)
+
+```bash
+# Source telemetry helper (gracefully handles if meta-learning not installed)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+
+if [ -f "$TELEMETRY_HELPER" ]; then
+  source "$TELEMETRY_HELPER"
+  TELEMETRY_SESSION=$(telemetry_init "/issue" "$ARGUMENTS")
+  TELEMETRY_START_TIME=$(date +%s)
+  trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+fi
+```
+
 ### Phase 1: Research & Context Gathering
 
 ```bash
 # If working on existing issue, get FULL context including all comments
 if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
+  telemetry_set_metadata "existing_issue" "$ARGUMENTS" 2>/dev/null || true
   echo "=== Loading Issue #$ARGUMENTS ==="
   gh issue view $ARGUMENTS
   echo -e "\n=== Previous Work & Comments ==="
@@ -167,5 +183,16 @@ After creating the issue:
 1. Provide the issue URL for tracking
 2. Suggest next steps (e.g., "Ready for @commands/work.md #[issue-number]")
 3. Note any follow-up research or clarification needed
+
+```bash
+# Finalize telemetry (mark as success)
+if [ -n "$TELEMETRY_SESSION" ]; then
+  TELEMETRY_END_TIME=$(date +%s)
+  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
+  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+fi
+
+echo "✅ Issue creation/research completed successfully!"
+```
 
 Remember: A well-written issue saves hours of development time and reduces back-and-forth clarification.

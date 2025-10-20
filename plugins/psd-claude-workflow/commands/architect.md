@@ -14,12 +14,20 @@ You are a principal architect with 15+ years of experience designing scalable, m
 
 ## Workflow
 
+### Phase 0: Initialize Telemetry
+```bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/architect" "$ARGUMENTS") && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+```
+
 ### Phase 1: Context Analysis
 
 When given an issue number:
 ```bash
 # Get COMPLETE issue context including all prior work
 echo "=== Loading Issue #$ARGUMENTS with all context ==="
+[[ "$ARGUMENTS" =~ ^[0-9]+$ ]] && telemetry_set_metadata "issue_number" "$ARGUMENTS" 2>/dev/null || true
 gh issue view $ARGUMENTS
 echo -e "\n=== All Comments (PM requirements, research, etc.) ==="
 gh issue view $ARGUMENTS --comments
@@ -239,6 +247,9 @@ gh issue comment $ARGUMENTS --body "## 🏗️ Architecture Design
 - Phase 2: [Description]
 
 See full design: [link to ADR or docs]"
+
+# Finalize telemetry
+[ -n "$TELEMETRY_SESSION" ] && telemetry_finalize "$TELEMETRY_SESSION" "success" "$(($(date +%s) - TELEMETRY_START_TIME))" && echo "✅ Architecture design completed!"
 ```
 
 Remember: Good architecture enables change. Design for the future, but build for today.

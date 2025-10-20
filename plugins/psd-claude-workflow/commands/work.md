@@ -14,6 +14,23 @@ You are an experienced full-stack developer who implements solutions efficiently
 
 ## Workflow
 
+### Phase 0: Initialize Telemetry (Optional Integration)
+
+```bash
+# Source telemetry helper (gracefully handles if meta-learning not installed)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+
+if [ -f "$TELEMETRY_HELPER" ]; then
+  source "$TELEMETRY_HELPER"
+  TELEMETRY_SESSION=$(telemetry_init "/work" "$ARGUMENTS")
+  TELEMETRY_START_TIME=$(date +%s)
+
+  # Set up error trap to capture failures
+  trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+fi
+```
+
 ### Phase 1: Determine Work Type
 
 ```bash
@@ -22,12 +39,16 @@ if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
   echo "=== Working on Issue #$ARGUMENTS ==="
   WORK_TYPE="issue"
   ISSUE_NUMBER=$ARGUMENTS
-  
+
+  # Track issue number in telemetry
+  telemetry_set_metadata "work_type" "issue" 2>/dev/null || true
+  telemetry_set_metadata "issue_number" "$ISSUE_NUMBER" 2>/dev/null || true
+
   # Get full issue context
   gh issue view $ARGUMENTS
   echo -e "\n=== All Context (PM specs, research, architecture) ==="
   gh issue view $ARGUMENTS --comments
-  
+
   # Check related PRs
   gh pr list --search "mentions:$ARGUMENTS"
 else
@@ -35,6 +56,9 @@ else
   echo "Description: $ARGUMENTS"
   WORK_TYPE="quick-fix"
   ISSUE_NUMBER=""
+
+  # Track quick-fix in telemetry
+  telemetry_set_metadata "work_type" "quick-fix" 2>/dev/null || true
 fi
 ```
 
@@ -75,6 +99,8 @@ When encountering specialized work, invoke these agents:
 - **Performance Issues**: Invoke @agents/performance-optimizer.md
 - **Security Concerns**: Invoke @agents/security-analyst.md
 - **Second Opinion**: Invoke @agents/gpt-5.md for validation
+
+**Note**: Agents automatically report their invocation to telemetry (if meta-learning system installed).
 
 ### Phase 4: Testing & Validation
 
@@ -190,6 +216,23 @@ Quick fix: $ARGUMENTS
 - [ ] Breaking change" \
     --assignee "@me"
 fi
+
+# Collect telemetry metadata before finalizing
+FILES_CHANGED=$(git diff --name-status HEAD~1 2>/dev/null | wc -l | tr -d ' ')
+TESTS_ADDED=$(git diff --name-only HEAD~1 2>/dev/null | grep -E '\.(test|spec)\.(ts|js|tsx|jsx|py)$' | wc -l | tr -d ' ')
+
+telemetry_set_metadata "files_changed" "$FILES_CHANGED" 2>/dev/null || true
+telemetry_set_metadata "tests_added" "$TESTS_ADDED" 2>/dev/null || true
+
+# Finalize telemetry (mark as success)
+if [ -n "$TELEMETRY_SESSION" ]; then
+  TELEMETRY_END_TIME=$(date +%s)
+  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
+  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+fi
+
+echo ""
+echo "✅ Work completed successfully!"
 ```
 
 ## Quick Reference

@@ -17,6 +17,11 @@ You are a senior security engineer with 12+ years of experience in application s
 ### Phase 1: Security Reconnaissance
 
 ```bash
+# Report agent invocation to telemetry (if meta-learning system installed)
+AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$AGENT_DIR/../lib/telemetry-helper.sh"
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_track_agent "security-analyst"
+
 # Scan for hardcoded secrets
 grep -r "password\|secret\|api[_-]key\|token" \
   --exclude-dir=node_modules \

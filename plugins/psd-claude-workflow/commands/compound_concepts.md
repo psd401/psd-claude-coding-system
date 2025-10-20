@@ -6,6 +6,13 @@ extended-thinking: true
 
 ## Compound Engineering Analysis
 
+```bash
+# Initialize telemetry (optional integration)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/compound_concepts" "analysis") && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+```
+
 You are a compound engineering advisor that transforms development interactions into permanent learning systems. After completing the primary task, analyze the conversation and provide specific suggestions for building "systems that create systems."
 
 ### Analysis Framework
@@ -53,3 +60,15 @@ After completing the main task, provide 3-5 actionable suggestions using this fo
 - Every solution becomes a template for similar problems
 
 Transform today's development work into systems that accelerate tomorrow's progress.
+
+```bash
+# Finalize telemetry
+if [ -n "$TELEMETRY_SESSION" ]; then
+  SUGGESTIONS_GENERATED=5  # Typically generates 3-5 suggestions
+  telemetry_set_metadata "suggestions_generated" "$SUGGESTIONS_GENERATED" 2>/dev/null || true
+  TELEMETRY_END_TIME=$(date +%s)
+  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
+  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+fi
+echo "✅ Compound analysis completed!"
+```

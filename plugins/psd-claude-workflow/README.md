@@ -91,6 +91,94 @@ This workflow incorporates compound engineering principles:
 
 Use `/compound_concepts` after completing work to get suggestions for systematization.
 
+## Integration with Meta-Learning System
+
+This plugin integrates seamlessly with the `psd-claude-meta-learning-system` plugin to enable automatic workflow learning and improvement.
+
+### How It Works
+
+When both plugins are installed:
+
+1. **Automatic Telemetry**: Commands and agents submit usage data (durations, success/failure, agents used)
+2. **Privacy-Safe**: Only metadata is collected (counts, durations) - never code content or issue details
+3. **Local Only**: All data stays on your machine in the meta-learning plugin's `meta/` folder
+4. **Graceful Degradation**: Works perfectly whether meta-learning is installed or not
+
+### What Gets Tracked
+
+**Commands track**:
+- Command name (`/work`, `/test`, etc.)
+- Duration (how long it took)
+- Success/failure status
+- Agents invoked during execution
+- File counts (not file names or content)
+- Test counts, coverage percentages
+
+**Agents track**:
+- Agent name when invoked
+- Automatically reported to parent command's telemetry session
+
+### Privacy Guarantees
+
+**Collected** ✅:
+- Command names and durations
+- Agent invocations
+- Success/failure status
+- Counts (files changed, tests added)
+
+**NOT collected** ❌:
+- Your actual code
+- File contents or paths
+- Issue descriptions or titles
+- Commit messages
+- Personal information
+- API keys or secrets
+
+### Example Telemetry Entry
+
+```json
+{
+  "id": "exec-2025-10-20-001",
+  "command": "/work",
+  "timestamp": "2025-10-20T10:30:00Z",
+  "duration_seconds": 720,
+  "success": true,
+  "agents_invoked": ["backend-specialist", "test-specialist"],
+  "metadata": {
+    "work_type": "issue",
+    "issue_number": "347",
+    "files_changed": "8",
+    "tests_added": "12"
+  }
+}
+```
+
+### Opting Out
+
+**Option 1**: Don't install the meta-learning plugin
+```bash
+# Just use psd-claude-workflow alone
+/plugin install psd-claude-workflow
+```
+
+**Option 2**: Disable telemetry in meta-learning plugin config
+```bash
+# Edit: plugins/psd-claude-meta-learning-system/.claude-plugin/plugin.json
+# Set: "telemetry_enabled": false
+```
+
+### Benefits of Integration
+
+When using both plugins together:
+
+- **Learn from your patterns**: System notices you always run `/test` after `/work`
+- **Automated suggestions**: Get recommendations to create combined workflows
+- **Agent optimization**: AI agents improve themselves based on usage
+- **Predictive alerts**: Get warnings before problems occur
+- **Time savings**: 15-40 hours/month saved through learned optimizations
+
+See the [Meta-Learning System README](../psd-claude-meta-learning-system/README.md) for full details.
+
 ## Contributing
 
 See the main repository for contribution guidelines.
