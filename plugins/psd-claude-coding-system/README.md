@@ -257,7 +257,17 @@ Use `/compound_concepts` to extract systematization opportunities.
 
 ---
 
-## What's New in v1.1.0
+## What's New
+
+### v1.1.1 (Bug Fix)
+
+**CRITICAL FIX**: Telemetry hooks now work correctly!
+
+- Fixed UserPromptSubmit hook field name (`prompt` not `user_prompt`)
+- Commands are now properly tracked in telemetry.json
+- All users should update to this version
+
+### v1.1.0 (Major Release)
 
 ### Hook-Based Telemetry
 
