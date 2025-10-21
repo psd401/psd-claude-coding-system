@@ -62,7 +62,9 @@ if [ -n "$COMMAND_AGENTS" ]; then
 fi
 
 # Build metadata JSON (extract from state file if available)
-METADATA_JSON="${COMMAND_METADATA:-{}}"
+# Note: Cannot use ${VAR:-{}} directly due to bash brace expansion bug
+DEFAULT_METADATA="{}"
+METADATA_JSON="${COMMAND_METADATA:-$DEFAULT_METADATA}"
 
 # Build execution JSON entry
 EXECUTION_ID="exec-${SESSION_ID}-${COMMAND_NAME}"
