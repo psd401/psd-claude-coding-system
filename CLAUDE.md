@@ -141,8 +141,72 @@ User runs: /work 347
 **Privacy Safeguards**:
 - All data stored locally in git-ignored `meta/` folder
 - Only metadata collected (never code, issues, commits, personal info)
-- User can opt-out by not installing meta-learning or disabling in config
+- User can opt-out by disabling hooks or removing plugin
 - No external network requests
+
+## Marketplace Structure & Critical Files
+
+### marketplace.json (CRITICAL)
+
+Located at `.claude-plugin/marketplace.json`, this file is **essential** for Claude Code to discover plugins.
+
+**Structure:**
+```json
+{
+  "name": "psd-claude-coding-system",
+  "owner": { "name": "...", "email": "..." },
+  "metadata": {
+    "description": "...",
+    "version": "1.1.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "psd-claude-coding-system",
+      "source": "./plugins/psd-claude-coding-system",
+      "description": "...",
+      "version": "1.1.0",
+      "category": "productivity",
+      "keywords": [...]
+    }
+  ]
+}
+```
+
+**CRITICAL RULES:**
+
+1. **plugins[] must match actual directory structure**
+   - If you rename/merge plugins, update marketplace.json immediately
+   - Each entry's `source` must point to an existing plugin directory
+   - Version numbers should match plugin.json in each plugin
+
+2. **Common mistake:** Deleting plugin directories but not updating marketplace.json
+   - Symptom: "Plugin not found in any marketplace" error
+   - Fix: Remove stale entries from `plugins[]` array
+
+3. **When changing plugin structure:**
+   - ✅ Update marketplace.json FIRST
+   - ✅ Commit and push to GitHub
+   - ✅ Force refresh in Claude Code: `cd ~/.claude/plugins/marketplaces/[name] && git pull`
+   - ✅ Then run `/plugin install [name]`
+
+### Repository Structure
+
+```
+psd-claude-coding-system/
+  ├── .claude-plugin/
+  │   └── marketplace.json    # CRITICAL - lists all plugins
+  ├── plugins/
+  │   └── psd-claude-coding-system/
+  │       ├── .claude-plugin/
+  │       │   └── plugin.json # Plugin metadata
+  │       ├── commands/       # 18 slash commands
+  │       ├── agents/         # 17 AI agents
+  │       ├── hooks/          # Hook configurations
+  │       └── scripts/        # Hook scripts
+  ├── README.md              # User-facing documentation
+  └── CLAUDE.md              # THIS FILE - AI guidance
+```
 
 ## Development Commands
 
@@ -176,7 +240,7 @@ git push origin main
 
 # Users install via GitHub
 /plugin marketplace add psd401/psd-claude-coding-system
-/plugin install psd-claude-workflow
+/plugin install psd-claude-coding-system
 ```
 
 ### Modifying Commands or Agents
@@ -190,10 +254,64 @@ git push origin main
 
 ```bash
 # Commands can only be tested after plugin installation
-/plugin install psd-claude-workflow
+/plugin install psd-claude-coding-system
 /work "add logging to auth module"
 /test auth
 /compound_concepts
+```
+
+### Troubleshooting Plugin Installation
+
+**Problem: "Plugin not found in any marketplace"**
+
+This means marketplace.json doesn't list the plugin or points to wrong path.
+
+**Solution:**
+1. Verify marketplace.json lists the plugin:
+   ```bash
+   cat .claude-plugin/marketplace.json | jq '.plugins[].name'
+   ```
+2. Verify plugin directory exists:
+   ```bash
+   ls -la plugins/psd-claude-coding-system/.claude-plugin/
+   ```
+3. If mismatch, update marketplace.json and push
+4. Force refresh:
+   ```bash
+   cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
+   git pull origin main
+   ```
+5. Retry install:
+   ```bash
+   /plugin install psd-claude-coding-system
+   ```
+
+**Problem: Old plugins still showing up**
+
+Claude Code caches plugin metadata in `~/.claude/settings.json`.
+
+**Solution (Nuclear Option):**
+1. Exit Claude Code completely
+2. Backup and remove cache:
+   ```bash
+   mv ~/.claude/plugins ~/.claude/plugins.backup
+   ```
+3. Restart Claude Code (recreates plugins/ directory)
+4. Re-add marketplace:
+   ```bash
+   /plugin marketplace add psd401/psd-claude-coding-system
+   /plugin install psd-claude-coding-system
+   ```
+
+**Problem: Plugin installs but commands don't work**
+
+Check hooks are installed:
+```bash
+ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/
+# Should show: hooks.json
+
+ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/scripts/
+# Should show: telemetry-*.sh files
 ```
 
 ## Compound Engineering Principles
