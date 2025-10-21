@@ -17,11 +17,15 @@ Ok, great, thank you! I merged in the changes to dev, so please
   the work that was done.
 
 ```bash
+# Incremental telemetry save - cleanup in progress
+telemetry_set_metadata "phase" "cleanup_in_progress" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
+
 # After cleanup is complete, finalize telemetry
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 echo "✅ Branch cleanup completed!"
 ```

@@ -123,11 +123,15 @@ COVERAGE=$(grep -o "[0-9.]*%" coverage/coverage-summary.txt 2>/dev/null | head -
 telemetry_set_metadata "tests_run" "$TESTS_RUN" 2>/dev/null || true
 telemetry_set_metadata "coverage" "$COVERAGE" 2>/dev/null || true
 
+# Incremental telemetry save - tests complete
+telemetry_set_metadata "phase" "tests_completed" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
+
 # Finalize telemetry (mark as success)
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 
 echo ""

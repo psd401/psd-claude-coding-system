@@ -62,6 +62,10 @@ else
   # Track quick-fix in telemetry
   telemetry_set_metadata "work_type" "quick-fix" 2>/dev/null || true
 fi
+
+# Incremental telemetry save - Phase 1 complete
+telemetry_set_metadata "current_phase" "1" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$(($(date +%s) - TELEMETRY_START_TIME))" 2>/dev/null || true
 ```
 
 ### Phase 2: Development Setup
@@ -80,6 +84,10 @@ else
 fi
 
 echo "✓ Created feature branch from dev"
+
+# Incremental telemetry save - Phase 2 complete
+telemetry_set_metadata "current_phase" "2" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$(($(date +%s) - TELEMETRY_START_TIME))" 2>/dev/null || true
 ```
 
 ### Phase 3: Implementation
@@ -103,6 +111,12 @@ When encountering specialized work, invoke these agents:
 - **Second Opinion**: Invoke @agents/gpt-5.md for validation
 
 **Note**: Agents automatically report their invocation to telemetry (if meta-learning system installed).
+
+```bash
+# Incremental telemetry save - Phase 3 complete
+telemetry_set_metadata "current_phase" "3" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$(($(date +%s) - TELEMETRY_START_TIME))" 2>/dev/null || true
+```
 
 ### Phase 4: Testing & Validation
 
@@ -146,6 +160,12 @@ npm run build
 - **Performance concerns**: Invoke @agents/performance-optimizer
 - **Security features**: Invoke @agents/security-analyst
 - **API documentation**: Invoke @agents/documentation-writer
+
+```bash
+# Incremental telemetry save - Phase 4 complete
+telemetry_set_metadata "current_phase" "4" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$(($(date +%s) - TELEMETRY_START_TIME))" 2>/dev/null || true
+```
 
 ### Phase 5: Commit & PR Creation
 ```bash
@@ -226,11 +246,12 @@ TESTS_ADDED=$(git diff --name-only HEAD~1 2>/dev/null | grep -E '\.(test|spec)\.
 telemetry_set_metadata "files_changed" "$FILES_CHANGED" 2>/dev/null || true
 telemetry_set_metadata "tests_added" "$TESTS_ADDED" 2>/dev/null || true
 
-# Finalize telemetry (mark as success)
+# Finalize telemetry (mark as completed - all phases done!)
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
+  telemetry_set_metadata "current_phase" "completed" 2>/dev/null || true
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 
 echo ""

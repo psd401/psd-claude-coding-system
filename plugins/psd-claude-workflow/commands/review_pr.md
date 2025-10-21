@@ -186,6 +186,10 @@ After PR is approved and merged:
 - ✅ Code quality maintained or improved
 
 ```bash
+# Incremental telemetry save - PR review complete
+telemetry_set_metadata "phase" "pr_reviewed" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
+
 # Finalize telemetry
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   FEEDBACK_COUNT=$(gh pr view $ARGUMENTS --json comments --jq '.comments | length')
@@ -193,7 +197,7 @@ if [ -n "$TELEMETRY_SESSION_ID" ]; then
 
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 
 echo "✅ PR review completed successfully!"

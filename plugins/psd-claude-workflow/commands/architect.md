@@ -248,8 +248,12 @@ gh issue comment $ARGUMENTS --body "## 🏗️ Architecture Design
 
 See full design: [link to ADR or docs]"
 
+# Incremental telemetry save - architecture complete
+telemetry_set_metadata "phase" "architecture_designed" 2>/dev/null || true
+telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
+
 # Finalize telemetry
-[ -n "$TELEMETRY_SESSION_ID" ] && telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$(($(date +%s) - TELEMETRY_START_TIME))" && echo "✅ Architecture design completed!"
+[ -n "$TELEMETRY_SESSION_ID" ] && telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$(($(date +%s) - TELEMETRY_START_TIME))" && echo "✅ Architecture design completed!"
 ```
 
 Remember: Good architecture enables change. Design for the future, but build for today.
