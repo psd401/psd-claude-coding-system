@@ -33,57 +33,6 @@ This command orchestrates the complete compound engineering cycle:
 
 ## Workflow
 
-### Phase 0: Pre-Flight Checks
-
-```bash
-# Parse arguments
-DRY_RUN=false
-SKIP_COMMANDS=()
-ONLY_COMMAND=""
-
-for arg in $ARGUMENTS; do
-  case $arg in
-    --dry-run)
-      DRY_RUN=true
-      ;;
-    --skip)
-      shift
-      SKIP_COMMANDS+=("$1")
-      ;;
-    --only)
-      shift
-      ONLY_COMMAND="$1"
-      ;;
-  esac
-done
-
-echo "=========================================="
-echo "PSD META-LEARNING: WEEKLY IMPROVEMENT PIPELINE"
-echo "=========================================="
-echo ""
-echo "Mode: $([ "$DRY_RUN" = true ] && echo "DRY-RUN (no changes)" || echo "LIVE")"
-echo "Started: $(date)"
-echo ""
-
-# Verify git status
-if [ -n "$(git status --porcelain)" ]; then
-  echo "⚠️  Warning: Working directory not clean"
-  echo "Uncommitted changes detected. Commit or stash before running pipeline."
-  echo ""
-  echo "Continue anyway? (Ctrl+C to cancel)"
-  sleep 5
-fi
-
-# Create session log
-SESSION_ID="improve-$(date +%Y%m%d-%H%M%S)"
-LOG_FILE="meta/logs/$SESSION_ID.log"
-mkdir -p "meta/logs"
-
-echo "Session ID: $SESSION_ID"
-echo "Log file: $LOG_FILE"
-echo ""
-```
-
 ### Phase 1: Analyze (Pattern Detection)
 
 ```bash

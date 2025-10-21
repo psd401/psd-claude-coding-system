@@ -4,22 +4,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is the **PSD Claude Coding System** - a marketplace containing two Claude Code plugin systems for Peninsula School District:
+This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peninsula School District combining:
 
-1. **psd-claude-workflow** (v1.0.0, Stable) - Production-ready development workflow automation
-2. **psd-claude-meta-learning-system** (v0.1.0, Experimental) - Self-improving AI system that learns from usage
+1. **Workflow Automation** (Stable) - 9 battle-tested development commands + 10 specialized agents
+2. **Meta-Learning System** (Experimental) - 9 commands + 5 agents that learn from usage and improve over time
+
+**Version**: 1.1.0
+**Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Architecture
 
-### Plugin Structure
+### Unified Plugin Structure
 
-Each plugin follows Claude Code's plugin architecture:
+The plugin follows Claude Code's architecture with automatic telemetry via hooks:
 ```
-plugins/[plugin-name]/
+plugins/psd-claude-coding-system/
   ├── .claude-plugin/
-  │   └── plugin.json          # Plugin metadata
-  ├── commands/                 # Slash commands (*.md)
-  ├── agents/                   # Specialized AI agents (*.md)
+  │   └── plugin.json          # Plugin metadata (v1.1.0)
+  ├── commands/                 # 18 slash commands (*.md)
+  ├── agents/                   # 17 specialized AI agents (*.md)
+  ├── hooks/
+  │   └── hooks.json            # Automatic telemetry collection
+  ├── scripts/
+  │   ├── telemetry-init.sh     # SessionStart hook
+  │   ├── telemetry-command.sh  # UserPromptSubmit hook
+  │   ├── telemetry-agent.sh    # SubagentStop hook
+  │   └── telemetry-track.sh    # Stop hook
+  ├── meta/                     # Telemetry data (git-ignored)
   └── README.md                 # Plugin documentation
 ```
 
@@ -35,9 +46,9 @@ plugins/[plugin-name]/
 - Focused on specific domains (backend, frontend, security, testing, etc.)
 - Run autonomously with specific tool access
 
-### psd-claude-workflow Plugin
+### Workflow Commands (9 commands)
 
-Production-ready workflow with 9 commands and 10 agents, all using latest Claude models (sonnet-4-5, opus-4-1) with extended-thinking enabled.
+Production-ready workflows all using latest Claude models (sonnet-4-5, opus-4-1) with extended-thinking enabled.
 
 **Command Workflow Pattern**: Most commands follow this structure:
 1. **Phase 1**: Context gathering (git status, issue details, file analysis)
@@ -51,13 +62,17 @@ Production-ready workflow with 9 commands and 10 agents, all using latest Claude
 - `/test [scope]` - Comprehensive testing with coverage validation
 - `/review_pr [number]` - Systematic PR feedback handling
 - `/compound_concepts` - Finds automation/systematization opportunities
+- `/security_audit` - Security review and vulnerability analysis
+- `/issue [description]` - Research and create structured GitHub issues
+- `/product-manager [idea]` - Transform ideas into product specs
+- `/clean_branch` - Post-merge cleanup
 
-**Agent Specializations**:
+**Workflow Agents** (10 total):
 - Domain specialists: backend, frontend, database, llm
 - Quality/security: test-specialist, security-analyst, performance-optimizer
-- Planning: plan-validator (validates plans using codex), gpt-5 (second opinions)
+- Documentation/planning: documentation-writer, plan-validator, gpt-5
 
-### psd-claude-meta-learning-system Plugin
+### Meta-Learning Commands (9 commands)
 
 Experimental self-improving system with telemetry-based learning.
 
@@ -76,58 +91,52 @@ Experimental self-improving system with telemetry-based learning.
 - `/meta_implement` - Auto-apply improvements (with dry-run)
 - `/meta_evolve` - Genetic algorithm for agent improvement
 
-### Telemetry Integration Architecture
+### Telemetry Integration Architecture (NEW in v1.1.0)
 
-**How the plugins work together**:
+**Hook-Based Automatic Telemetry** - Zero AI involvement, 100% reliable:
 
-1. **Workflow commands initialize telemetry** (Phase 0 in each command):
-   ```bash
-   source lib/telemetry-helper.sh
-   TELEMETRY_SESSION=$(telemetry_init "/work" "$ARGUMENTS")
-   ```
+1. **SessionStart Hook** (`scripts/telemetry-init.sh`):
+   - Runs when Claude Code session starts
+   - Creates `meta/telemetry.json` if it doesn't exist
+   - No output, silent initialization
 
-2. **Agents report their invocation** (automatically to parent session):
-   ```bash
-   telemetry_track_agent "backend-specialist"
-   ```
+2. **UserPromptSubmit Hook** (`scripts/telemetry-command.sh`):
+   - Runs when user submits a prompt
+   - Detects slash command execution (e.g., `/work`, `/test`, `/meta_analyze`)
+   - Creates session state file in `meta/.session_state_{SESSION_ID}`
+   - Records: command name, arguments, start time
 
-3. **Commands finalize with metadata** (at completion):
-   ```bash
-   telemetry_set_metadata "files_changed" "8"
-   telemetry_finalize "$TELEMETRY_SESSION" "success" "$DURATION"
-   ```
+3. **SubagentStop Hook** (`scripts/telemetry-agent.sh`):
+   - Runs when a Task tool (agent) completes
+   - Appends agent name to session state file
+   - Tracks which agents were invoked during command execution
 
-**Telemetry Helper Library** (`psd-claude-workflow/lib/telemetry-helper.sh`):
-- **Plugin Discovery**: Dynamically finds meta-learning plugin (no hardcoded paths)
-- **Graceful Degradation**: Commands work perfectly without meta-learning installed
-- **Privacy-Safe**: Only collects metadata (counts, durations), never code content
-- **Session Management**: Unique session IDs, error trapping, automatic cleanup
+4. **Stop Hook** (`scripts/telemetry-track.sh`):
+   - Runs when Claude finishes responding
+   - Reads session state file
+   - Calculates duration
+   - Uses `jq` to UPSERT entry into `meta/telemetry.json`
+   - Cleans up session state file
 
-**Data Flow**:
+**Data Flow** (completely automatic):
 ```
-/work command
-  ├─> Phase 0: Initialize telemetry session
-  ├─> Phase 1-4: Execute workflow
-  │    ├─> Invoke backend-specialist → reports to session
-  │    └─> Invoke test-specialist → reports to session
-  ├─> Collect metadata (files_changed, tests_added)
-  └─> Finalize session → Append to meta/telemetry.json
+User runs: /work 347
+  ├─> UserPromptSubmit hook: Create session state
+  ├─> Claude executes command workflow
+  │    ├─> Invokes backend-specialist
+  │    │    └─> SubagentStop hook: Add "backend-specialist" to session
+  │    └─> Invokes test-specialist
+  │         └─> SubagentStop hook: Add "test-specialist" to session
+  ├─> Claude finishes responding
+  └─> Stop hook: Finalize and write to telemetry.json
 ```
 
-**Detection Logic**:
-```bash
-# Find plugins directory relative to current plugin (no hardcoded paths)
-WORKFLOW_PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PLUGINS_DIR="$(dirname "$WORKFLOW_PLUGIN_DIR")"
-META_PLUGIN_DIR="$PLUGINS_DIR/psd-claude-meta-learning-system"
-
-# Check if meta-learning plugin exists and is enabled
-if [ -d "$META_PLUGIN_DIR" ] && [ -f "$META_PLUGIN_DIR/.claude-plugin/plugin.json" ]; then
-  TELEMETRY_ENABLED=true
-else
-  TELEMETRY_ENABLED=false
-fi
-```
+**Key Advantages**:
+- **Reliable**: Hooks always execute (no AI involvement)
+- **Zero Config**: Works automatically on plugin install
+- **Privacy-Safe**: Only metadata collected, never code content
+- **Graceful**: Uses `jq` if available, degrades gracefully if not
+- **Local Only**: All data stays in git-ignored `meta/` folder
 
 **Privacy Safeguards**:
 - All data stored locally in git-ignored `meta/` folder
@@ -142,14 +151,17 @@ fi
 ```bash
 # Install locally for testing
 /plugin marketplace add ~/non-ic-code/psd-claude-coding-system
-/plugin install psd-claude-workflow
+/plugin install psd-claude-coding-system
 /plugin list
 
 # Verify command availability
-/work --help
+/work 1  # Test with dummy issue number
+
+# Check telemetry hooks installed
+ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/
 
 # Uninstall for clean testing
-/plugin uninstall psd-claude-workflow
+/plugin uninstall psd-claude-coding-system
 /plugin marketplace remove psd-claude-coding-system
 ```
 

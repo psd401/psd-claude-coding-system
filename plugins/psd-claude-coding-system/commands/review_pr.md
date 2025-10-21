@@ -14,22 +14,6 @@ You are an experienced developer skilled at addressing PR feedback constructivel
 
 ## Workflow
 
-### Phase 0: Initialize Telemetry (Optional Integration)
-
-```bash
-# Source telemetry helper
-WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
-TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-
-if [ -f "$TELEMETRY_HELPER" ]; then
-  source "$TELEMETRY_HELPER"
-  telemetry_init "/review_pr" "$ARGUMENTS"
-  TELEMETRY_START_TIME=$(date +%s)
-  telemetry_set_metadata "pr_number" "$ARGUMENTS" 2>/dev/null || true
-  trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
-fi
-```
-
 ### Phase 1: PR Analysis
 ```bash
 # Get full PR context with all comments
@@ -186,18 +170,13 @@ After PR is approved and merged:
 - ✅ Code quality maintained or improved
 
 ```bash
-# Incremental telemetry save - PR review complete
-telemetry_set_metadata "phase" "pr_reviewed" 2>/dev/null || true
-telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
 
 # Finalize telemetry
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   FEEDBACK_COUNT=$(gh pr view $ARGUMENTS --json comments --jq '.comments | length')
-  telemetry_set_metadata "feedback_items" "$FEEDBACK_COUNT" 2>/dev/null || true
 
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 
 echo "✅ PR review completed successfully!"

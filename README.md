@@ -8,10 +8,10 @@ Peninsula School District's comprehensive Claude Code plugin system for AI-assis
 
 ## Overview
 
-This marketplace contains two powerful plugins:
+**One unified plugin** combining battle-tested development workflows with self-improving meta-learning.
 
-1. **psd-claude-workflow** (✅ Stable) - Proven development workflow automation
-2. **psd-claude-meta-learning-system** (🧪 Experimental) - Self-improving AI system
+**Version**: 1.1.0
+**Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Quick Start
 
@@ -19,60 +19,52 @@ This marketplace contains two powerful plugins:
 # Install the marketplace
 /plugin marketplace add psd401/psd-claude-coding-system
 
-# Install workflow plugin (recommended for everyone)
-/plugin install psd-claude-workflow
+# Install the unified plugin (one command!)
+/plugin install psd-claude-coding-system
 
-# Install meta-learning plugin (optional, experimental)
-/plugin install psd-claude-meta-learning-system
+# Start using immediately
+/work 347              # Implement an issue
+/test                  # Run tests
+/meta_health           # Check system status (after 2-4 weeks)
 ```
 
-## Plugins
+## What's Inside
 
-### PSD Claude Workflow (v1.0.0)
+### Workflow Commands (18 total)
 
-Comprehensive workflow automation with 9 commands and 10 specialized agents.
-
-**Status**: ✅ Production ready, battle-tested
-
-**Commands**:
-- `/work` - Implement solutions for issues
-- `/architect` - System architecture design
-- `/test` - Comprehensive testing
-- `/review_pr` - Handle PR feedback
-- `/security_audit` - Security review
-- `/issue` - Create GitHub issues
-- `/product-manager` - Product specifications
-- `/compound_concepts` - Find improvements
+**Development Workflows** (9 commands):
+- `/work` - Implement solutions for issues or quick fixes
+- `/architect` - System architecture & technical decision making
+- `/test` - Comprehensive testing with coverage validation
+- `/review_pr` - Handle PR feedback systematically
+- `/security_audit` - Security review and vulnerability analysis
+- `/issue` - Research and create structured GitHub issues
+- `/product-manager` - Transform ideas into product specs
+- `/compound_concepts` - Find automation opportunities
 - `/clean_branch` - Post-merge cleanup
 
-**Agents**: backend-specialist, frontend-specialist, security-analyst, test-specialist, performance-optimizer, database-specialist, documentation-writer, llm-specialist, plan-validator, gpt-5
+**Meta-Learning Commands** (9 commands):
+- `/meta_health` - Check system status & metrics
+- `/meta_analyze` - Find patterns in your workflow
+- `/meta_learn` - Get improvement suggestions
+- `/meta_implement` - Apply improvements safely (with dry-run)
+- `/meta_improve` - Full weekly improvement pipeline
+- `/meta_document` - Auto-update documentation from code
+- `/meta_predict` - Forecast future issues
+- `/meta_experiment` - A/B test ideas safely
+- `/meta_evolve` - Improve AI agents via genetic algorithms
 
-**Latest**: All using claude-sonnet-4-5 and claude-opus-4-1 (Oct 2025) with extended-thinking enabled
+### AI Agents (17 total)
 
-[Learn more →](./plugins/psd-claude-workflow/README.md)
+**Workflow Specialists** (10 agents):
+backend-specialist, frontend-specialist, security-analyst, test-specialist, performance-optimizer, database-specialist, documentation-writer, llm-specialist, plan-validator, gpt-5
 
-### PSD Claude Meta-Learning System (v0.1.0)
+**Meta-Learning Specialists** (5 agents + 2 utility):
+meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
 
-Self-improving system that learns and evolves.
+**Latest Models**: All agents use claude-sonnet-4-5 and claude-opus-4-1 (Oct 2025) with extended-thinking enabled
 
-**Status**: 🧪 Experimental, actively developing
-
-**Commands**:
-- `/meta_analyze` - Analyze patterns
-- `/meta_learn` - Generate improvements
-- `/meta_implement` - Auto-implement changes
-- `/meta_experiment` - A/B testing
-- `/meta_evolve` - Evolve agents
-- `/meta_document` - Living documentation
-- `/meta_predict` - Predict issues
-- `/meta_health` - System dashboard
-- `/meta_improve` - Weekly pipeline
-
-**Agents**: meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
-
-**Vision**: System that improves itself faster than humans could improve it
-
-[Learn more →](./plugins/psd-claude-meta-learning-system/README.md)
+[Read full documentation →](./plugins/psd-claude-coding-system/README.md)
 
 ## Documentation
 
@@ -91,14 +83,14 @@ Self-improving system that learns and evolves.
 
 ```bash
 /plugin marketplace add psd401/psd-claude-coding-system
-/plugin install psd-claude-workflow
+/plugin install psd-claude-coding-system
 ```
 
 ### From Local Directory
 
 ```bash
 /plugin marketplace add ~/non-ic-code/psd-claude-coding-system
-/plugin install psd-claude-workflow
+/plugin install psd-claude-coding-system
 ```
 
 ## Usage Examples
@@ -134,27 +126,33 @@ Self-improving system that learns and evolves.
 
 ## Features
 
-### Workflow Plugin
-- ✅ 9 battle-tested commands
-- ✅ 10 specialized AI agents
+### Workflow Automation
+- ✅ 9 battle-tested development commands
+- ✅ 10 specialized AI agents for all domains
 - ✅ Compound engineering principles built-in
 - ✅ Latest Claude models (Sonnet 4.5, Opus 4.1)
 - ✅ Extended thinking enabled for deep analysis
 
-### Meta-Learning Plugin
-- 🧪 Telemetry-based learning
-- 🧪 Auto-improvement suggestions
+### Meta-Learning System
+- 🧪 Automatic telemetry via hooks (NEW in v1.1.0)
+- 🧪 Pattern detection and analysis
+- 🧪 Auto-improvement suggestions with confidence scores
 - 🧪 Agent evolution via genetic algorithms
-- 🧪 Predictive issue detection
+- 🧪 Predictive issue detection (70%+ accuracy)
 - 🧪 Living documentation generation
-- 🧪 A/B testing framework
+- 🧪 A/B testing framework for safe experimentation
+
+### New in v1.1.0
+- 🚀 **Hook-based telemetry** - Reliable, zero-config usage tracking
+- 🚀 **Unified plugin** - One install, one version, simpler architecture
+- 🚀 **Automatic agent tracking** - SubagentStop hook tracks all agent invocations
+- 🚀 **Improved reliability** - No reliance on AI executing bash blocks
 
 ## Development Status
 
-| Plugin | Version | Status | Stability |
-|--------|---------|--------|-----------|
-| psd-claude-workflow | 1.0.0 | ✅ Stable | Production-ready |
-| psd-claude-meta-learning-system | 0.1.0 | 🧪 Beta | Experimental |
+**Version**: 1.1.0
+**Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
+**Stability**: Workflow commands battle-tested, meta-learning in active development
 
 ## Contributing
 

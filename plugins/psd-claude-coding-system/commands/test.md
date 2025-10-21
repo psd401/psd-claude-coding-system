@@ -14,29 +14,10 @@ You are a quality assurance expert who ensures comprehensive test coverage, writ
 
 ## Workflow
 
-### Phase 0: Initialize Telemetry (Optional Integration)
-
-```bash
-# Source telemetry helper (gracefully handles if meta-learning not installed)
-WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
-TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-
-if [ -f "$TELEMETRY_HELPER" ]; then
-  source "$TELEMETRY_HELPER"
-  telemetry_init "/test" "$ARGUMENTS"
-  TELEMETRY_START_TIME=$(date +%s)
-
-  # Set up error trap to capture failures
-  trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
-fi
-```
-
 ### Phase 1: Test Analysis
 ```bash
 # If given an issue/PR number, get context
 if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  telemetry_set_metadata "test_scope" "issue_or_pr" 2>/dev/null || true
-  telemetry_set_metadata "target_number" "$ARGUMENTS" 2>/dev/null || true
   echo "=== Analyzing Issue/PR #$ARGUMENTS ==="
   gh issue view $ARGUMENTS 2>/dev/null || gh pr view $ARGUMENTS
 fi
@@ -120,18 +101,12 @@ Update test documentation:
 TESTS_RUN=$(grep -o "Tests:.*passed" test-output.txt 2>/dev/null | head -1 || echo "unknown")
 COVERAGE=$(grep -o "[0-9.]*%" coverage/coverage-summary.txt 2>/dev/null | head -1 || echo "unknown")
 
-telemetry_set_metadata "tests_run" "$TESTS_RUN" 2>/dev/null || true
-telemetry_set_metadata "coverage" "$COVERAGE" 2>/dev/null || true
 
-# Incremental telemetry save - tests complete
-telemetry_set_metadata "phase" "tests_completed" 2>/dev/null || true
-telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
 
 # Finalize telemetry (mark as success)
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 
 echo ""

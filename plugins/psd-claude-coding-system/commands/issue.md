@@ -14,27 +14,11 @@ You are an experienced software developer and technical writer who creates compr
 
 ## Workflow
 
-### Phase 0: Initialize Telemetry (Optional Integration)
-
-```bash
-# Source telemetry helper (gracefully handles if meta-learning not installed)
-WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
-TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-
-if [ -f "$TELEMETRY_HELPER" ]; then
-  source "$TELEMETRY_HELPER"
-  telemetry_init "/issue" "$ARGUMENTS"
-  TELEMETRY_START_TIME=$(date +%s)
-  trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
-fi
-```
-
 ### Phase 1: Research & Context Gathering
 
 ```bash
 # If working on existing issue, get FULL context including all comments
 if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  telemetry_set_metadata "existing_issue" "$ARGUMENTS" 2>/dev/null || true
   echo "=== Loading Issue #$ARGUMENTS ==="
   gh issue view $ARGUMENTS
   echo -e "\n=== Previous Work & Comments ==="
@@ -185,15 +169,11 @@ After creating the issue:
 3. Note any follow-up research or clarification needed
 
 ```bash
-# Incremental telemetry save - issue created
-telemetry_set_metadata "phase" "issue_created" 2>/dev/null || true
-telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
 
 # Finalize telemetry (mark as success)
 if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$TELEMETRY_DURATION"
 fi
 
 echo "✅ Issue creation/research completed successfully!"

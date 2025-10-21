@@ -14,20 +14,12 @@ You are a principal architect with 15+ years of experience designing scalable, m
 
 ## Workflow
 
-### Phase 0: Initialize Telemetry
-```bash
-WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
-TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_init "/architect" "$ARGUMENTS" && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
-```
-
 ### Phase 1: Context Analysis
 
 When given an issue number:
 ```bash
 # Get COMPLETE issue context including all prior work
 echo "=== Loading Issue #$ARGUMENTS with all context ==="
-[[ "$ARGUMENTS" =~ ^[0-9]+$ ]] && telemetry_set_metadata "issue_number" "$ARGUMENTS" 2>/dev/null || true
 gh issue view $ARGUMENTS
 echo -e "\n=== All Comments (PM requirements, research, etc.) ==="
 gh issue view $ARGUMENTS --comments
@@ -248,12 +240,8 @@ gh issue comment $ARGUMENTS --body "## 🏗️ Architecture Design
 
 See full design: [link to ADR or docs]"
 
-# Incremental telemetry save - architecture complete
-telemetry_set_metadata "phase" "architecture_designed" 2>/dev/null || true
-telemetry_finalize "$TELEMETRY_SESSION_ID" "in-progress" "$((date +%s - TELEMETRY_START_TIME))" 2>/dev/null || true
 
 # Finalize telemetry
-[ -n "$TELEMETRY_SESSION_ID" ] && telemetry_finalize "$TELEMETRY_SESSION_ID" "completed" "$(($(date +%s) - TELEMETRY_START_TIME))" && echo "✅ Architecture design completed!"
 ```
 
 Remember: Good architecture enables change. Design for the future, but build for today.

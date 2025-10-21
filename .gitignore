@@ -4,10 +4,11 @@
 .LSOverride
 
 # Telemetry data (don't commit personal usage data)
-plugins/psd-claude-meta-learning-system/meta/*.json
+plugins/psd-claude-coding-system/meta/*.json
+plugins/psd-claude-coding-system/meta/.session_state_*
 
 # Experimental results
-plugins/psd-claude-meta-learning-system/meta/experiments/
+plugins/psd-claude-coding-system/meta/experiments/
 
 # Node modules if added later
 node_modules/
