@@ -133,7 +133,7 @@ telemetry_set_metadata() {
 # Usage: telemetry_finalize "$session_id" "failure" "$duration_seconds"
 telemetry_finalize() {
   local session_id="$1"
-  local status="$2"       # "success" or "failure"
+  local cmd_status="$2"   # "success" or "failure"
   local duration="$3"     # seconds
 
   # Skip if telemetry disabled
@@ -154,7 +154,7 @@ telemetry_finalize() {
 
   # Determine success boolean
   local success_bool="true"
-  [ "$status" = "failure" ] && success_bool="false"
+  [ "$cmd_status" = "failure" ] && success_bool="false"
 
   # Build execution JSON entry
   local execution_json=$(cat <<EOF
