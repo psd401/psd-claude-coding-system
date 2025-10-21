@@ -54,12 +54,12 @@ Peninsula School District's comprehensive Claude Code plugin system for AI-assis
 - `/meta_experiment` - A/B test ideas safely
 - `/meta_evolve` - Improve AI agents via genetic algorithms
 
-### AI Agents (17 total)
+### AI Agents (15 total)
 
 **Workflow Specialists** (10 agents):
 backend-specialist, frontend-specialist, security-analyst, test-specialist, performance-optimizer, database-specialist, documentation-writer, llm-specialist, plan-validator, gpt-5
 
-**Meta-Learning Specialists** (5 agents + 2 utility):
+**Meta-Learning Specialists** (5 agents):
 meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
 
 **Latest Models**: All agents use claude-sonnet-4-5 and claude-opus-4-1 (Oct 2025) with extended-thinking enabled
@@ -128,7 +128,7 @@ meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-valida
 
 ### Workflow Automation
 - ✅ 9 battle-tested development commands
-- ✅ 10 specialized AI agents for all domains
+- ✅ 10 workflow specialist agents
 - ✅ Compound engineering principles built-in
 - ✅ Latest Claude models (Sonnet 4.5, Opus 4.1)
 - ✅ Extended thinking enabled for deep analysis

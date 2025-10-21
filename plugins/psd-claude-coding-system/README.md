@@ -14,8 +14,8 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Two superpowers.**
 
-1. **Workflow Automation** - 9 commands + 10 agents for development tasks
-2. **Meta-Learning** - 9 commands + 5 agents that learn from your usage
+1. **Workflow Automation** - 9 commands + 10 workflow specialist agents
+2. **Meta-Learning** - 9 commands + 5 meta-learning agents that learn from your usage
 
 ---
 
