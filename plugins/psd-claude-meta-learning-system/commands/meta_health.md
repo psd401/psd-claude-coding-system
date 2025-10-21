@@ -36,9 +36,8 @@ This command generates a comprehensive health dashboard by analyzing:
 
 ```bash
 # Find plugin directory (dynamic path discovery, no hardcoded paths)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
-META_DIR="$PLUGIN_DIR/meta"
+META_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-meta-learning-system"
+META_DIR="$META_PLUGIN_DIR/meta"
 
 # Data files
 TELEMETRY_FILE="$META_DIR/telemetry.json"

@@ -44,8 +44,7 @@ This command evolves agent prompts using genetic algorithms:
 
 ```bash
 # Find plugin directories (dynamic path discovery, no hardcoded paths)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-META_PLUGIN="$(dirname "$SCRIPT_DIR")"
+META_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-meta-learning-system"
 PLUGINS_DIR="$(dirname "$META_PLUGIN")"
 WORKFLOW_PLUGIN="$PLUGINS_DIR/psd-claude-workflow"
 META_DIR="$META_PLUGIN/meta"

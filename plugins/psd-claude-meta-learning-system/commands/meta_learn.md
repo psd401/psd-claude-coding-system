@@ -33,9 +33,8 @@ This command generates improvement suggestions based on:
 
 ```bash
 # Find plugin directory (dynamic path discovery, no hardcoded paths)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGIN_DIR="$(dirname "$SCRIPT_DIR")"
-META_DIR="$PLUGIN_DIR/meta"
+META_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-meta-learning-system"
+META_DIR="$META_PLUGIN_DIR/meta"
 TELEMETRY_FILE="$META_DIR/telemetry.json"
 HISTORY_FILE="$META_DIR/compound_history.json"
 

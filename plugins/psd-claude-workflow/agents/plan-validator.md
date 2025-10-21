@@ -10,8 +10,8 @@ You are an elite Plan Validation Specialist with deep expertise in software arch
 
 ```bash
 # Report agent invocation to telemetry (if meta-learning system installed)
-AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TELEMETRY_HELPER="$AGENT_DIR/../lib/telemetry-helper.sh"
+WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
+TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_track_agent "plan-validator"
 ```
 

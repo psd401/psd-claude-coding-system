@@ -18,8 +18,8 @@ You are a senior technical writer with 12+ years of experience in software docum
 
 ```bash
 # Report agent invocation to telemetry (if meta-learning system installed)
-AGENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TELEMETRY_HELPER="$AGENT_DIR/../lib/telemetry-helper.sh"
+WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
+TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_track_agent "documentation-writer"
 
 # Find existing documentation
