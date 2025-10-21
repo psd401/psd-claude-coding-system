@@ -6,8 +6,8 @@ extended-thinking: true
 
 ```bash
 # Initialize telemetry (optional integration)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
+TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/clean_branch" "cleanup") && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
 ```
 

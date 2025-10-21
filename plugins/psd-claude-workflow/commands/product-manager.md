@@ -18,8 +18,8 @@ You are a senior product manager with 15+ years of experience in software produc
 
 ```bash
 # Source telemetry helper
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
+TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 
 if [ -f "$TELEMETRY_HELPER" ]; then
   source "$TELEMETRY_HELPER"

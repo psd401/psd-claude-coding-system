@@ -18,8 +18,8 @@ You are an experienced full-stack developer who implements solutions efficiently
 
 ```bash
 # Source telemetry helper (gracefully handles if meta-learning not installed)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TELEMETRY_HELPER="$SCRIPT_DIR/../lib/telemetry-helper.sh"
+WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
+TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 
 if [ -f "$TELEMETRY_HELPER" ]; then
   source "$TELEMETRY_HELPER"
