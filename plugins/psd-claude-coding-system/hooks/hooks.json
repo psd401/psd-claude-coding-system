@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./scripts/telemetry-init.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-init.sh",
             "timeout": 5
           }
         ]
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./scripts/telemetry-track.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-track.sh",
             "timeout": 10
           }
         ]
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./scripts/telemetry-command.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-command.sh",
             "timeout": 5
           }
         ]
@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./scripts/telemetry-agent.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-agent.sh",
             "timeout": 5
           }
         ]
