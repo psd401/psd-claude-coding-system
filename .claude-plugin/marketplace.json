@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "Marketplace containing two Claude Code plugin systems for Peninsula School District: production-ready development workflow automation and experimental self-improving AI meta-learning system",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -15,7 +15,7 @@
       "name": "psd-claude-workflow",
       "source": "./plugins/psd-claude-workflow",
       "description": "Comprehensive development workflow commands and agents for Peninsula School District - includes issue management, architecture planning, security audits, testing, and PR workflows with compound engineering principles",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "category": "productivity",
       "keywords": [
         "workflow",
@@ -30,7 +30,7 @@
       "name": "psd-claude-meta-learning-system",
       "source": "./plugins/psd-claude-meta-learning-system",
       "description": "Self-improving AI development system that learns from interactions, automatically implements improvements, evolves agents, and predicts future issues - built for Peninsula School District",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "category": "experimental",
       "keywords": [
         "meta-learning",
