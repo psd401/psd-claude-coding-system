@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 9 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.1.2
+**Version**: 1.1.3
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Architecture
@@ -316,6 +316,45 @@ ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-co
 ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/scripts/
 # Should show: telemetry-*.sh files
 ```
+
+**Problem: Hooks not firing / telemetry not collecting**
+
+Hooks were fixed in v1.1.2. If you're on an older version, update:
+
+```bash
+cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
+git pull origin main
+/plugin uninstall psd-claude-coding-system
+/plugin install psd-claude-coding-system
+# Restart Claude Code for hooks to take effect
+```
+
+**Debugging hooks:**
+1. Check hooks are registered (they load at startup):
+   ```bash
+   ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/hooks.json
+   ```
+
+2. Verify scripts are executable:
+   ```bash
+   ls -la ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/scripts/*.sh
+   # All should have 'x' permission
+   ```
+
+3. Test hooks manually:
+   ```bash
+   cd ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system
+   echo '{"session_id":"test"}' | ./scripts/telemetry-init.sh
+   ls -la meta/telemetry.json  # Should exist
+   ```
+
+4. Check if telemetry is being collected:
+   ```bash
+   cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/telemetry.json | jq '.executions | length'
+   # Should show number of tracked commands
+   ```
+
+**Note**: Hooks load at Claude Code startup. Changes to hooks require restarting Claude Code.
 
 ## Compound Engineering Principles
 

@@ -24,15 +24,17 @@ PROMPT=$(echo "$HOOK_INPUT" | jq -r '.prompt // empty')
 [ -z "$PROMPT" ] && exit 0
 
 # Check if this is a slash command from our plugin
-# Commands start with /work, /test, etc.
-if ! echo "$PROMPT" | grep -qE '^/(work|test|architect|issue|product-manager|review_pr|security_audit|compound_concepts|clean_branch|meta_analyze|meta_learn|meta_implement|meta_experiment|meta_evolve|meta_document|meta_predict|meta_health|meta_improve)'; then
+# Commands can be: /work OR /psd-claude-coding-system:work
+COMMAND_LIST="work|test|architect|issue|product-manager|review_pr|security_audit|compound_concepts|clean_branch|meta_analyze|meta_learn|meta_implement|meta_experiment|meta_evolve|meta_document|meta_predict|meta_health|meta_improve"
+if ! echo "$PROMPT" | grep -qE "^/(psd-claude-coding-system:)?($COMMAND_LIST)"; then
   # Not a tracked slash command
   exit 0
 fi
 
 # Extract command name and arguments
-COMMAND_NAME=$(echo "$PROMPT" | sed -E 's#^/([a-z_]+).*#\1#')
-COMMAND_ARGS=$(echo "$PROMPT" | sed -E "s#^/$COMMAND_NAME[[:space:]]*##")
+# Handle both /command and /plugin:command formats
+COMMAND_NAME=$(echo "$PROMPT" | sed -E 's#^/([a-z_-]+:)?([a-z_]+).*#\2#')
+COMMAND_ARGS=$(echo "$PROMPT" | sed -E 's#^/([a-z_-]+:)?[a-z_]+[[:space:]]*(.*)#\2#')
 
 # Find plugin root and create state file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
