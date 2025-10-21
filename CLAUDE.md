@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peninsula School District combining:
 
-1. **Workflow Automation** (Stable) - 9 battle-tested development commands + 10 specialized agents
-2. **Meta-Learning System** (Experimental) - 9 commands + 5 agents that learn from usage and improve over time
+1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
+2. **Meta-Learning System** (Experimental) - 9 commands + 5 meta-learning agents that learn from usage
 
 **Version**: 1.1.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
@@ -22,7 +22,7 @@ plugins/psd-claude-coding-system/
   ├── .claude-plugin/
   │   └── plugin.json          # Plugin metadata (v1.1.0)
   ├── commands/                 # 18 slash commands (*.md)
-  ├── agents/                   # 17 specialized AI agents (*.md)
+  ├── agents/                   # 15 specialized AI agents (*.md)
   ├── hooks/
   │   └── hooks.json            # Automatic telemetry collection
   ├── scripts/
@@ -68,9 +68,12 @@ Production-ready workflows all using latest Claude models (sonnet-4-5, opus-4-1)
 - `/clean_branch` - Post-merge cleanup
 
 **Workflow Agents** (10 total):
-- Domain specialists: backend, frontend, database, llm
+- Domain specialists: backend-specialist, frontend-specialist, database-specialist, llm-specialist
 - Quality/security: test-specialist, security-analyst, performance-optimizer
 - Documentation/planning: documentation-writer, plan-validator, gpt-5
+
+**Meta-Learning Agents** (5 total):
+- meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
 
 ### Meta-Learning Commands (9 commands)
 
