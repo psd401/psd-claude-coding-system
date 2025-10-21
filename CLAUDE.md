@@ -330,6 +330,34 @@ Use `/compound_concepts` after completing work to extract systematization opport
 
 ## Important Notes
 
+### Version Management
+
+**CRITICAL**: Always bump version numbers when making changes to the plugin!
+
+**Version bumping locations** (update ALL of these):
+1. `plugins/psd-claude-coding-system/.claude-plugin/plugin.json` - `"version": "X.Y.Z"`
+2. `.claude-plugin/marketplace.json` - `metadata.version` AND `plugins[0].version`
+3. `CLAUDE.md` - Line 12: `**Version**: X.Y.Z`
+4. `README.md` - Line 13: `**Version**: X.Y.Z` (2 instances, use replace_all)
+5. `plugins/psd-claude-coding-system/README.md` - Line 5: `Version: X.Y.Z`
+
+**Semantic versioning:**
+- **Major (2.0.0)**: Breaking changes, incompatible API changes
+- **Minor (1.2.0)**: New features, backward compatible
+- **Patch (1.1.1)**: Bug fixes, backward compatible
+
+**When to bump:**
+- ✅ After fixing bugs (patch: 1.1.0 → 1.1.1)
+- ✅ After adding features (minor: 1.1.0 → 1.2.0)
+- ✅ After breaking changes (major: 1.1.0 → 2.0.0)
+
+**Example commit:**
+```bash
+git add [all 5 files above]
+git commit -m "chore: Bump version to X.Y.Z ([reason])"
+git push origin main
+```
+
 ### Git Workflow
 - Always branch from `dev`, not `main` (see `/work` command Phase 2)
 - Branch naming: `feature/[issue-number]-brief-description` for issues, `fix/brief-description` for quick fixes
