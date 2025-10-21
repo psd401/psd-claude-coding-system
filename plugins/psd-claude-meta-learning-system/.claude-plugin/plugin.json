@@ -1,6 +1,6 @@
 {
   "name": "psd-claude-meta-learning-system",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Self-improving AI development system that learns from interactions, automatically implements improvements, evolves agents, and predicts future issues - built for Peninsula School District",
   "author": {
     "name": "Kris Hagel",
