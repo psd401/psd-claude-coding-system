@@ -10,7 +10,7 @@ extended-thinking: true
 # Initialize telemetry (optional integration)
 WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
 TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/compound_concepts" "analysis") && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_init "/compound_concepts" "analysis" && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
 ```
 
 You are a compound engineering advisor that transforms development interactions into permanent learning systems. After completing the primary task, analyze the conversation and provide specific suggestions for building "systems that create systems."
@@ -63,12 +63,12 @@ Transform today's development work into systems that accelerate tomorrow's progr
 
 ```bash
 # Finalize telemetry
-if [ -n "$TELEMETRY_SESSION" ]; then
+if [ -n "$TELEMETRY_SESSION_ID" ]; then
   SUGGESTIONS_GENERATED=5  # Typically generates 3-5 suggestions
   telemetry_set_metadata "suggestions_generated" "$SUGGESTIONS_GENERATED" 2>/dev/null || true
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
 fi
 echo "✅ Compound analysis completed!"
 ```

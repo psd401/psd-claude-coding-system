@@ -23,9 +23,9 @@ TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 
 if [ -f "$TELEMETRY_HELPER" ]; then
   source "$TELEMETRY_HELPER"
-  TELEMETRY_SESSION=$(telemetry_init "/product-manager" "$ARGUMENTS")
+  telemetry_init "/product-manager" "$ARGUMENTS"
   TELEMETRY_START_TIME=$(date +%s)
-  trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+  trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
 fi
 ```
 
@@ -285,10 +285,10 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 
 ```bash
 # Finalize telemetry
-if [ -n "$TELEMETRY_SESSION" ]; then
+if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
 fi
 
 echo "✅ Product specification completed successfully!"

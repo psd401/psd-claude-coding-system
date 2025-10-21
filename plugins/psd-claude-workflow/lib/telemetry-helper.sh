@@ -16,7 +16,7 @@ export TELEMETRY_METADATA=""
 
 # Initialize telemetry session
 # Usage: telemetry_init "/work" "347"
-# Returns: session_id (or empty if telemetry disabled)
+# Exports: TELEMETRY_SESSION_ID, TELEMETRY_ENABLED, etc. (no return value)
 telemetry_init() {
   local command_name="$1"
   local command_args="$2"
@@ -81,7 +81,8 @@ EOF
     rm -f "${TELEMETRY_FILE}.bak" 2>/dev/null || true
   fi
 
-  echo "$TELEMETRY_SESSION_ID"
+  # Don't echo - exports are sufficient (avoids subshell problem)
+  # Commands use $TELEMETRY_SESSION_ID directly
 }
 
 # Track agent invocation

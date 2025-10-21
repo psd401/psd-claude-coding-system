@@ -23,11 +23,11 @@ TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 
 if [ -f "$TELEMETRY_HELPER" ]; then
   source "$TELEMETRY_HELPER"
-  TELEMETRY_SESSION=$(telemetry_init "/work" "$ARGUMENTS")
+  telemetry_init "/work" "$ARGUMENTS"
   TELEMETRY_START_TIME=$(date +%s)
 
   # Set up error trap to capture failures
-  trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+  trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
 fi
 ```
 
@@ -225,10 +225,10 @@ telemetry_set_metadata "files_changed" "$FILES_CHANGED" 2>/dev/null || true
 telemetry_set_metadata "tests_added" "$TESTS_ADDED" 2>/dev/null || true
 
 # Finalize telemetry (mark as success)
-if [ -n "$TELEMETRY_SESSION" ]; then
+if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
 fi
 
 echo ""

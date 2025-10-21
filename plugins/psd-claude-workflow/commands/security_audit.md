@@ -14,7 +14,7 @@ You are an expert security analyst and code reviewer tasked with performing an a
   # Initialize telemetry (optional integration)
   WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
   TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-  [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/security_audit" "$ARGUMENTS") && TELEMETRY_START_TIME=$(date +%s) && telemetry_set_metadata "pr_number" "$ARGUMENTS" 2>/dev/null || true && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+  [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_init "/security_audit" "$ARGUMENTS" && TELEMETRY_START_TIME=$(date +%s) && telemetry_set_metadata "pr_number" "$ARGUMENTS" 2>/dev/null || true && trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
   ```
 
   Follow these steps systematically:
@@ -165,12 +165,12 @@ You are an expert security analyst and code reviewer tasked with performing an a
 
   ```bash
   # Finalize telemetry
-  if [ -n "$TELEMETRY_SESSION" ]; then
+  if [ -n "$TELEMETRY_SESSION_ID" ]; then
     VULNERABILITIES_FOUND=$(gh pr view "$ARGUMENTS" --json comments --jq '.comments | length')
     telemetry_set_metadata "vulnerabilities_found" "$VULNERABILITIES_FOUND" 2>/dev/null || true
     TELEMETRY_END_TIME=$(date +%s)
     TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-    telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+    telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
   fi
   echo "✅ Security audit completed!"
   ```

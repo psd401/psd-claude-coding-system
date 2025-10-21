@@ -8,7 +8,7 @@ extended-thinking: true
 # Initialize telemetry (optional integration)
 WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
 TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && TELEMETRY_SESSION=$(telemetry_init "/clean_branch" "cleanup") && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
+[ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_init "/clean_branch" "cleanup" && TELEMETRY_START_TIME=$(date +%s) && trap 'telemetry_finalize "$TELEMETRY_SESSION_ID" "failure" "$(($(date +%s) - TELEMETRY_START_TIME))"' ERR
 ```
 
 Ok, great, thank you! I merged in the changes to dev, so please
@@ -18,10 +18,10 @@ Ok, great, thank you! I merged in the changes to dev, so please
 
 ```bash
 # After cleanup is complete, finalize telemetry
-if [ -n "$TELEMETRY_SESSION" ]; then
+if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_END_TIME=$(date +%s)
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  telemetry_finalize "$TELEMETRY_SESSION" "success" "$TELEMETRY_DURATION"
+  telemetry_finalize "$TELEMETRY_SESSION_ID" "success" "$TELEMETRY_DURATION"
 fi
 echo "✅ Branch cleanup completed!"
 ```
