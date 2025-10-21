@@ -48,8 +48,83 @@ source "$STATE_FILE"
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - COMMAND_START_TIME))
 
-# Determine success (for now, assume success - we can enhance this later)
-SUCCESS="true"
+# Parse transcript to extract rich outcome data
+# Only parse if transcript file exists and is readable
+if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
+  # Extract file paths from Edit and Write tool uses for this session
+  FILES_CHANGED=$(jq -r --arg sid "$SESSION_ID" '
+    select(.sessionId == $sid) |
+    select((.message.content | type) == "array") |
+    select(.message.content[0].type == "tool_use") |
+    select(.message.content[0].name == "Edit" or .message.content[0].name == "Write") |
+    .message.content[0].input.file_path
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | sort -u | wc -l | tr -d ' ')
+
+  # Extract git commits (count lines matching git commit)
+  GIT_COMMITS=$(jq -r --arg sid "$SESSION_ID" '
+    select(.sessionId == $sid) |
+    select((.message.content | type) == "array") |
+    select(.message.content[0].type == "tool_use") |
+    select(.message.content[0].name == "Bash") |
+    .message.content[0].input.command
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "^git commit" 2>/dev/null || echo "0")
+  GIT_COMMITS=$(echo "$GIT_COMMITS" | tr -d '\n ')
+
+  # Check for PR creation
+  PR_CREATED=$(jq -r --arg sid "$SESSION_ID" '
+    select(.sessionId == $sid) |
+    select((.message.content | type) == "array") |
+    select(.message.content[0].type == "tool_use") |
+    select(.message.content[0].name == "Bash") |
+    .message.content[0].input.command
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "^gh pr create" 2>/dev/null || echo "0")
+  PR_CREATED=$(echo "$PR_CREATED" | tr -d '\n ')
+
+  # Check for test execution
+  TESTS_RUN=$(jq -r --arg sid "$SESSION_ID" '
+    select(.sessionId == $sid) |
+    select((.message.content | type) == "array") |
+    select(.message.content[0].type == "tool_use") |
+    select(.message.content[0].name == "Bash") |
+    .message.content[0].input.command
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -cE "^(pytest|npm test|cargo test)" 2>/dev/null || echo "0")
+  TESTS_RUN=$(echo "$TESTS_RUN" | tr -d '\n ')
+
+  # Detect errors in tool results
+  HAS_ERRORS=$(jq -r --arg sid "$SESSION_ID" '
+    select(.sessionId == $sid) |
+    select((.message.content | type) == "array") |
+    select(.message.content[0].type == "tool_result") |
+    select(.message.content[0].is_error == true)
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | head -1)
+
+  # Extract issue number from command args or git branch
+  ISSUE_NUMBER=""
+  if [[ "$COMMAND_ARGS" =~ ^[0-9]+$ ]]; then
+    ISSUE_NUMBER="$COMMAND_ARGS"
+  else
+    # Try to extract from git branch in transcript
+    ISSUE_NUMBER=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      .gitBranch
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
+  fi
+else
+  # Transcript not available, use defaults
+  FILES_CHANGED="0"
+  GIT_COMMITS="0"
+  PR_CREATED="0"
+  TESTS_RUN="0"
+  HAS_ERRORS=""
+  ISSUE_NUMBER=""
+fi
+
+# Determine success based on errors
+if [ -n "$HAS_ERRORS" ]; then
+  SUCCESS="false"
+else
+  SUCCESS="true"
+fi
 
 # Generate timestamp in ISO 8601 format
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -61,10 +136,24 @@ if [ -n "$COMMAND_AGENTS" ]; then
   AGENTS_JSON="[\"$(echo "$COMMAND_AGENTS" | sed 's/,/", "/g')\"]"
 fi
 
-# Build metadata JSON (extract from state file if available)
-# Note: Cannot use ${VAR:-{}} directly due to bash brace expansion bug
-DEFAULT_METADATA="{}"
-METADATA_JSON="${COMMAND_METADATA:-$DEFAULT_METADATA}"
+# Build rich metadata JSON
+# Use defaults if variables are empty
+FILES_CHANGED="${FILES_CHANGED:-0}"
+GIT_COMMITS="${GIT_COMMITS:-0}"
+TESTS_RUN="${TESTS_RUN:-0}"
+PR_CREATED_BOOL=$([[ "${PR_CREATED:-0}" -gt 0 ]] && echo "true" || echo "false")
+ISSUE_NUMBER_JSON=$([ -n "$ISSUE_NUMBER" ] && echo "$ISSUE_NUMBER" || echo "null")
+
+METADATA_JSON=$(cat <<METAEOF
+{
+  "files_changed": $FILES_CHANGED,
+  "git_commits": $GIT_COMMITS,
+  "pr_created": $PR_CREATED_BOOL,
+  "tests_run": $TESTS_RUN,
+  "issue_number": $ISSUE_NUMBER_JSON
+}
+METAEOF
+)
 
 # Build execution JSON entry
 EXECUTION_ID="exec-${SESSION_ID}-${COMMAND_NAME}"
