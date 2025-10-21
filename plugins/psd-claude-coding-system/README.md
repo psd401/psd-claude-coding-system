@@ -391,6 +391,31 @@ ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-co
 
 **Solution**: Use commands for 2-4 weeks (need 20-30 executions minimum).
 
+### Plugin Installation Issues
+
+**"Plugin not found in any marketplace"**
+
+This usually means Claude Code's plugin cache is stale or marketplace.json doesn't match the actual plugin structure.
+
+**Solution:**
+```bash
+# 1. Force refresh the marketplace
+cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
+git pull origin main
+
+# 2. Retry installation
+/plugin install psd-claude-coding-system
+```
+
+**If that doesn't work (Nuclear Option):**
+```bash
+# Exit Claude Code completely, then:
+mv ~/.claude/plugins ~/.claude/plugins.backup
+# Restart Claude Code, then:
+/plugin marketplace add psd401/psd-claude-coding-system
+/plugin install psd-claude-coding-system
+```
+
 ---
 
 ## Support
