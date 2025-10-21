@@ -21,11 +21,8 @@ telemetry_init() {
   local command_name="$1"
   local command_args="$2"
 
-  # Discover plugins directory (no hardcoded paths)
-  local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  local workflow_plugin_dir="$(dirname "$script_dir")"
-  local plugins_dir="$(dirname "$workflow_plugin_dir")"
-  local meta_plugin_dir="$plugins_dir/psd-claude-meta-learning-system"
+  # Use absolute path to plugins directory (BASH_SOURCE doesn't work reliably in all contexts)
+  local meta_plugin_dir="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-meta-learning-system"
 
   export TELEMETRY_META_DIR="$meta_plugin_dir/meta"
   export TELEMETRY_FILE="$TELEMETRY_META_DIR/telemetry.json"

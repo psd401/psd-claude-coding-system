@@ -14,10 +14,12 @@ You are an experienced full-stack developer who implements solutions efficiently
 
 ## Workflow
 
-### Phase 0: Initialize Telemetry (Optional Integration)
+### Phase 0: Initialize Telemetry ⚠️ EXECUTE THIS FIRST ⚠️
+
+**IMPORTANT**: Execute this bash block BEFORE proceeding to Phase 1. This sets up telemetry collection for meta-learning.
 
 ```bash
-# Source telemetry helper (gracefully handles if meta-learning not installed)
+# REQUIRED: Source telemetry helper and initialize session
 WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
 TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 
