@@ -48,10 +48,17 @@ source "$STATE_FILE"
 END_TIME=$(date +%s)
 DURATION=$((END_TIME - COMMAND_START_TIME))
 
-# Parse transcript to extract rich outcome data
-# Only parse if transcript file exists and is readable
+# ==============================================================================
+# COMPREHENSIVE TELEMETRY EXTRACTION FROM TRANSCRIPT
+# ==============================================================================
+
 if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
-  # Extract file paths from Edit and Write tool uses for this session
+
+  # ---------------------------------------------------------------------------
+  # 1. QUANTITATIVE METRICS
+  # ---------------------------------------------------------------------------
+
+  # Files changed (unique file paths)
   FILES_CHANGED=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -60,7 +67,18 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     .message.content[0].input.file_path
   ' "$TRANSCRIPT_PATH" 2>/dev/null | sort -u | wc -l | tr -d ' ')
 
-  # Extract git commits (count lines matching git commit)
+  # Tool usage counts - slurp all entries first
+  TOOL_USES_JSON=$(jq -s --arg sid "$SESSION_ID" '
+    map(select(.sessionId == $sid)) |
+    map(select((.message.content | type) == "array")) |
+    map(select(.message.content[0].type == "tool_use")) |
+    map(.message.content[0].name) |
+    group_by(.) |
+    map({key: .[0], value: length}) |
+    from_entries
+  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "{}")
+
+  # Git activity
   GIT_COMMITS=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -70,7 +88,6 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "^git commit" 2>/dev/null || echo "0")
   GIT_COMMITS=$(echo "$GIT_COMMITS" | tr -d '\n ')
 
-  # Check for PR creation
   PR_CREATED=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -80,49 +97,94 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "^gh pr create" 2>/dev/null || echo "0")
   PR_CREATED=$(echo "$PR_CREATED" | tr -d '\n ')
 
-  # Check for test execution
+  # Test execution
   TESTS_RUN=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
     select(.message.content[0].type == "tool_use") |
     select(.message.content[0].name == "Bash") |
     .message.content[0].input.command
-  ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -cE "^(pytest|npm test|cargo test)" 2>/dev/null || echo "0")
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -cE "^(pytest|npm test|cargo test|npm run test)" 2>/dev/null || echo "0")
   TESTS_RUN=$(echo "$TESTS_RUN" | tr -d '\n ')
 
-  # Detect errors in tool results
-  HAS_ERRORS=$(jq -r --arg sid "$SESSION_ID" '
-    select(.sessionId == $sid) |
-    select((.message.content | type) == "array") |
-    select(.message.content[0].type == "tool_result") |
-    select(.message.content[0].is_error == true)
-  ' "$TRANSCRIPT_PATH" 2>/dev/null | head -1)
-
-  # Extract issue number from command args or git branch
+  # Issue number extraction
   ISSUE_NUMBER=""
   if [[ "$COMMAND_ARGS" =~ ^[0-9]+$ ]]; then
     ISSUE_NUMBER="$COMMAND_ARGS"
   else
-    # Try to extract from git branch in transcript
     ISSUE_NUMBER=$(jq -r --arg sid "$SESSION_ID" '
       select(.sessionId == $sid) |
       .gitBranch
     ' "$TRANSCRIPT_PATH" 2>/dev/null | head -1 | grep -oE '[0-9]+' | head -1)
   fi
+
+  # ---------------------------------------------------------------------------
+  # 2. ERROR EXTRACTION (WITH FULL CONTEXT)
+  # ---------------------------------------------------------------------------
+
+  ERRORS_JSON=$(jq -sc --arg sid "$SESSION_ID" '
+    map(select(.sessionId == $sid)) |
+    map(select((.message.content | type) == "array")) |
+    map(select(.message.content[0].type == "tool_result")) |
+    map(select(.message.content[0].is_error == true)) |
+    map({
+      tool: (.message.content[0].tool_use_id // "unknown"),
+      error_message: (.message.content[0].content // ""),
+      timestamp: .timestamp
+    }) |
+    if length > 0 then . else [] end
+  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "[]")
+
+  # ---------------------------------------------------------------------------
+  # 3. USER FEEDBACK PARSING (COMPREHENSIVE KEYWORDS)
+  # ---------------------------------------------------------------------------
+
+  USER_CORRECTIONS_JSON=$(jq -sc --arg sid "$SESSION_ID" '
+    map(select(.sessionId == $sid)) |
+    map(select(.message.role == "user")) |
+    map(select((.message.content | type) == "string")) |
+    map(select(.message.content | test("terrible|awful|broken|doesn'"'"'t work|failed|wrong|bug|error|issue|problem|fix this|redo|revert|not what I wanted|missing|incomplete|frustrated|annoying|waste|have to|follow-up|didn'"'"'t work"; "i"))) |
+    map({
+      feedback: (.message.content | .[0:200]),
+      sentiment: "negative",
+      timestamp: .timestamp
+    }) |
+    if length > 0 then . else [] end
+  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "[]")
+
+  # Count iterations (same file edited multiple times = rework)
+  EDIT_RETRIES=$(jq -sr --arg sid "$SESSION_ID" '
+    map(select(.sessionId == $sid)) |
+    map(select((.message.content | type) == "array")) |
+    map(select(.message.content[0].type == "tool_use")) |
+    map(select(.message.content[0].name == "Edit")) |
+    map(.message.content[0].input.file_path) |
+    group_by(.) |
+    map(length - 1) |
+    add // 0
+  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+  # Detect success/failure
+  HAS_ERRORS=$(echo "$ERRORS_JSON" | jq 'length > 0')
+  USER_UNHAPPY=$(echo "$USER_CORRECTIONS_JSON" | jq 'length > 0')
+
+  if [ "$HAS_ERRORS" = "true" ] || [ "$USER_UNHAPPY" = "true" ]; then
+    SUCCESS="false"
+  else
+    SUCCESS="true"
+  fi
+
 else
-  # Transcript not available, use defaults
+  # Transcript not available - use minimal defaults
   FILES_CHANGED="0"
   GIT_COMMITS="0"
   PR_CREATED="0"
   TESTS_RUN="0"
-  HAS_ERRORS=""
   ISSUE_NUMBER=""
-fi
-
-# Determine success based on errors
-if [ -n "$HAS_ERRORS" ]; then
-  SUCCESS="false"
-else
+  TOOL_USES_JSON="{}"
+  ERRORS_JSON="[]"
+  USER_CORRECTIONS_JSON="[]"
+  EDIT_RETRIES="0"
   SUCCESS="true"
 fi
 
@@ -136,23 +198,53 @@ if [ -n "$COMMAND_AGENTS" ]; then
   AGENTS_JSON="[\"$(echo "$COMMAND_AGENTS" | sed 's/,/", "/g')\"]"
 fi
 
-# Build rich metadata JSON
-# Use defaults if variables are empty
+# ==============================================================================
+# BUILD COMPREHENSIVE METADATA JSON
+# ==============================================================================
+
+# Use defaults and validate JSON
 FILES_CHANGED="${FILES_CHANGED:-0}"
 GIT_COMMITS="${GIT_COMMITS:-0}"
 TESTS_RUN="${TESTS_RUN:-0}"
+EDIT_RETRIES="${EDIT_RETRIES:-0}"
 PR_CREATED_BOOL=$([[ "${PR_CREATED:-0}" -gt 0 ]] && echo "true" || echo "false")
 ISSUE_NUMBER_JSON=$([ -n "$ISSUE_NUMBER" ] && echo "$ISSUE_NUMBER" || echo "null")
 
-METADATA_JSON=$(cat <<METAEOF
-{
-  "files_changed": $FILES_CHANGED,
-  "git_commits": $GIT_COMMITS,
-  "pr_created": $PR_CREATED_BOOL,
-  "tests_run": $TESTS_RUN,
-  "issue_number": $ISSUE_NUMBER_JSON
-}
-METAEOF
+# Validate and default JSON variables
+TOOL_USES_JSON=$(echo "${TOOL_USES_JSON:-\{\}}" | jq -c '.' 2>/dev/null || echo "{}")
+ERRORS_JSON=$(echo "${ERRORS_JSON:-[]}" | jq -c '.' 2>/dev/null || echo "[]")
+USER_CORRECTIONS_JSON=$(echo "${USER_CORRECTIONS_JSON:-[]}" | jq -c '.' 2>/dev/null || echo "[]")
+
+# Build the comprehensive metadata JSON
+METADATA_JSON=$(jq -n \
+  --argjson files_changed "$FILES_CHANGED" \
+  --argjson git_commits "$GIT_COMMITS" \
+  --argjson tests_run "$TESTS_RUN" \
+  --argjson edit_retries "$EDIT_RETRIES" \
+  --argjson pr_created "$PR_CREATED_BOOL" \
+  --argjson issue_number "$ISSUE_NUMBER_JSON" \
+  --argjson tool_uses "$TOOL_USES_JSON" \
+  --argjson errors "$ERRORS_JSON" \
+  --argjson user_corrections "$USER_CORRECTIONS_JSON" \
+  '{
+    metrics: {
+      files_changed: $files_changed,
+      git_commits: $git_commits,
+      pr_created: $pr_created,
+      tests_run: $tests_run,
+      issue_number: $issue_number,
+      tool_uses: $tool_uses,
+      edit_retries: $edit_retries
+    },
+    insights: {
+      errors: $errors,
+      user_corrections: $user_corrections,
+      quality_indicators: {
+        required_rework: ($edit_retries > 0),
+        user_satisfaction: (if ($user_corrections | length) > 0 then "low" else "unknown" end)
+      }
+    }
+  }'
 )
 
 # Build execution JSON entry
