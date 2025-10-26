@@ -279,6 +279,209 @@ else
   rm -f "$TEMP_FILE" 2>/dev/null
 fi
 
+# ==============================================================================
+# COMPOUND LEARNING: PR RETROSPECTIVE (only for /clean_branch command)
+# ==============================================================================
+
+if [ "$COMMAND_NAME" = "/clean_branch" ]; then
+  # Extract PR number and branch name from transcript if available
+  if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
+    # Try to find PR number from gh commands in transcript
+    PR_NUMBER=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -oE "gh pr (view|list).*" | grep -oE "[0-9]+" | head -1)
+
+    # Try to find branch name from git commands
+    BRANCH_NAME=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -E "git branch --show-current|git branch -d" | head -1 | sed 's/.*-d //' | tr -d '\n')
+
+    # Only proceed if we found a PR number
+    if [ -n "$PR_NUMBER" ] && command -v gh >/dev/null 2>&1; then
+      # Get PR data
+      PR_DATA=$(gh pr view "$PR_NUMBER" --json number,title,body,state,commits,reviews,comments,files 2>/dev/null)
+
+      if [ -n "$PR_DATA" ]; then
+        # Extract metrics
+        COMMITS_COUNT=$(echo "$PR_DATA" | jq '.commits | length' 2>/dev/null || echo "0")
+        REVIEWS_COUNT=$(echo "$PR_DATA" | jq '.reviews | length' 2>/dev/null || echo "0")
+        COMMENTS_COUNT=$(echo "$PR_DATA" | jq '.comments | length' 2>/dev/null || echo "0")
+        FILES_CHANGED_PR=$(echo "$PR_DATA" | jq '.files | length' 2>/dev/null || echo "0")
+
+        # Get PR comments for theme analysis
+        PR_COMMENTS=$(gh pr view "$PR_NUMBER" --comments 2>/dev/null || echo "")
+
+        # Count fix commits
+        FIX_COMMITS=$(echo "$PR_DATA" | jq '[.commits[] | select(.messageHeadline | test("fix|Fix|FIX"))] | length' 2>/dev/null || echo "0")
+
+        # Detect themes in comments
+        THEME_TYPE_SAFETY=$(echo "$PR_COMMENTS" | grep -ioE '\b(type|types|typescript|any type|type error)\b' 2>/dev/null | wc -l | tr -d ' ')
+        THEME_TESTING=$(echo "$PR_COMMENTS" | grep -ioE '\b(test|tests|testing|coverage)\b' 2>/dev/null | wc -l | tr -d ' ')
+        THEME_ERROR_HANDLING=$(echo "$PR_COMMENTS" | grep -ioE '\b(error|errors|exception|catch|try-catch)\b' 2>/dev/null | wc -l | tr -d ' ')
+        THEME_SECURITY=$(echo "$PR_COMMENTS" | grep -ioE '\b(security|vulnerable|vulnerability|auth|authentication)\b' 2>/dev/null | wc -l | tr -d ' ')
+        THEME_PERFORMANCE=$(echo "$PR_COMMENTS" | grep -ioE '\b(performance|slow|optimize|cache)\b' 2>/dev/null | wc -l | tr -d ' ')
+
+        # Default to 0
+        THEME_TYPE_SAFETY="${THEME_TYPE_SAFETY:-0}"
+        THEME_TESTING="${THEME_TESTING:-0}"
+        THEME_ERROR_HANDLING="${THEME_ERROR_HANDLING:-0}"
+        THEME_SECURITY="${THEME_SECURITY:-0}"
+        THEME_PERFORMANCE="${THEME_PERFORMANCE:-0}"
+
+        # Extract issue number from PR body
+        ISSUE_NUMBER_PR=$(echo "$PR_DATA" | jq -r '.body // "" | match("#([0-9]+)") | .captures[0].string // empty' 2>/dev/null)
+
+        # Build suggestions based on patterns
+        SUGGESTIONS_JSON="[]"
+
+        # Type Safety suggestion
+        if [ "$THEME_TYPE_SAFETY" -ge 3 ]; then
+          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_TYPE_SAFETY" '. + [{
+            type: "automation",
+            suggestion: "Enable stricter TypeScript configuration or add pre-commit type checking",
+            compound_benefit: "Catch type errors before PR submission, reducing review cycles by ~30%",
+            implementation: "Add tsconfig strict mode or pre-commit hook with tsc --noEmit",
+            confidence: "high",
+            evidence: ("Type safety mentioned " + $count + " times in PR discussion")
+          }]')
+        fi
+
+        # Testing suggestion
+        if [ "$THEME_TESTING" -ge 3 ]; then
+          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_TESTING" '. + [{
+            type: "systematization",
+            suggestion: "Document testing requirements and patterns in CONTRIBUTING.md",
+            compound_benefit: "Consistent test coverage, reduce \"where should I add tests?\" questions",
+            implementation: "Add testing section to CONTRIBUTING.md with examples",
+            confidence: "medium",
+            evidence: ("Testing discussed " + $count + " times, indicates unclear patterns")
+          }]')
+        fi
+
+        # Security suggestion
+        if [ "$THEME_SECURITY" -ge 2 ]; then
+          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_SECURITY" '. + [{
+            type: "delegation",
+            suggestion: "security-analyst-specialist agent now runs automatically in /work",
+            compound_benefit: "Catch security issues before PR creation, not during review",
+            implementation: "Already implemented in v1.4.0 - security analysis runs after PR creation",
+            confidence: "high",
+            evidence: ("Security concerns raised " + $count + " times in review")
+          }]')
+        fi
+
+        # Error handling suggestion
+        if [ "$THEME_ERROR_HANDLING" -ge 3 ]; then
+          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_ERROR_HANDLING" '. + [{
+            type: "systematization",
+            suggestion: "Document error handling patterns in project guidelines",
+            compound_benefit: "Consistent error handling reduces review discussions",
+            implementation: "Add error handling section to CLAUDE.md or CONTRIBUTING.md",
+            confidence: "medium",
+            evidence: ("Error handling discussed " + $count + " times in PR")
+          }]')
+        fi
+
+        # High iteration suggestion
+        if [ "$REVIEWS_COUNT" -ge 3 ] || [ "$FIX_COMMITS" -ge 5 ]; then
+          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg reviews "$REVIEWS_COUNT" --arg fixes "$FIX_COMMITS" '. + [{
+            type: "prevention",
+            suggestion: "Use /architect command before /work for complex issues",
+            compound_benefit: "Better upfront design reduces review iterations",
+            implementation: "Workflow: /issue → /architect → /work for complex features",
+            confidence: "medium",
+            evidence: ("PR required " + $reviews + " review rounds and " + $fixes + " fix commits")
+          }]')
+        fi
+
+        # Performance suggestion
+        if [ "$THEME_PERFORMANCE" -ge 2 ]; then
+          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_PERFORMANCE" '. + [{
+            type: "delegation",
+            suggestion: "Invoke performance-optimizer agent for performance-critical code",
+            compound_benefit: "Catch performance issues early in development",
+            implementation: "Use Task tool with psd-claude-coding-system:performance-optimizer",
+            confidence: "medium",
+            evidence: ("Performance discussed " + $count + " times in PR")
+          }]')
+        fi
+
+        # Build compound learning entry
+        LEARNING_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        LEARNING_ID="learning-pr-${PR_NUMBER}-$(date +%s)"
+        BRANCH_NAME="${BRANCH_NAME:-unknown}"
+
+        COMPOUND_LEARNING=$(jq -n \
+          --arg id "$LEARNING_ID" \
+          --arg pr "$PR_NUMBER" \
+          --arg issue "$ISSUE_NUMBER_PR" \
+          --arg timestamp "$LEARNING_TIMESTAMP" \
+          --arg branch "$BRANCH_NAME" \
+          --argjson reviews "$REVIEWS_COUNT" \
+          --argjson commits "$COMMITS_COUNT" \
+          --argjson fixes "$FIX_COMMITS" \
+          --argjson comments "$COMMENTS_COUNT" \
+          --arg theme_type "$THEME_TYPE_SAFETY" \
+          --arg theme_test "$THEME_TESTING" \
+          --arg theme_err "$THEME_ERROR_HANDLING" \
+          --arg theme_sec "$THEME_SECURITY" \
+          --arg theme_perf "$THEME_PERFORMANCE" \
+          --argjson suggestions "$SUGGESTIONS_JSON" \
+          '{
+            id: $id,
+            source: "pr_retrospective",
+            pr_number: ($pr | tonumber),
+            issue_number: (if $issue != "" then ($issue | tonumber) else null end),
+            timestamp: $timestamp,
+            branch_name: $branch,
+            patterns_observed: {
+              review_iterations: $reviews,
+              commits_count: $commits,
+              fix_commits: $fixes,
+              comments_count: $comments,
+              common_themes: {
+                type_safety: ($theme_type | tonumber),
+                testing: ($theme_test | tonumber),
+                error_handling: ($theme_err | tonumber),
+                security: ($theme_sec | tonumber),
+                performance: ($theme_perf | tonumber)
+              }
+            },
+            suggestions: $suggestions
+          }')
+
+        # Append to compound_learnings array
+        COMPOUND_TEMP_FILE="${TELEMETRY_FILE}.compound.tmp.$$"
+
+        jq --argjson learning "$COMPOUND_LEARNING" '
+          if has("compound_learnings") | not then
+            .compound_learnings = []
+          else
+            .
+          end |
+          .compound_learnings = (.compound_learnings | map(select(.id != $learning.id))) |
+          .compound_learnings += [$learning]
+        ' "$TELEMETRY_FILE" > "$COMPOUND_TEMP_FILE" 2>/dev/null
+
+        # Verify and commit
+        if [ $? -eq 0 ] && [ -s "$COMPOUND_TEMP_FILE" ] && jq empty "$COMPOUND_TEMP_FILE" 2>/dev/null; then
+          mv "$COMPOUND_TEMP_FILE" "$TELEMETRY_FILE"
+        else
+          rm -f "$COMPOUND_TEMP_FILE" 2>/dev/null
+        fi
+      fi
+    fi
+  fi
+fi
+
 # Clean up state file
 rm -f "$STATE_FILE" 2>/dev/null
 
