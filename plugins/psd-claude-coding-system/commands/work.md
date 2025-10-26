@@ -202,20 +202,65 @@ Quick fix: $ARGUMENTS
 - [ ] Breaking change" \
     --assignee "@me"
 fi
+```
 
-# Collect telemetry metadata before finalizing
-FILES_CHANGED=$(git diff --name-status HEAD~1 2>/dev/null | wc -l | tr -d ' ')
-TESTS_ADDED=$(git diff --name-only HEAD~1 2>/dev/null | grep -E '\.(test|spec)\.(ts|js|tsx|jsx|py)$' | wc -l | tr -d ' ')
+### Phase 5.5: Automated Security Review
 
+After PR creation, automatically perform security analysis:
 
-# Finalize telemetry (mark as completed - all phases done!)
-if [ -n "$TELEMETRY_SESSION_ID" ]; then
-  TELEMETRY_END_TIME=$(date +%s)
-  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-fi
+**Invoke security-analyst-specialist agent:**
+
+Use the Task tool to invoke security analysis:
+- `subagent_type`: "psd-claude-coding-system:security-analyst-specialist"
+- `description`: "Security audit for PR"
+- `prompt`: "Perform comprehensive security audit on the pull request that was just created. Analyze all changed files for:
+
+1. Security vulnerabilities (SQL injection, XSS, auth issues, secrets)
+2. Architecture violations (business logic in UI, improper layer separation)
+3. Best practices compliance (TypeScript quality, error handling, testing)
+
+Return structured findings in the specified format so they can be posted as a single consolidated PR comment."
+
+**The agent will return structured findings. Parse and post as single comment:**
+
+```bash
+# Capture PR number from most recent PR
+PR_NUMBER=$(gh pr list --author "@me" --limit 1 --json number --jq '.[0].number')
+
+# Post consolidated security review comment
+# (Format the agent's structured findings into a single comment)
+gh pr comment $PR_NUMBER --body "## 🔍 Automated Security & Best Practices Review
+
+[Insert formatted findings from security-analyst-specialist agent]
+
+### Summary
+- 🔴 Critical Issues: [count]
+- 🟡 High Priority: [count]
+- 🟢 Suggestions: [count]
+
+### Critical Issues (🔴 Must Fix Before Merge)
+[Critical findings from agent]
+
+### High Priority (🟡 Should Fix Before Merge)
+[High priority findings from agent]
+
+### Suggestions (🟢 Consider for Improvement)
+[Suggestions from agent]
+
+### Positive Practices Observed
+[Good practices from agent]
+
+### Required Actions
+1. Address all 🔴 critical issues before merge
+2. Consider 🟡 high priority fixes
+3. Run tests after fixes: \`npm run test\`, \`npm run lint\`, \`npm run typecheck\`
+
+---
+*Automated security review by security-analyst-specialist agent*"
 
 echo ""
 echo "✅ Work completed successfully!"
+echo "✅ Security review posted to PR #$PR_NUMBER"
 ```
 
 ## Quick Reference

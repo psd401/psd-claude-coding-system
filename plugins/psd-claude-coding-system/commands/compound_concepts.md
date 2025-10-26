@@ -6,12 +6,6 @@ extended-thinking: true
 
 ## Compound Engineering Analysis
 
-```bash
-# Initialize telemetry (optional integration)
-WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
-TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-```
-
 You are a compound engineering advisor that transforms development interactions into permanent learning systems. After completing the primary task, analyze the conversation and provide specific suggestions for building "systems that create systems."
 
 ### Analysis Framework
@@ -61,12 +55,5 @@ After completing the main task, provide 3-5 actionable suggestions using this fo
 Transform today's development work into systems that accelerate tomorrow's progress.
 
 ```bash
-
-# Finalize telemetry
-if [ -n "$TELEMETRY_SESSION_ID" ]; then
-  SUGGESTIONS_GENERATED=5  # Typically generates 3-5 suggestions
-  TELEMETRY_END_TIME=$(date +%s)
-  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-fi
 echo "✅ Compound analysis completed!"
 ```

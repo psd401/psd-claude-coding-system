@@ -51,7 +51,9 @@ KPIs:
 - Business: Revenue impact
 ```
 
-### Phase 3: PRD Structure
+### Phase 3: PRD Structure & Breakdown
+
+Create a comprehensive Product Requirements Document with implementation breakdown:
 
 ```markdown
 # Product Requirements Document: [Feature]
@@ -114,12 +116,36 @@ Request: { field: value }
 Response: { id: string }
 ```
 
-## 5. Implementation Plan
+## 5. Implementation Breakdown
 
-Week 1-2: Foundation
-Week 3-4: Core Features
-Week 5: Polish
-Week 6: Launch
+### Sub-Issues Structure
+Break down the epic into discrete, actionable issues:
+
+1. **Foundation Issues** (P0 - Must Have)
+   - Database schema setup
+   - API endpoint scaffolding
+   - Authentication/authorization
+
+2. **Core Feature Issues** (P0 - Must Have)
+   - Primary user flow
+   - Critical functionality
+   - Essential integrations
+
+3. **Enhancement Issues** (P1 - Should Have)
+   - Secondary features
+   - UX improvements
+   - Performance optimizations
+
+4. **Polish Issues** (P2 - Nice to Have)
+   - Edge case handling
+   - Advanced features
+   - Future considerations
+
+### Issue Dependencies
+Map out which issues must complete before others:
+- Issue A → Issue B → Issue C
+- Parallel work streams
+- Critical path identification
 
 ## 6. Success Metrics
 - 30 days: X% adoption
@@ -127,7 +153,41 @@ Week 6: Launch
 - 90 days: Z business impact
 ```
 
-### Phase 4: Issue Creation
+### Phase 3.5: Validate Implementation Breakdown
+
+**CRITICAL: Before creating any issues, validate the breakdown plan with plan-validator agent.**
+
+**Use the Task tool to invoke plan validation:**
+- `subagent_type`: "psd-claude-coding-system:plan-validator"
+- `description`: "Validate product breakdown for: [feature name]"
+- `prompt`: "Validate this product implementation breakdown before creating GitHub issues:
+
+## Product Feature
+[Feature name and description]
+
+## Proposed Implementation Breakdown
+[Include the complete issue structure from Phase 3]
+
+Please verify:
+1. Issue breakdown is logical and complete
+2. Dependencies are correctly identified
+3. Priorities (P0/P1/P2) are appropriate
+4. No critical steps are missing
+5. Issues are appropriately sized (not too large or too small)
+6. Technical feasibility of timeline
+7. Risk areas that need additional attention
+
+Provide specific feedback on gaps, reordering, or improvements needed."
+
+**The plan-validator will use Codex (GPT-5 with high reasoning) to validate the breakdown.**
+
+**Refine Based on Validation:**
+- Apply valid feedback to improve issue structure
+- Reorder or split issues as needed
+- Adjust priorities based on dependencies
+- Add missing issues identified
+
+### Phase 4: Issue Creation Using /issue Command
 
 #### Epic Creation with Full PRD
 
@@ -144,62 +204,74 @@ gh issue create \
   --body "[COMPLETE PRD CONTENT HERE - everything from Phase 3]" \
   --label "epic,enhancement" (only if these labels exist)
 # Returns Epic #100
-
-# Create child stories that reference the epic
-gh issue create \
-  --title "Frontend: [Component Name]" \
-  --body "Part of Epic #100\n\n[User story and acceptance criteria]" \
-  --label "frontend,enhancement" (only if these labels exist)
-# Returns Issue #101
 ```
 
-#### Story Templates
+#### Sub-Issue Creation Using /issue Command
 
-**Frontend Issue:**
-```markdown
-# Frontend: [Component]
+**CRITICAL: Use the /issue command to create all sub-issues, NOT direct gh commands.**
 
-## User Story
-As a [persona] I want to [action] so that [outcome]
+The `/issue` command provides:
+- Automatic complexity assessment
+- Current documentation research (2025)
+- MCP documentation server integration
+- Architecture design for complex issues (auto-invoked)
+- Plan validation with GPT-5 for complex issues
+- Consistent issue structure
 
-## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
+**For each sub-issue identified in the validated breakdown:**
 
-## Technical Requirements
-- Components needed
-- State management
-- API integrations
+```bash
+# Use the SlashCommand tool to invoke /issue with plugin prefix
+# This leverages all the enhanced features (architecture, validation, research)
 
-Note: Labels will be validated against repository before creation (frontend, enhancement)
+# Example: Create database schema issue
+SlashCommand: "/psd-claude-coding-system:issue Setup user authentication database schema with OAuth provider tokens, refresh tokens, and session management. Must support Google and Microsoft OAuth flows."
+
+# The /issue command will:
+# 1. Assess complexity (likely ≥3, triggers architecture)
+# 2. Use MCP docs for latest OAuth specs
+# 3. Search "October 2025 OAuth database schema best practices"
+# 4. Invoke architect-specialist for schema design
+# 5. Invoke plan-validator for quality assurance
+# 6. Create high-quality issue with architecture + research
+
+# Track the returned issue number
+echo "Created issue #101"
+
+# Repeat for each sub-issue from validated breakdown
 ```
 
-**Backend Issue:**
-```markdown
-# Backend: [API/Service]
+**IMPORTANT: Always use the full plugin prefix `/psd-claude-coding-system:issue` when invoking the issue command.**
 
-## Technical Requirements
-- Endpoints to create
-- Business logic
-- Database queries
+**Why use /issue instead of direct gh commands:**
+1. **Automatic research** - Gets latest docs and best practices
+2. **Architecture design** - Complex issues get full design
+3. **Validation** - GPT-5 validates before creation
+4. **Consistency** - All issues follow same high-quality structure
+5. **Intelligence** - Auto-detects complexity and adapts
 
-## API Spec
-POST /api/v1/resource
-Request: { data }
-Response: { result }
+**After all sub-issues created, link them to epic:**
 
-Note: Labels will be validated against repository before creation (backend, enhancement)
+```bash
+# Add epic reference to each sub-issue (if not already included)
+for ISSUE_NUM in 101 102 103; do
+  gh issue comment $ISSUE_NUM --body "Part of Epic #100"
+done
 ```
 
 #### Dependency Map
 ```
-Epic #100
-├── Story #101 (Frontend)
-│   └── Tasks #110-112
-├── Story #102 (Backend)
-│   └── Tasks #120-122
-└── Story #103 (Database)
-    └── Tasks #130-132
+Epic #100 (PRD)
+├── Issue #101 (Database) - Created via /issue
+├── Issue #102 (Backend API) - Created via /issue
+├── Issue #103 (Frontend Auth) - Created via /issue
+└── Issue #104 (Integration Tests) - Created via /issue
+
+Each issue includes:
+- Architecture design (if complex)
+- Latest documentation research
+- Validated implementation plan
+- Clear acceptance criteria
 ```
 
 ### Phase 5: Communication
@@ -245,38 +317,70 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 
 1. **User-Centric** - Start with user needs
 2. **Data-Driven** - Define measurable success
-3. **Iterative** - Build MVP first
-4. **Collaborative** - Include all stakeholders
-5. **Documented** - Clear specifications
-6. **Testable** - Define acceptance criteria
-7. **Scalable** - Consider future growth
+3. **Validate Breakdown** - Use plan-validator before creating issues
+4. **Use /issue Command** - Leverage enhanced issue creation for all sub-issues
+5. **Iterative** - Build MVP first
+6. **Collaborative** - Include all stakeholders
+7. **Documented** - Clear specifications with architecture
+8. **Testable** - Define acceptance criteria
+9. **Scalable** - Consider future growth
 
-## Agent Assistance
+## Command & Agent Workflow
 
-- **Technical Design**: Invoke @agents/architect.md
-- **UI/UX Design**: Invoke @agents/documentation-writer.md
+**Phase 3.5 - Breakdown Validation:**
+- Invoke `psd-claude-coding-system:plan-validator` to validate issue structure
+
+**Phase 4 - Issue Creation:**
+- Use SlashCommand tool with `/psd-claude-coding-system:issue` for each sub-issue
+  - Automatically invokes `psd-claude-coding-system:architect-specialist` for complex issues
+  - Automatically invokes `psd-claude-coding-system:plan-validator` for complex issues
+  - Conducts current documentation research
+  - Uses MCP documentation servers
+
+**Additional Agent Assistance:**
+- **UI/UX Design**: Invoke @agents/documentation-writer
 - **Market Research**: Use WebSearch extensively
-- **Validation**: Invoke @agents/gpt-5.md for second opinion
+- **Second Opinion**: @agents/gpt-5 (already used via plan-validator)
 
 ## Success Criteria
 
 - ✅ PRD complete and reviewed
-- ✅ Epic and stories created
+- ✅ Implementation breakdown created
+- ✅ Breakdown validated with plan-validator (GPT-5)
+- ✅ Epic created with full PRD
+- ✅ All sub-issues created via /issue command
+- ✅ Complex issues include architecture design
+- ✅ All issues validated with latest documentation
 - ✅ Dependencies mapped
 - ✅ Timeline established
 - ✅ Success metrics defined
 - ✅ Team aligned
 - ✅ Risks identified
 
-```bash
+## Workflow Summary
 
-# Finalize telemetry
-if [ -n "$TELEMETRY_SESSION_ID" ]; then
-  TELEMETRY_END_TIME=$(date +%s)
-  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-fi
-
-echo "✅ Product specification completed successfully!"
+```
+Phase 1: Discovery & Research
+     ↓
+Phase 2: Product Strategy (Vision, Metrics)
+     ↓
+Phase 3: PRD Structure & Breakdown
+     ↓
+Phase 3.5: Validate Breakdown (plan-validator agent)
+     ↓
+     Refine based on validation
+     ↓
+Phase 4: Issue Creation
+     ├─→ Create Epic (PRD)
+     └─→ Create Sub-Issues (/issue command for each)
+          ├─→ Complexity assessment
+          ├─→ Documentation research
+          ├─→ Architecture (if complex)
+          └─→ Validation (if complex)
+     ↓
+Phase 5: Communication & Alignment
 ```
 
 Remember: Great products solve real problems. Focus on value delivery, not feature delivery.
+
+Use the enhanced workflow to create high-quality, well-researched, architecturally-sound issues that engineering teams love.

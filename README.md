@@ -10,7 +10,7 @@ Peninsula School District's comprehensive Claude Code plugin system for AI-assis
 
 **One unified plugin** combining battle-tested development workflows with self-improving meta-learning.
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Quick Start
@@ -33,15 +33,15 @@ Peninsula School District's comprehensive Claude Code plugin system for AI-assis
 ### Workflow Commands (18 total)
 
 **Development Workflows** (9 commands):
-- `/work` - Implement solutions for issues or quick fixes
-- `/architect` - System architecture & technical decision making
+- `/work` - Implement solutions + **automatic security review** on PR creation
+- `/architect` - System architecture via architect-specialist agent
 - `/test` - Comprehensive testing with coverage validation
 - `/review_pr` - Handle PR feedback systematically
-- `/security_audit` - Security review and vulnerability analysis
-- `/issue` - Research and create structured GitHub issues
-- `/product-manager` - Transform ideas into product specs
-- `/compound_concepts` - Find automation opportunities
-- `/clean_branch` - Post-merge cleanup
+- `/security_audit` - Manual security audit wrapper (auto-runs in /work)
+- `/issue` - **AI-validated** GitHub issues with latest docs + optional architecture
+- `/product-manager` - Product specs → **validated** epic + auto-created sub-issues
+- `/compound_concepts` - Find automation opportunities (manual)
+- `/clean_branch` - Post-merge cleanup + **automatic compound learning extraction**
 
 **Meta-Learning Commands** (9 commands):
 - `/meta_health` - Check system status & metrics
@@ -54,10 +54,11 @@ Peninsula School District's comprehensive Claude Code plugin system for AI-assis
 - `/meta_experiment` - A/B test ideas safely
 - `/meta_evolve` - Improve AI agents via genetic algorithms
 
-### AI Agents (15 total)
+### AI Agents (17 total)
 
-**Workflow Specialists** (10 agents):
-backend-specialist, frontend-specialist, security-analyst, test-specialist, performance-optimizer, database-specialist, documentation-writer, llm-specialist, plan-validator, gpt-5
+**Workflow Specialists** (12 agents):
+- **NEW:** architect-specialist, security-analyst-specialist
+- Existing: backend-specialist, frontend-specialist, test-specialist, performance-optimizer, database-specialist, documentation-writer, llm-specialist, plan-validator, gpt-5
 
 **Meta-Learning Specialists** (5 agents):
 meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
@@ -150,9 +151,45 @@ meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-valida
 
 ## Development Status
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 **Stability**: Workflow commands battle-tested, meta-learning in active development
+
+### What's New in v1.4.0 (October 2025)
+
+**Enhanced Issue & Architecture Workflow:**
+- `/issue` command now:
+  - Auto-detects complexity and invokes architecture design when needed
+  - Validates plans with GPT-5 (via plan-validator) before creating issues
+  - Always uses current documentation (dynamic date queries, MCP servers)
+  - Only asks clarifying questions when critically needed
+- `/architect` refactored to use architect-specialist agent (shared with /issue)
+- `/product-manager` now validates breakdown with plan-validator and uses `/issue` for sub-issues
+
+**Automatic Security Review:**
+- `/work` command now automatically runs security analysis after PR creation
+- Single consolidated security review comment (no more spam)
+- Powered by new security-analyst-specialist agent
+- `/security_audit` still available for manual audits
+
+**Compound Learning Extraction:**
+- `/clean_branch` now automatically analyzes merged PRs for learning opportunities
+- Extracts patterns: type safety issues, testing gaps, security concerns, iteration problems
+- Generates actionable suggestions using compound engineering framework
+- Saves insights to telemetry data for meta-learning system
+- No manual `/compound_concepts` invocation needed (still available standalone)
+
+**New Agents:**
+- `architect-specialist` - Shared architecture design logic
+- `security-analyst-specialist` - Comprehensive security analysis
+
+**Enhanced plan-validator:**
+- Now uses GPT-5 with high reasoning effort (`model_reasoning_effort="high"`)
+- Provides deeper analysis for plan validation
+
+**Telemetry Cleanup:**
+- Removed obsolete manual telemetry code from all commands
+- Hook-based telemetry (v1.1.0+) handles everything automatically
 
 ## Contributing
 

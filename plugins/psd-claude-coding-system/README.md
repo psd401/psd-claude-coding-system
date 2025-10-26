@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.3.0
+Version: 1.4.0
 Status: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -45,15 +45,15 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `/work` | Implement solutions for issues or quick fixes | `/work 347` or `/work "add logging"` |
-| `/architect` | System architecture & technical decision making | `/architect 347` |
+| `/work` | Implement solutions + **auto security review** | `/work 347` or `/work "add logging"` |
+| `/architect` | System architecture via architect-specialist | `/architect 347` |
 | `/test` | Comprehensive testing with coverage validation | `/test auth` |
 | `/review_pr` | Handle PR feedback systematically | `/review_pr 123` |
-| `/security_audit` | Security review and vulnerability analysis | `/security_audit` |
-| `/issue` | Research and create structured GitHub issues | `/issue "add caching"` |
-| `/product-manager` | Transform ideas into product specs | `/product-manager "user dashboard"` |
+| `/security_audit` | Manual security audit (auto in /work) | `/security_audit 123` |
+| `/issue` | **AI-validated** issues with latest docs | `/issue "add caching"` |
+| `/product-manager` | **Validated** specs → auto sub-issues | `/product-manager "dashboard"` |
 | `/compound_concepts` | Find automation opportunities | `/compound_concepts` |
-| `/clean_branch` | Post-merge cleanup | `/clean_branch` |
+| `/clean_branch` | Cleanup + **auto learning extraction** | `/clean_branch` |
 
 ---
 
@@ -84,13 +84,14 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 - `llm-specialist` - AI integration, prompt engineering
 
 **Quality & Security:**
-- `security-analyst` - Vulnerability analysis, security hardening
+- `security-analyst-specialist` - **NEW:** Comprehensive security analysis (auto in /work)
 - `test-specialist` - Test coverage, automation, QA
 - `performance-optimizer` - Web vitals, API latency, system performance
 
 **Documentation & Planning:**
+- `architect-specialist` - **NEW:** Architecture design (shared by /architect & /issue)
 - `documentation-writer` - API docs, user guides, architecture docs
-- `plan-validator` - Validate technical plans iteratively
+- `plan-validator` - **Enhanced:** GPT-5 with high reasoning for validation
 - `gpt-5` - Second opinions for complex problem solving
 
 ### Meta-Learning Specialists
@@ -103,7 +104,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ---
 
-## Automatic Telemetry (NEW in v1.1.0)
+## Automatic Telemetry & Learning (v1.1.0+)
 
 **Zero configuration required!** The system automatically tracks your usage via hooks:
 
@@ -114,6 +115,8 @@ Every time you run a command:
 2. **SubagentStop hook** tracks which agents were invoked
 3. **Stop hook** records duration and success/failure
 4. **Data written** to `meta/telemetry.json` automatically
+
+**NEW in v1.4.0:** `/clean_branch` also extracts compound learning insights from merged PRs and saves to telemetry
 
 ### What Gets Tracked
 
@@ -136,14 +139,29 @@ Every time you run a command:
 
 ```json
 {
-  "command": "/work",
-  "duration_seconds": 720,
-  "success": true,
-  "agents_invoked": ["backend-specialist", "test-specialist"],
-  "metadata": {
-    "files_changed": 8,
-    "tests_added": 12
-  }
+  "executions": [{
+    "command": "/work",
+    "duration_seconds": 720,
+    "success": true,
+    "agents_invoked": ["backend-specialist", "test-specialist", "security-analyst-specialist"],
+    "metadata": {
+      "files_changed": 8,
+      "tests_added": 12
+    }
+  }],
+  "compound_learnings": [{
+    "source": "pr_retrospective",
+    "pr_number": 123,
+    "patterns_observed": {
+      "review_iterations": 3,
+      "common_themes": {"type_safety": 5, "testing": 3}
+    },
+    "suggestions": [{
+      "type": "automation",
+      "suggestion": "Enable stricter TypeScript config",
+      "confidence": "high"
+    }]
+  }]
 }
 ```
 
@@ -249,7 +267,7 @@ Use `/compound_concepts` to extract systematization opportunities.
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.1.0)
+# Should show: psd-claude-coding-system (v1.4.0)
 
 # Test a command
 /meta_health
@@ -258,6 +276,33 @@ Use `/compound_concepts` to extract systematization opportunities.
 ---
 
 ## What's New
+
+### v1.4.0 (October 2025)
+
+**Enhanced Issue & Architecture Workflow:**
+- `/issue` auto-detects complexity, invokes architecture design, validates with GPT-5
+- Always uses current docs (dynamic dates + MCP servers)
+- Only asks questions when critically needed
+- `/architect` refactored to use shared architect-specialist agent
+- `/product-manager` validates breakdown, uses `/issue` for sub-issues
+
+**Automatic Security Review:**
+- `/work` now auto-runs security analysis after PR creation
+- Single consolidated comment (no spam)
+- New security-analyst-specialist agent
+
+**Compound Learning Extraction:**
+- `/clean_branch` auto-analyzes merged PRs
+- Extracts patterns and generates suggestions
+- Saves to telemetry.json for meta-learning
+
+**New Agents:**
+- `architect-specialist` - Shared architecture logic
+- `security-analyst-specialist` - Comprehensive security analysis
+
+**Enhanced:**
+- `plan-validator` now uses GPT-5 with high reasoning effort
+- Removed obsolete manual telemetry code
 
 ### v1.1.1 (Bug Fix)
 

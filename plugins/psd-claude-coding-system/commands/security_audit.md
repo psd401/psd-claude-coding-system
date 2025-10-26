@@ -1,183 +1,107 @@
 ---
+allowed-tools: Task
 description: Security audit for code review and vulnerability analysis
+argument-hint: [PR number]
 model: claude-sonnet-4-5
 extended-thinking: true
 ---
 
-You are an expert security analyst and code reviewer tasked with performing an automated security
-  audit and best practices review of a pull request. You will analyze the changes and post
-  constructive feedback as PR comments.
+# Security Audit Command (Wrapper)
 
-  <pr_number> #$ARGUMENTS </pr_number>
+You perform security reviews of pull requests by invoking the security-analyst-specialist agent and posting the results.
 
-  ```bash
-  # Initialize telemetry (optional integration)
-  WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-workflow"
-  TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
-  ```
+**PR Number:** $ARGUMENTS
 
-  Follow these steps systematically:
+**Note:** This command is automatically run by `/work` after PR creation. For manual security audits, use: `/psd-claude-coding-system:security_audit [pr_number]`
 
-  1. **Setup and Initial Analysis:**
-     - Run `gh pr checkout <pr_number>` to switch to the PR branch
-     - Run `gh pr diff <pr_number>` to review all changes
-     - Run `gh pr view <pr_number> --json files --jq '.files[].path'` to list changed files
-     - Group changes by risk level: auth code > database queries > API endpoints > infrastructure >
-  UI components
+## Workflow
 
-  2. **Perform Security Analysis:**
-     Review each changed file for security issues. When you find an issue, note the exact file and
-  line number.
+### Step 1: Invoke Security Analyst Agent
 
-     ### Critical Security Checks:
-     - SQL injection vulnerabilities (string concatenation in queries)
-     - Hardcoded secrets or API keys
-     - Missing authentication checks on protected routes
-     - Direct database access outside of data adapter
-     - Exposed sensitive data in API responses
-     - Unsafe file operations or path traversal
-     - Missing input validation
-     - Improper error handling that leaks information
+Use the Task tool to invoke security analysis:
+- `subagent_type`: "psd-claude-coding-system:security-analyst-specialist"
+- `description`: "Security audit for PR #$ARGUMENTS"
+- `prompt`: "Perform comprehensive security audit on PR #$ARGUMENTS. Analyze all changed files for:
 
-     ### Architecture Violations:
-     - Business logic in UI components (should be in `/actions`)
-     - Direct database queries outside established patterns
-     - Not using `ActionState<T>` pattern for server actions
-     - Client-side authentication logic
-     - Improper layer separation
+1. **Security Vulnerabilities:**
+   - SQL injection, XSS, authentication bypasses
+   - Hardcoded secrets or sensitive data exposure
+   - Input validation and sanitization issues
 
-     ### Best Practices:
-     - TypeScript `any` usage without justification
-     - Missing error handling
-     - Console.log statements
-     - Missing tests for critical paths
-     - Performance issues (N+1 queries, large bundles)
-     - Accessibility violations
+2. **Architecture Violations:**
+   - Business logic in UI components
+   - Improper layer separation
+   - Direct database access outside patterns
 
-  3. **Post PR Comments:**
-     For each issue found, post a comment using GitHub CLI. Use this format:
+3. **Best Practices:**
+   - TypeScript quality and type safety
+   - Error handling completeness
+   - Test coverage for critical paths
+   - Performance concerns
 
-     ```bash
-     # For line-specific comments on file changes:
-     gh pr review <pr_number> --comment --body "🔒 **Security Issue**: [Description]
+Return structured findings in the specified format."
 
-     **Risk Level**: Critical/High/Medium/Low
+### Step 2: Post Consolidated Comment
 
-     **Details**: [Explain why this is a problem]
+The agent will return structured findings. Format and post as a single consolidated PR comment:
 
-     **Suggested Fix**:
-     \`\`\`typescript
-     // Current code
-     [problematic code]
+```bash
+# Post the security review as a single comment
+gh pr comment $ARGUMENTS --body "## 🔍 Automated Security & Best Practices Review
 
-     // Suggested improvement
-     [secure code]
-     \`\`\`
+[Format the agent's structured findings here]
 
-     **Reference**: [Link to OWASP or project docs if applicable]"
+### Summary
+- 🔴 Critical Issues: [count from agent]
+- 🟡 High Priority: [count from agent]
+- 🟢 Suggestions: [count from agent]
 
-     # For general PR comments:
-     gh pr comment <pr_number> --body "[Comment content]"
+### Critical Issues (🔴 Must Fix Before Merge)
+[Critical findings from agent with file:line, problem, fix, reference]
 
-  4. Comment Templates by Issue Type:
+### High Priority (🟡 Should Fix Before Merge)
+[High priority findings from agent]
 
-  🔴 Critical Security Issue
+### Suggestions (🟢 Consider for Improvement)
+[Suggestions from agent]
 
-  🔴 **Critical Security Issue**: SQL Injection Vulnerability
+### Positive Practices Observed
+[Good practices noted by agent]
 
-  This query is vulnerable to SQL injection attacks. User input is being concatenated directly into
-  the SQL string.
+### Required Actions
+1. Address all 🔴 critical issues before merge
+2. Consider 🟡 high priority fixes
+3. Run security checks: \`npm audit\`, \`npm run lint\`, \`npm run typecheck\`
+4. Verify all tests pass after fixes
 
-  **Current code**:
-  ```typescript
-  await executeSQL(`SELECT * FROM users WHERE email = '${userEmail}'`)
+---
+*Automated security review by security-analyst-specialist agent*"
 
-  4. Secure version:
-  await executeSQL(
-    "SELECT * FROM users WHERE email = :email",
-    [{ name: "email", value: { stringValue: userEmail } }]
-  )
+echo "✅ Security audit completed and posted to PR #$ARGUMENTS"
+```
 
-  4. Please use parameterized queries as documented in DEVELOPER_GUIDE.md:84-91
+## Key Features
 
-  ### 🟡 Architecture Violation
-  4. 🏗️ Architecture Concern: Business Logic in UI Component
+- **Comprehensive Analysis**: Covers security, architecture, and best practices
+- **Single Comment**: All findings consolidated into one easy-to-review comment
+- **Actionable Feedback**: Includes specific fixes and code examples
+- **Severity Levels**: Critical (🔴), High (🟡), Suggestions (🟢)
+- **Educational**: References to OWASP and project documentation
 
-  4. This component contains business logic that should be in a server action. Per our layered
-  architecture, components should only handle presentation.
+## When to Use
 
-  4. Suggestion: Move this logic to a new server action in /actions/[feature].actions.ts and call it
-  from the component.
+**Automatic:** The `/work` command runs this automatically after creating a PR
 
-  4. See CONTRIBUTING.md:84-89 for architecture principles.
+**Manual:** Use this command when:
+- You want to audit an existing PR
+- You need to re-run security analysis after fixes
+- You're reviewing someone else's PR
 
-  ### 🟢 Best Practice Suggestion
-  4. 💡 Suggestion: Consider using TypeScript strict types
+## Example Usage
 
-  4. Using any type here bypasses TypeScript's type safety. Consider defining a proper interface:
+```bash
+# Manual security audit of PR #123
+/psd-claude-coding-system:security_audit 123
+```
 
-  interface UserResponse {
-    id: number;
-    email: string;
-    role: string;
-  }
-
-  4. This improves code maintainability and catches errors at compile time.
-
-  5. Post Summary Comment:
-  After reviewing all files, post a summary:
-
-  gh pr comment <pr_number> --body "## 🔍 Automated Security & Best Practices Review
-
-  I've completed an automated review of this PR. Here's the summary:
-
-  ### Security Analysis
-  - 🔴 **Critical Issues**: [count] (must fix before merge)
-  - 🟡 **High Priority**: [count] (should fix before merge)
-  - 🟢 **Suggestions**: [count] (consider for improvement)
-
-  ### Categories Reviewed
-  - ✅ Authentication & Authorization
-  - ✅ SQL Injection Prevention
-  - ✅ Secret Management
-  - ✅ Input Validation
-  - ✅ Architecture Compliance
-  - ✅ TypeScript Best Practices
-  - ✅ Error Handling
-
-  ### Positive Practices Observed
-  - [List good security practices found]
-
-  ### Required Actions
-  1. Address all 🔴 critical issues before merge
-  2. Consider 🟡 high priority fixes
-  3. Run \`npm run lint\` and \`npm run typecheck\` after fixes
-
-  Thank you for contributing! Let me know if you need clarification on any feedback."
-  6. Add PR Labels:
-  **IMPORTANT**: Check available labels first with `gh label list` before adding any labels
-  # Add appropriate labels based on findings (only if they exist in repository)
-  gh pr edit <pr_number> --add-label "security-review-required"  # If critical issues (check exists first)
-  gh pr edit <pr_number> --add-label "needs-changes"            # If fixes needed (check exists first)
-  gh pr edit <pr_number> --add-label "architecture-review"      # If architecture concerns (check exists first)
-  7. Create Fix Tracking Issue (if needed):
-
-  ```bash
-
-# Finalize telemetry
-  if [ -n "$TELEMETRY_SESSION_ID" ]; then
-    VULNERABILITIES_FOUND=$(gh pr view "$ARGUMENTS" --json comments --jq '.comments | length')
-    TELEMETRY_END_TIME=$(date +%s)
-    TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-  fi
-  echo "✅ Security audit completed!"
-  ```
-
-  Remember:
-  - Be constructive and educational in feedback
-  - Provide specific examples and fixes
-  - Reference documentation for standards
-  - Acknowledge good practices, not just problems
-  - Use appropriate severity levels
-  - Focus on actionable feedback
-  - Be respectful of contributor's time
+The agent will analyze all changes in the PR and post a consolidated security review comment.
