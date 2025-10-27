@@ -14,79 +14,45 @@ You are an experienced software developer and technical writer who creates compr
 
 ## Workflow
 
-### Phase 0: Critical Clarification Check (BEFORE Research)
+### Phase 1: Research & Context Gathering
 
-**IMPORTANT: Only ask follow-up questions if CRITICAL information is missing.**
-
-Proceed with reasonable assumptions unless:
-- Requirement is genuinely ambiguous (e.g., "add auth" without any context about what needs authentication)
-- Multiple valid approaches exist and choice significantly impacts design
-- User request contradicts existing architecture/patterns
-
-**If clarification IS needed:**
-1. Restate your understanding concisely
-2. Ask ONLY blocking questions (maximum 2-3 questions)
-3. Wait for response before proceeding to Phase 1
-
-**If NO clarification needed:**
-Skip directly to Phase 1 - Complexity Assessment
-
-### Phase 1: Complexity Assessment (BEFORE Research)
-
-**CRITICAL: Assess complexity FIRST to determine workflow path.**
-
-Calculate complexity score based on requirements:
-
-**Complexity Scoring:**
-- Multi-component changes (frontend + backend + database): +2
-- New API endpoints or significant API modifications: +2
-- Database schema changes or migrations: +2
-- Performance/scalability requirements mentioned: +1
-- Security/authentication implications: +1
-- Integration with external services/APIs: +1
-- Estimated files affected > 5: +1
-
-**Complexity Threshold: Score ≥ 3 requires architecture design**
+**Step 1: Repository Analysis**
 
 ```bash
-# Example scoring logic:
-# "Add OAuth integration" = +2 (API) +1 (security) +1 (external) = 4 → INVOKE ARCHITECT
-# "Fix typo in button text" = 0 → SKIP ARCHITECT
-# "Add caching layer for API responses" = +2 (API) +1 (performance) +1 (files>5) = 4 → INVOKE ARCHITECT
+# If working on existing issue, get FULL context including all comments
+if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
+  echo "=== Loading Issue #$ARGUMENTS ==="
+  gh issue view $ARGUMENTS
+  echo -e "\n=== Previous Work & Comments ==="
+  gh issue view $ARGUMENTS --comments
+fi
+
+# View repository info
+gh repo view --json name,description,topics
+
+# Check contributing guidelines
+test -f CONTRIBUTING.md && head -50 CONTRIBUTING.md
+test -f .github/ISSUE_TEMPLATE && ls -la .github/ISSUE_TEMPLATE/
+
+# List recent issues for context
+gh issue list --limit 10
+
+# Examine project structure
+find . -name "*.md" -path "*/docs/*" -o -name "ARCHITECTURE.md" -o -name "CLAUDE.md" 2>/dev/null | head -10
 ```
 
-**Decision:**
-- If score ≥ 3: Proceed to Phase 2a (Architecture + Research)
-- If score < 3: Proceed to Phase 2b (Research Only)
-
-### Phase 2a: Architecture Design + Research (Complex Issues)
-
-**For complexity score ≥ 3:**
-
-1. **Invoke Architect-Specialist Agent**
-
-Use the Task tool to invoke architecture design:
-- `subagent_type`: "psd-claude-coding-system:architect-specialist"
-- `description`: "Architecture design for: [brief summary of $ARGUMENTS]"
-- `prompt`: Include the full requirements from $ARGUMENTS plus any clarifications received
-
-The agent will return structured architecture design.
-
-2. **Conduct Documentation & Web Research** (can run in parallel with architecture)
+**Step 2: Documentation & Web Research**
 
 **IMPORTANT: Always search for latest documentation to avoid using outdated training data.**
 
 **Priority 1 - Check for MCP Documentation Servers:**
 ```bash
 # Check if MCP servers are available (they provide current docs)
-# Look for common doc server patterns in user's environment
-# Examples: mcp__docs__, mcp__fetch__, etc.
+# Use any available MCP doc tools to fetch current documentation for:
+# - Libraries/frameworks mentioned in requirements
+# - APIs being integrated
+# - Technologies being used
 ```
-
-Use available MCP documentation tools to fetch current docs for:
-- Libraries/frameworks mentioned in requirements
-- APIs being integrated
-- Technologies being used
 
 **Priority 2 - Web Search for Current Documentation:**
 
@@ -104,213 +70,234 @@ Search for (use current date in queries to avoid old results):
 - Security considerations
 - Performance optimization patterns
 
-**Priority 3 - Repository Analysis**
+**Step 3: Analyze Requirements**
+
+Based on research, identify:
+- Clear problem statement or feature description
+- User stories and use cases
+- Technical implementation considerations
+- Testing requirements
+- Security and performance implications
+- Related issues or documentation
+
+### Phase 2: Issue Creation
+
+Create a comprehensive issue using the appropriate template below. Include ALL research findings in the issue body.
+
+**IMPORTANT**: Before adding any labels to issues, first check what labels exist in the repository using `gh label list`. Only use labels that actually exist.
 
 ```bash
-# If working on existing issue, get FULL context
-if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  echo "=== Loading Issue #$ARGUMENTS ==="
-  gh issue view $ARGUMENTS
-  echo -e "\n=== Previous Work & Comments ==="
-  gh issue view $ARGUMENTS --comments
-fi
-
-# Examine project structure
-echo -e "\n=== Project Structure ==="
-find . -name "*.md" -path "*/docs/*" -o -name "ARCHITECTURE.md" -o -name "CLAUDE.md" 2>/dev/null | head -10
+# Check available labels first
+gh label list
 ```
 
-4. **Combine Findings**
-
-Merge architecture design + research findings into structured issue plan.
-
-5. **Validate with Plan-Validator Agent** (Quality Assurance)
-
-Before finalizing the issue, validate the combined architecture + research plan:
-
-**Use the Task tool to invoke plan validation:**
-- `subagent_type`: "psd-claude-coding-system:plan-validator"
-- `description`: "Validate GitHub issue plan for: [brief summary]"
-- `prompt`: "Validate this GitHub issue structure and ensure it's comprehensive and high-quality:
-
-## Proposed Issue
-[Include the full issue body you're about to create]
-
-Please verify:
-1. Architecture design completeness and soundness
-2. Research findings are current and accurate
-3. Implementation steps are clear and ordered correctly
-4. Edge cases and risks are addressed
-5. Acceptance criteria are specific and testable
-
-Provide specific feedback on gaps or improvements needed."
-
-The plan-validator agent will use Codex (GPT-5 with high reasoning) to provide a second opinion.
-
-6. **Refine Based on Validation**
-
-Apply valid feedback from plan-validator to improve the issue quality.
-
-→ Proceed to Phase 3a (Complex Issue Creation)
-
-### Phase 2b: Research Only (Simple Issues)
-
-**For complexity score < 3:**
-
-1. **Repository Analysis**
+**For NEW issues:**
 
 ```bash
-# If working on existing issue, get FULL context
-if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  echo "=== Loading Issue #$ARGUMENTS ==="
-  gh issue view $ARGUMENTS
-  echo -e "\n=== Previous Work & Comments ==="
-  gh issue view $ARGUMENTS --comments
-fi
+gh issue create \
+  --title "feat/fix/chore: Descriptive title" \
+  --body "$ISSUE_BODY" \
+  --label "enhancement" or "bug" (only if they exist!) \
+  --assignee "@me"
 ```
 
-2. **Documentation & Web Research**
-
-**IMPORTANT: Always search for latest documentation to avoid using outdated training data.**
-
-Even for simple issues, check for current documentation:
-
-**Priority 1 - MCP Documentation Servers:**
-- Use any available MCP doc servers for current library/framework docs
-
-**Priority 2 - Web Search:**
+**For EXISTING issues (adding research):**
 
 ```bash
-# Get current date for search queries
-CURRENT_DATE=$(date +"%B %Y")  # e.g., "October 2025"
-CURRENT_YEAR=$(date +"%Y")      # e.g., "2025"
+gh issue comment $ARGUMENTS --body "## Technical Research
+
+### Findings
+[Research findings from web search and documentation]
+
+### Recommended Approach
+[Technical recommendations based on best practices]
+
+### Implementation Considerations
+- [Architecture impacts]
+- [Performance implications]
+- [Security considerations]
+
+### References
+- [Documentation links]
+- [Similar implementations]
+"
 ```
 
-- "$CURRENT_YEAR [relevant-library] documentation latest"
-- "[framework] best practices $CURRENT_DATE"
-- Specific error messages or bug patterns (if bug fix)
+## Issue Templates
 
-**Priority 3 - Focused Research:**
-- Only if issue involves external libraries, frameworks, or unfamiliar technology
-- Look for recent changes, deprecations, or migration guides
+### Feature Request Template
 
-**Note:** Simple issues typically skip plan validation (low complexity), but validation can be invoked if desired for quality assurance.
+Use this for new features or enhancements:
 
-→ Proceed to Phase 3b (Simple Issue Creation)
-
-### Phase 3a: Complex Issue Creation (With Architecture)
-
-Create issue with architecture design included:
-
-**Issue Structure:**
 ```markdown
 ## Summary
-[Brief feature description]
+Brief description of the feature and its value to users
+
+## User Story
+As a [user type], I want [feature] so that [benefit]
 
 ## Requirements
-[Detailed requirements, including any clarifications from Phase 0]
+- Detailed requirement 1
+- Detailed requirement 2
+- Detailed requirement 3
 
-## Architecture Design
-[Paste architecture design from architect-specialist agent]
+## Acceptance Criteria
+- [ ] Criterion 1 (specific, testable)
+- [ ] Criterion 2 (specific, testable)
+- [ ] Criterion 3 (specific, testable)
 
-### Design Overview
-[High-level architecture]
+## Technical Considerations
 
-### Key Decisions
-[Critical architectural choices]
+### Architecture
+[How this fits into existing architecture]
 
-### Component Breakdown
-[Components and responsibilities]
+### Implementation Notes
+[Key technical details, libraries to use, patterns to follow]
 
-### API Design
-[If applicable]
+### Performance
+[Any performance implications or optimizations needed]
 
-### Data Model
-[If applicable]
+### Security
+[Security considerations or authentication requirements]
 
-### Implementation Steps
-[Phased implementation plan]
+## Testing Plan
+- Unit tests: [what needs testing]
+- Integration tests: [integration scenarios]
+- E2E tests: [end-to-end test cases]
 
-### Testing Strategy
-[How to validate]
+## Research Findings
+[Paste web research findings - best practices, current documentation, examples]
 
-### Risk Assessment
-[Potential challenges]
+## References
+- Related issues: #XX
+- Documentation: [links]
+- Similar implementations: [examples]
+```
 
-## Technical Research
-[Web research findings - best practices, patterns, security considerations]
+### Bug Report Template
+
+Use this for bug fixes:
+
+```markdown
+## Description
+Clear description of the bug and its impact
+
+## Steps to Reproduce
+1. Step one
+2. Step two
+3. Step three
+
+## Expected Behavior
+What should happen
+
+## Actual Behavior
+What actually happens (include error messages, screenshots)
+
+## Environment
+- OS: [e.g., macOS 14.0]
+- Node version: [e.g., 20.x]
+- Browser: [if applicable]
+- Other relevant versions
+
+## Root Cause Analysis
+[If known, explain why this bug occurs]
+
+## Proposed Fix
+[Technical approach to fixing the bug]
+
+## Testing Considerations
+- How to verify the fix
+- Regression test scenarios
+- Edge cases to consider
+
+## Research Findings
+[Any relevant documentation, similar issues, or best practices]
+
+## Additional Context
+- Error logs
+- Screenshots
+- Related issues: #XX
+```
+
+### Improvement/Refactoring Template
+
+Use this for code improvements or refactoring:
+
+```markdown
+## Summary
+Brief description of what needs improvement and why
+
+## Current State
+[Describe current implementation and its problems]
+
+## Proposed Changes
+[What should be changed and how]
+
+## Benefits
+- Benefit 1
+- Benefit 2
+- Benefit 3
 
 ## Acceptance Criteria
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
 
-## Related Issues
-- Related: #XX
+## Implementation Approach
+[Technical approach to making the changes]
+
+## Testing Strategy
+[How to ensure nothing breaks]
+
+## Research Findings
+[Best practices, patterns to follow, examples]
+
+## References
+- Related issues: #XX
 - Documentation: [links]
 ```
 
-→ Proceed to Phase 4 (GitHub Issue Creation)
+### Phase 3: Optional Enhancement (For Highly Complex Features)
 
-### Phase 3b: Simple Issue Creation (Research Only)
+**ONLY for truly complex features** - if the issue meets ALL of these criteria:
+- Multi-component changes (frontend + backend + database)
+- Significant architectural impact
+- Complex integration requirements
+- High risk or uncertainty
 
-Create concise issue without architecture:
+**Complexity Score (optional assessment):**
+- Multi-component changes (frontend + backend + database): +2
+- New API endpoints or significant API modifications: +2
+- Database schema changes or migrations: +2
+- Performance/scalability requirements: +1
+- Security/authentication implications: +1
+- External service integration: +1
+- Estimated files affected > 5: +1
 
-**Issue Structure:**
-```markdown
-## Summary
-[Brief description]
-
-## Description
-[Detailed explanation of bug/feature/improvement]
-
-## Acceptance Criteria
-- [ ] Criterion 1
-- [ ] Criterion 2
-
-## Technical Notes
-[Any relevant research findings, if applicable]
-
-## Related Issues
-- Related: #XX
-```
-
-→ Proceed to Phase 4 (GitHub Issue Creation)
-
-### Phase 4: GitHub Issue Creation
-
-**IMPORTANT**: Before adding any labels to issues, first check what labels exist in the repository using `gh label list`. Only use labels that actually exist, or create them first if needed.
+**If complexity score ≥ 5 (not 3!)**, consider adding architectural guidance AFTER issue creation:
 
 ```bash
-# Check available labels first
-gh label list
+# Get the issue number that was just created
+ISSUE_NUMBER="[the number from gh issue create]"
 
-# For NEW issues - create with appropriate structure
-gh issue create \
-  --title "feat/fix/chore: Descriptive title" \
-  --body "$ISSUE_BODY" \
-  --label "enhancement" or "bug" (only if they exist!) \
-  --assignee "@me"
+# Optional: Invoke architect to ADD architecture comment
+# Use Task tool with:
+# - subagent_type: "psd-claude-coding-system:architect-specialist"
+# - description: "Add architecture design for issue #$ISSUE_NUMBER"
+# - prompt: "Create architectural design for: $ARGUMENTS
+#           Issue: #$ISSUE_NUMBER
+#           Add your design as a comment to the issue."
 
-# For EXISTING issues - add findings as comment
-if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  gh issue comment $ARGUMENTS --body "## Technical Research & Architecture
-
-[Paste findings - either architecture design + research OR research only]
-
----
-*Generated by /issue command*"
-fi
+# Optional: Invoke plan-validator for quality assurance
+# Use Task tool with:
+# - subagent_type: "psd-claude-coding-system:plan-validator"
+# - description: "Validate issue #$ISSUE_NUMBER"
+# - prompt: "Review issue #$ISSUE_NUMBER and add validation feedback as a comment."
 ```
 
-**Output:**
-1. Provide the issue URL for tracking
-2. Indicate whether architecture design was included
-3. Suggest next steps:
-   - Complex issues: "Ready for `/work [issue-number]` (architecture included)"
-   - Simple issues: "Ready for `/work [issue-number]`"
+**Note:** These are optional enhancements. The issue is already complete and ready for `/work`. Agents add supplementary comments if needed.
 
-## Quick Commands
+## Quick Commands Reference
 
 ```bash
 # View repository info
@@ -325,69 +312,83 @@ gh issue list --limit 10
 
 # Check project labels
 gh label list
+
+# View specific issue with comments
+gh issue view <number> --comments
+
+# Add comment to issue
+gh issue comment <number> --body "comment text"
+
+# Close issue
+gh issue close <number>
 ```
 
 ## Best Practices
 
-1. **Assess Complexity Early** - Determine if architecture is needed BEFORE research
-2. **Ask Only When Critical** - Skip clarification questions if requirements are clear
-3. **Always Use Current Docs** - Search web with current month/year, use MCP servers
-4. **Avoid Outdated Training Data** - Never rely on training data for library versions or APIs
-5. **Validate Complex Plans** - Run architecture + research through plan-validator for quality assurance
-6. **Be Specific** - Include concrete examples and clear acceptance criteria
-7. **Link Context** - Reference related issues, PRs, and documentation
-8. **Include Architecture** - Complex issues get architecture design automatically
-9. **Plan Testing** - Include test scenarios in the issue description
+1. **Research First** - Understand the problem space and current best practices
+2. **Use Current Documentation** - Always search with current month/year, use MCP servers
+3. **Be Specific** - Include concrete examples and clear acceptance criteria
+4. **Link Context** - Reference related issues, PRs, and documentation
+5. **Consider Impact** - Note effects on architecture, performance, and security
+6. **Plan Testing** - Include test scenarios in the issue description
+7. **Avoid Outdated Training** - Never rely on training data for library versions or APIs
+8. **Templates Are Guides** - Adapt templates to fit the specific issue type
 
-## Workflow Summary
+## Agent Collaboration (Optional)
 
+When features require additional expertise, agents can be invoked AFTER issue creation to add comments:
+
+- **Architecture Design**: Use `psd-claude-coding-system:architect-specialist` for complex architectural guidance
+- **Plan Validation**: Use `psd-claude-coding-system:plan-validator` for quality assurance with GPT-5
+- **Security Review**: Use `psd-claude-coding-system:security-analyst` for security considerations
+- **Documentation**: Use `psd-claude-coding-system:documentation-writer` for documentation planning
+
+These add value but are not required - the issue you create should be comprehensive on its own.
+
+## Output
+
+After creating the issue:
+1. **Provide the issue URL** for tracking
+2. **Suggest next steps:**
+   - "Ready for `/work [issue-number]`"
+   - Or "Consider `/architect [issue-number]`" if highly complex
+3. **Note any follow-up** research or clarification that might be helpful
+
+```bash
+echo "✅ Issue #$ISSUE_NUMBER created successfully!"
+echo "🔗 URL: [issue-url]"
+echo "📋 Next: /work $ISSUE_NUMBER"
 ```
-User Request
-     ↓
-Phase 0: Critical clarification ONLY if needed
-     ↓
-Phase 1: Complexity assessment (score requirements)
-     ↓
-     ├─→ Score ≥ 3: Phase 2a (Architect + Research + Validation) → Phase 3a (Complex Issue)
-     └─→ Score < 3: Phase 2b (Research Only) → Phase 3b (Simple Issue)
-     ↓
-Phase 4: Create/update GitHub issue
-```
-
-**Note:** Complex issues (score ≥ 3) automatically include plan validation with Codex (GPT-5) for quality assurance.
 
 ## Examples
 
-**Simple Issue (No Architect):**
+**Simple Feature:**
 ```
-/issue "Fix typo in login button text"
-→ Complexity: 0
-→ No questions asked
-→ Skip architecture
-→ Create simple issue
+/issue "Add dark mode toggle to settings page"
+→ Research dark mode best practices (Oct 2025)
+→ Check project conventions
+→ Create issue with Feature Request template
+→ Ready for /work
 ```
 
-**Complex Issue (Invokes Architect + Validation):**
+**Bug Fix:**
+```
+/issue "Login button doesn't respond on mobile Safari"
+→ Research Safari-specific issues
+→ Check existing similar bugs
+→ Create issue with Bug Report template
+→ Ready for /work
+```
+
+**Complex Feature (with optional enhancement):**
 ```
 /issue "Add OAuth integration for Google and Microsoft"
-→ Complexity: 4 (API +2, auth +1, external +1)
-→ No questions (requirement is clear)
-→ Invoke psd-claude-coding-system:architect-specialist
-→ Conduct research with current date (e.g., "October 2025 OAuth best practices")
-→ Invoke psd-claude-coding-system:plan-validator (validate with GPT-5)
-→ Refine based on validation feedback
-→ Create high-quality issue with architecture design + research
+→ Research latest OAuth 2.1 standards (2025)
+→ Check security best practices
+→ Create comprehensive issue
+→ Optionally: Invoke architect to add architectural design comment
+→ Optionally: Invoke plan-validator to add validation comment
+→ Ready for /work
 ```
 
-**Ambiguous Request (Ask First):**
-```
-/issue "Add caching"
-→ Critical ambiguity detected
-→ Ask: "What should be cached?"
-→ User: "API responses for product catalog"
-→ Complexity: 3
-→ Invoke architect
-→ Create issue
-```
-
-Remember: A well-written issue with architecture design saves hours of development time and reduces back-and-forth clarification.
+Remember: A well-written issue with thorough research saves hours of development time and reduces back-and-forth clarification. The issue you create should be comprehensive enough to start work immediately.
