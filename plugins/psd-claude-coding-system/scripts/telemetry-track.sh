@@ -283,26 +283,29 @@ fi
 # COMPOUND LEARNING: PR RETROSPECTIVE (only for /clean_branch command)
 # ==============================================================================
 
-if [ "$COMMAND_NAME" = "/clean_branch" ]; then
+# Match command name (handles /clean_branch, clean_branch, or with plugin prefix)
+if [[ "$COMMAND_NAME" =~ clean_branch$ ]]; then
   # Extract PR number and branch name from transcript if available
   if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
-    # Try to find PR number from gh commands in transcript
+    # Try to find PR number from gh pr view or gh issue close commands
+    # Look for patterns like "gh pr view 123" or "gh issue close 456"
     PR_NUMBER=$(jq -r --arg sid "$SESSION_ID" '
       select(.sessionId == $sid) |
       select((.message.content | type) == "array") |
       select(.message.content[0].type == "tool_use") |
       select(.message.content[0].name == "Bash") |
       .message.content[0].input.command
-    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -oE "gh pr (view|list).*" | grep -oE "[0-9]+" | head -1)
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -oE "gh (pr view|issue close) [0-9]+" | grep -oE "[0-9]+" | head -1)
 
-    # Try to find branch name from git commands
+    # Try to find branch name from git branch -d or git push --delete commands
+    # Look for patterns like "git branch -d feature/123-name" or "git push origin --delete feature/123-name"
     BRANCH_NAME=$(jq -r --arg sid "$SESSION_ID" '
       select(.sessionId == $sid) |
       select((.message.content | type) == "array") |
       select(.message.content[0].type == "tool_use") |
       select(.message.content[0].name == "Bash") |
       .message.content[0].input.command
-    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -E "git branch --show-current|git branch -d" | head -1 | sed 's/.*-d //' | tr -d '\n')
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -oE "git (branch -d|push origin --delete) [^ ]+" | sed -E 's/.* ([^ ]+)$/\1/' | head -1)
 
     # Only proceed if we found a PR number
     if [ -n "$PR_NUMBER" ] && command -v gh >/dev/null 2>&1; then
