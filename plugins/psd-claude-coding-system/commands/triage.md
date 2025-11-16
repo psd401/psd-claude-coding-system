@@ -2,7 +2,7 @@
 allowed-tools: Bash(*), View, Edit, Create, SlashCommand
 description: Triage FreshService ticket and create GitHub issue
 argument-hint: [ticket-id]
-model: sonnet-4-5
+model: claude-sonnet-4-5
 extended-thinking: true
 ---
 
