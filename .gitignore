@@ -15,3 +15,8 @@ node_modules/
 
 # Logs
 *.log
+
+# FreshService credentials (never commit - CRITICAL SECURITY)
+*.freshservice.env
+plugins/psd-claude-coding-system/.freshservice.env
+.freshservice.env

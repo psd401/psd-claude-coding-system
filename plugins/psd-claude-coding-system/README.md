@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.4.3
+Version: 1.5.0
 Status: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -51,6 +51,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `/review_pr` | Handle PR feedback systematically | `/review_pr 123` |
 | `/security_audit` | Manual security audit (auto in /work) | `/security_audit 123` |
 | `/issue` | **AI-validated** issues with latest docs | `/issue "add caching"` |
+| `/triage` | **NEW:** FreshService ticket → GitHub issue | `/triage 12345` |
 | `/product-manager` | **Validated** specs → auto sub-issues | `/product-manager "dashboard"` |
 | `/compound_concepts` | Find automation opportunities | `/compound_concepts` |
 | `/clean_branch` | Cleanup + **auto learning extraction** | `/clean_branch` |
@@ -273,9 +274,37 @@ Use `/compound_concepts` to extract systematization opportunities.
 /meta_health
 ```
 
+### Configure FreshService Integration (Optional)
+
+If you want to use the `/triage` command to import tickets from FreshService:
+
+```bash
+# 1. Copy the example config
+cp ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/.freshservice.env.example ~/.claude/freshservice.env
+
+# 2. Edit the config file with your credentials
+# Use your favorite editor to add:
+# - FRESHSERVICE_API_KEY (from FreshService > Profile > API Settings)
+# - FRESHSERVICE_DOMAIN (your subdomain, e.g., "peninsula-sd")
+
+# 3. Test the integration
+/triage 12345  # Replace with a real ticket ID
+```
+
+**Security Note**: The config file is stored in `~/.claude/freshservice.env` (not in the repository) to keep your API key secure.
+
 ---
 
 ## What's New
+
+### v1.5.0 (November 2025)
+
+**FreshService Integration:**
+- New `/triage` command to import tickets from FreshService
+- Automatically creates GitHub issues from bug reports
+- Secure API key storage in `~/.claude/freshservice.env`
+- Supports ticket metadata, attachments, and conversation history
+- Full error handling and retry logic with exponential backoff
 
 ### v1.4.0 (October 2025)
 
