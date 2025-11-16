@@ -53,9 +53,20 @@ echo "✓ Configuration validated"
 Use the script to retrieve ticket information:
 
 ```bash
-# Get the plugin root directory
-PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SCRIPT_PATH="$PLUGIN_ROOT/scripts/triage-ticket.sh"
+# Get the plugin root directory from Claude's environment
+if [ -z "$CLAUDE_PLUGIN_ROOT" ]; then
+  echo "❌ Cannot locate plugin scripts (CLAUDE_PLUGIN_ROOT not set)"
+  echo "This command must be run as an installed plugin."
+  exit 1
+fi
+
+SCRIPT_PATH="$CLAUDE_PLUGIN_ROOT/scripts/triage-ticket.sh"
+
+# Verify script exists
+if [ ! -f "$SCRIPT_PATH" ]; then
+  echo "❌ Triage script not found at: $SCRIPT_PATH"
+  exit 1
+fi
 
 # Validate and sanitize ticket ID (remove any non-numeric characters)
 TICKET_ID="$ARGUMENTS"
