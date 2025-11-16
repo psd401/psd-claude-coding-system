@@ -10,7 +10,7 @@ Peninsula School District's comprehensive Claude Code plugin system for AI-assis
 
 **One unified plugin** combining battle-tested development workflows with self-improving meta-learning.
 
-**Version**: 1.5.3
+**Version**: 1.6.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Quick Start
@@ -151,7 +151,7 @@ meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-valida
 
 ## Development Status
 
-**Version**: 1.5.3
+**Version**: 1.6.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 **Stability**: Workflow commands battle-tested, meta-learning in active development
 

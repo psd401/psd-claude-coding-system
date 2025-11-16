@@ -322,7 +322,58 @@ Now invoke the `/issue` command with the extracted information:
 
 Pass the `$ISSUE_DESCRIPTION` variable that contains the formatted bug report from FreshService.
 
-### Phase 3: Confirmation
+**After the issue is created, capture the issue number/URL for the FreshService reply.**
+
+### Phase 3: Update FreshService Ticket
+
+After successfully creating the GitHub issue, add a reply to the FreshService ticket and update its status:
+
+```bash
+echo ""
+echo "=== Updating FreshService Ticket ==="
+echo ""
+
+# Add a reply to the ticket with the GitHub issue link
+echo "Adding reply to ticket..."
+REPLY_BODY="Thank you for submitting this issue. We have received your ticket and created a GitHub issue to track this problem. We will let you know when the issue has been resolved."
+
+REPLY_RESPONSE=$(curl -s -w "\n%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
+  -H "Content-Type: application/json" \
+  -X POST "${API_BASE_URL}/tickets/${TICKET_ID}/conversations" \
+  -d "{\"body\": \"${REPLY_BODY}\"}")
+
+# Extract HTTP code from response
+REPLY_HTTP_CODE=$(echo "$REPLY_RESPONSE" | tail -n1)
+REPLY_JSON=$(echo "$REPLY_RESPONSE" | head -n-1)
+
+if [ "$REPLY_HTTP_CODE" = "201" ]; then
+  echo "✓ Reply added to ticket"
+else
+  echo "⚠️  Warning: Failed to add reply (HTTP $REPLY_HTTP_CODE)"
+  echo "   FreshService ticket NOT updated"
+fi
+
+# Update ticket status to "In Progress" (status code 2)
+echo "Updating ticket status to In Progress..."
+STATUS_RESPONSE=$(curl -s -w "\n%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
+  -H "Content-Type: application/json" \
+  -X PUT "${API_BASE_URL}/tickets/${TICKET_ID}" \
+  -d '{"status": 2}')
+
+# Extract HTTP code from response
+STATUS_HTTP_CODE=$(echo "$STATUS_RESPONSE" | tail -n1)
+
+if [ "$STATUS_HTTP_CODE" = "200" ]; then
+  echo "✓ Ticket status updated to In Progress"
+else
+  echo "⚠️  Warning: Failed to update status (HTTP $STATUS_HTTP_CODE)"
+  echo "   FreshService ticket status NOT updated"
+fi
+
+echo ""
+```
+
+### Phase 4: Confirmation
 
 After the issue is created, provide a summary:
 
@@ -334,10 +385,13 @@ echo "Summary:"
 echo "  - FreshService Ticket: #$TICKET_ID"
 echo "  - Subject: $SUBJECT"
 echo "  - Priority: $PRIORITY_STR"
+echo "  - Status: Updated to In Progress"
+echo "  - Reply: Sent to requester"
 echo ""
 echo "Next steps:"
-echo "  - Review the created issue"
+echo "  - Review the created GitHub issue"
 echo "  - Use /work [issue-number] to begin implementation"
+echo "  - When resolved, update FreshService ticket manually"
 ```
 
 ## Error Handling
