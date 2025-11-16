@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, SlashCommand
+allowed-tools: Bash(*), SlashCommand
 description: Triage FreshService ticket and create GitHub issue
 argument-hint: [ticket-id]
 model: claude-sonnet-4-5
@@ -14,11 +14,21 @@ You are a support engineer who triages bug reports from FreshService and creates
 
 ## Workflow
 
-### Phase 1: Configuration Validation
+### Phase 1: Configuration Validation & Ticket Fetch
 
-Check that FreshService credentials are configured:
+Validate credentials, fetch the ticket, and format the data:
 
 ```bash
+# Validate and sanitize ticket ID
+TICKET_ID="$ARGUMENTS"
+TICKET_ID="${TICKET_ID//[^0-9]/}"  # Remove all non-numeric characters
+
+if [ -z "$TICKET_ID" ] || ! [[ "$TICKET_ID" =~ ^[0-9]+$ ]]; then
+  echo "❌ Invalid ticket ID"
+  echo "Usage: /triage <ticket-id>"
+  exit 1
+fi
+
 # Check for environment configuration
 if [ -f ~/.claude/freshservice.env ]; then
   echo "✓ Loading FreshService configuration..."
@@ -33,7 +43,7 @@ else
   echo ""
   echo "Example:"
   echo "FRESHSERVICE_API_KEY=abcdef123456"
-  echo "FRESHSERVICE_DOMAIN=peninsula-sd"
+  echo "FRESHSERVICE_DOMAIN=psd401"
   echo ""
   exit 1
 fi
@@ -45,102 +55,274 @@ if [ -z "$FRESHSERVICE_API_KEY" ] || [ -z "$FRESHSERVICE_DOMAIN" ]; then
   exit 1
 fi
 
+# Validate domain format (alphanumeric and hyphens only, prevents SSRF)
+if ! [[ "$FRESHSERVICE_DOMAIN" =~ ^[a-zA-Z0-9-]+$ ]]; then
+  echo "❌ Invalid FRESHSERVICE_DOMAIN format"
+  echo "Domain must contain only alphanumeric characters and hyphens"
+  echo "Example: 'psd401' (not 'psd401.freshservice.com')"
+  exit 1
+fi
+
+# Validate API key format (basic sanity check)
+if [ ${#FRESHSERVICE_API_KEY} -lt 20 ]; then
+  echo "⚠️  Warning: API key appears too short. Please verify your configuration."
+fi
+
 echo "✓ Configuration validated"
-```
-
-### Phase 2: Fetch Ticket from FreshService
-
-Use the script to retrieve ticket information:
-
-```bash
-# Get the plugin root directory from Claude's environment
-if [ -z "$CLAUDE_PLUGIN_ROOT" ]; then
-  echo "❌ Cannot locate plugin scripts (CLAUDE_PLUGIN_ROOT not set)"
-  echo "This command must be run as an installed plugin."
-  exit 1
-fi
-
-SCRIPT_PATH="$CLAUDE_PLUGIN_ROOT/scripts/triage-ticket.sh"
-
-# Verify script exists
-if [ ! -f "$SCRIPT_PATH" ]; then
-  echo "❌ Triage script not found at: $SCRIPT_PATH"
-  exit 1
-fi
-
-# Validate and sanitize ticket ID (remove any non-numeric characters)
-TICKET_ID="$ARGUMENTS"
-TICKET_ID="${TICKET_ID//[^0-9]/}"  # Remove all non-numeric characters
-
-if [ -z "$TICKET_ID" ] || ! [[ "$TICKET_ID" =~ ^[0-9]+$ ]]; then
-  echo "❌ Invalid ticket ID"
-  echo "Usage: /triage <ticket-id>"
-  exit 1
-fi
-
-echo "=== Fetching FreshService Ticket #$TICKET_ID ==="
+echo "Domain: $FRESHSERVICE_DOMAIN"
 echo ""
 
-# Run the triage script
-bash "$SCRIPT_PATH" "$TICKET_ID"
+# API configuration
+API_BASE_URL="https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2"
+TICKET_ENDPOINT="${API_BASE_URL}/tickets/${TICKET_ID}"
 
-# Capture exit code
-TRIAGE_EXIT_CODE=$?
+# Temporary files for API responses
+TICKET_JSON="/tmp/fs-ticket-${TICKET_ID}.json"
+CONVERSATIONS_JSON="/tmp/fs-conversations-${TICKET_ID}.json"
 
-if [ $TRIAGE_EXIT_CODE -ne 0 ]; then
+# Cleanup function
+cleanup() {
+  rm -f "$TICKET_JSON" "$CONVERSATIONS_JSON"
+}
+trap cleanup EXIT
+
+echo "=== Fetching FreshService Ticket #${TICKET_ID} ==="
+echo ""
+
+# Function to make API request with retry logic
+api_request() {
+  local url="$1"
+  local output_file="$2"
+  local max_retries=3
+  local retry_delay=2
+  local attempt=1
+
+  while [ $attempt -le $max_retries ]; do
+    # Make request and capture HTTP status code
+    http_code=$(curl -s -w "%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
+         -H "Content-Type: application/json" \
+         -X GET "$url" \
+         -o "$output_file" \
+         --max-time 30)
+
+    # Check for rate limiting (HTTP 429)
+    if [ "$http_code" = "429" ]; then
+      echo "❌ Error: Rate limit exceeded. Please wait before retrying."
+      echo "FreshService API has rate limits (typically 1000 requests/hour)."
+      return 1
+    fi
+
+    # Success (HTTP 200)
+    if [ "$http_code" = "200" ]; then
+      return 0
+    fi
+
+    # Unauthorized (HTTP 401)
+    if [ "$http_code" = "401" ]; then
+      echo "❌ Error: Authentication failed. Please check your API key."
+      return 1
+    fi
+
+    # Not found (HTTP 404)
+    if [ "$http_code" = "404" ]; then
+      echo "❌ Error: Ticket not found. Please verify the ticket ID."
+      return 1
+    fi
+
+    # Retry on server errors (5xx)
+    if [ $attempt -lt $max_retries ]; then
+      echo "⚠️  Warning: API request failed with HTTP $http_code (attempt $attempt/$max_retries), retrying in ${retry_delay}s..."
+      sleep $retry_delay
+      retry_delay=$((retry_delay * 2))  # Exponential backoff
+    fi
+    attempt=$((attempt + 1))
+  done
+
+  echo "❌ Error: API request failed after $max_retries attempts (last HTTP code: $http_code)"
+  return 1
+}
+
+# Fetch ticket with embedded fields
+echo "Fetching ticket #${TICKET_ID}..."
+if ! api_request "${TICKET_ENDPOINT}?include=requester,stats" "$TICKET_JSON"; then
   echo ""
   echo "❌ Failed to retrieve ticket from FreshService"
   echo "Please verify:"
   echo "  - Ticket ID $TICKET_ID exists"
   echo "  - API key is valid"
-  echo "  - Domain is correct"
+  echo "  - Domain is correct ($FRESHSERVICE_DOMAIN)"
   exit 1
 fi
 
-echo ""
+# Fetch conversations (comments)
+echo "Fetching ticket conversations..."
+if ! api_request "${TICKET_ENDPOINT}/conversations" "$CONVERSATIONS_JSON"; then
+  echo "⚠️  Warning: Failed to fetch conversations, continuing without them..."
+  echo '{"conversations":[]}' > "$CONVERSATIONS_JSON"
+fi
+
 echo "✓ Ticket retrieved successfully"
-```
+echo ""
 
-### Phase 3: Extract and Format Information
-
-The triage script (`scripts/triage-ticket.sh`) will have created a formatted issue description in `/tmp/freshservice-ticket-$TICKET_ID.txt`. Read and process it:
-
-```bash
-TICKET_FILE="/tmp/freshservice-ticket-$TICKET_ID.txt"
-
-if [ ! -f "$TICKET_FILE" ]; then
-  echo "❌ Ticket data file not found: $TICKET_FILE"
-  exit 1
+# Check if jq is available for JSON parsing
+if ! command -v jq &> /dev/null; then
+  echo "⚠️  Warning: jq not found, using basic parsing"
+  echo "Install jq for full functionality: brew install jq (macOS) or apt-get install jq (Linux)"
+  JQ_AVAILABLE=false
+else
+  JQ_AVAILABLE=true
 fi
+
+# Extract ticket fields
+if [ "$JQ_AVAILABLE" = true ]; then
+  SUBJECT=$(jq -r '.ticket.subject // "No subject"' "$TICKET_JSON")
+  DESCRIPTION=$(jq -r '.ticket.description_text // .ticket.description // "No description"' "$TICKET_JSON")
+  PRIORITY=$(jq -r '.ticket.priority // 0' "$TICKET_JSON")
+  STATUS=$(jq -r '.ticket.status // 0' "$TICKET_JSON")
+  CREATED_AT=$(jq -r '.ticket.created_at // "Unknown"' "$TICKET_JSON")
+  REQUESTER_NAME=$(jq -r '.ticket.requester.name // "Unknown"' "$TICKET_JSON" 2>/dev/null || echo "Unknown")
+  CATEGORY=$(jq -r '.ticket.category // "Uncategorized"' "$TICKET_JSON")
+  URGENCY=$(jq -r '.ticket.urgency // 0' "$TICKET_JSON")
+
+  # Extract custom fields if present
+  CUSTOM_FIELDS=$(jq -r '.ticket.custom_fields // {}' "$TICKET_JSON")
+
+  # Extract attachments if present
+  ATTACHMENTS=$(jq -r '.ticket.attachments // []' "$TICKET_JSON")
+  HAS_ATTACHMENTS=$(echo "$ATTACHMENTS" | jq '. | length > 0')
+
+  # Extract conversations
+  CONVERSATIONS=$(jq -r '.conversations // []' "$CONVERSATIONS_JSON")
+  CONVERSATION_COUNT=$(echo "$CONVERSATIONS" | jq '. | length')
+else
+  # Fallback to basic grep/sed parsing
+  SUBJECT=$(grep -o '"subject":"[^"]*"' "$TICKET_JSON" | head -1 | sed 's/"subject":"//;s/"$//' || echo "No subject")
+  DESCRIPTION=$(grep -o '"description_text":"[^"]*"' "$TICKET_JSON" | head -1 | sed 's/"description_text":"//;s/"$//' || echo "No description")
+  PRIORITY="0"
+  STATUS="0"
+  CREATED_AT="Unknown"
+  REQUESTER_NAME="Unknown"
+  CATEGORY="Unknown"
+  URGENCY="0"
+  HAS_ATTACHMENTS="false"
+  CONVERSATION_COUNT="0"
+fi
+
+# Map priority codes to human-readable strings
+case "$PRIORITY" in
+  1) PRIORITY_STR="Low" ;;
+  2) PRIORITY_STR="Medium" ;;
+  3) PRIORITY_STR="High" ;;
+  4) PRIORITY_STR="Urgent" ;;
+  *) PRIORITY_STR="Unknown" ;;
+esac
+
+# Map urgency codes
+case "$URGENCY" in
+  1) URGENCY_STR="Low" ;;
+  2) URGENCY_STR="Medium" ;;
+  3) URGENCY_STR="High" ;;
+  *) URGENCY_STR="Unknown" ;;
+esac
+
+# Map status codes
+case "$STATUS" in
+  2) STATUS_STR="Open" ;;
+  3) STATUS_STR="Pending" ;;
+  4) STATUS_STR="Resolved" ;;
+  5) STATUS_STR="Closed" ;;
+  *) STATUS_STR="Unknown" ;;
+esac
+
+# Format the issue description
+ISSUE_DESCRIPTION="Bug report from FreshService Ticket #${TICKET_ID}
+
+## Summary
+${SUBJECT}
+
+## Description
+${DESCRIPTION}
+
+## Ticket Information
+- **FreshService Ticket**: #${TICKET_ID}
+- **Status**: ${STATUS_STR}
+- **Priority**: ${PRIORITY_STR}
+- **Urgency**: ${URGENCY_STR}
+- **Category**: ${CATEGORY}
+- **Created**: ${CREATED_AT}
+
+## Reporter Information
+- **Name**: ${REQUESTER_NAME}
+- **Contact**: Available in FreshService ticket #${TICKET_ID}
+
+## Steps to Reproduce
+(Please extract from description or conversations if available)
+
+## Expected Behavior
+(To be determined from ticket context)
+
+## Actual Behavior
+(Described in ticket)
+
+## Additional Context"
+
+# Add attachments section if present
+if [ "$HAS_ATTACHMENTS" = "true" ] && [ "$JQ_AVAILABLE" = true ]; then
+  ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
+
+### Attachments"
+  ATTACHMENTS_LIST=$(echo "$ATTACHMENTS" | jq -r '.[] | "- \(.name) (\(.size) bytes)"')
+  ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
+${ATTACHMENTS_LIST}"
+fi
+
+# Add conversation history if present (sanitize HTML/script tags)
+if [ "$CONVERSATION_COUNT" -gt 0 ] && [ "$JQ_AVAILABLE" = true ]; then
+  ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
+
+### Conversation History
+"
+  CONVERSATION_TEXT=$(echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n" + ((.body_text // .body) | gsub("[<>]"; "")) + "\n"')
+  ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}${CONVERSATION_TEXT}"
+fi
+
+# Add custom fields if present and not empty
+if [ "$JQ_AVAILABLE" = true ]; then
+  CUSTOM_FIELDS_COUNT=$(echo "$CUSTOM_FIELDS" | jq '. | length')
+  if [ "$CUSTOM_FIELDS_COUNT" -gt 0 ]; then
+    ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
+
+### Custom Fields
+\`\`\`json
+# Custom fields from FreshService - review before using
+$(echo "$CUSTOM_FIELDS" | jq '.')
+\`\`\`"
+  fi
+fi
+
+# Add link to original ticket
+ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
+
+---
+*Imported from FreshService: https://${FRESHSERVICE_DOMAIN}.freshservice.com/a/tickets/${TICKET_ID}*"
 
 echo "=== Ticket Information ==="
-cat "$TICKET_FILE"
+echo ""
+echo "Subject: $SUBJECT"
+echo "Priority: $PRIORITY_STR"
+echo "Status: $STATUS_STR"
 echo ""
 ```
 
-### Phase 4: Create GitHub Issue
+### Phase 2: Create GitHub Issue
 
 Now invoke the `/issue` command with the extracted information:
 
-```bash
-# Read the formatted ticket description
-ISSUE_DESCRIPTION=$(cat "$TICKET_FILE")
+**IMPORTANT**: Use the SlashCommand tool to invoke `/psd-claude-coding-system:issue` with the ticket description.
 
-# Clean up temporary file
-rm -f "$TICKET_FILE"
+Pass the `$ISSUE_DESCRIPTION` variable that contains the formatted bug report from FreshService.
 
-echo "=== Creating GitHub Issue ==="
-echo ""
-```
-
-**IMPORTANT**: Now use the SlashCommand tool to invoke `/psd-claude-coding-system:issue` with the ticket description:
-
-Use the SlashCommand tool with:
-- `command`: `/psd-claude-coding-system:issue`
-
-Pass the issue description from the ticket data. The description should be formatted as a bug report based on the FreshService ticket information.
-
-### Phase 5: Confirmation
+### Phase 3: Confirmation
 
 After the issue is created, provide a summary:
 
@@ -150,7 +332,8 @@ echo "✅ Triage completed successfully!"
 echo ""
 echo "Summary:"
 echo "  - FreshService Ticket: #$TICKET_ID"
-echo "  - GitHub Issue: [URL from /issue command output]"
+echo "  - Subject: $SUBJECT"
+echo "  - Priority: $PRIORITY_STR"
 echo ""
 echo "Next steps:"
 echo "  - Review the created issue"
@@ -169,9 +352,10 @@ Handle common error scenarios:
 ## Security Notes
 
 - API key is stored in `~/.claude/freshservice.env` (user-level, not in repository)
-- Script uses HTTPS for all API communications
+- All API communications use HTTPS
 - Input validation prevents injection attacks
 - Credentials are never logged or displayed
+- Sensitive data (emails) not included in public GitHub issues
 
 ## Example Usage
 
@@ -202,13 +386,4 @@ grep FRESHSERVICE_DOMAIN ~/.claude/freshservice.env
 ```bash
 # Test API connectivity manually
 curl -u YOUR_API_KEY:X -X GET 'https://YOUR_DOMAIN.freshservice.com/api/v2/tickets/TICKET_ID'
-```
-
-**Script Issues:**
-```bash
-# Check script exists and is executable
-ls -la plugins/psd-claude-coding-system/scripts/triage-ticket.sh
-
-# Run script directly for debugging
-bash plugins/psd-claude-coding-system/scripts/triage-ticket.sh TICKET_ID
 ```
