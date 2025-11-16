@@ -57,10 +57,12 @@ Use the script to retrieve ticket information:
 PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_PATH="$PLUGIN_ROOT/scripts/triage-ticket.sh"
 
-# Validate ticket ID
+# Validate and sanitize ticket ID (remove any non-numeric characters)
 TICKET_ID="$ARGUMENTS"
-if ! [[ "$TICKET_ID" =~ ^[0-9]+$ ]]; then
-  echo "❌ Invalid ticket ID: $TICKET_ID"
+TICKET_ID="${TICKET_ID//[^0-9]/}"  # Remove all non-numeric characters
+
+if [ -z "$TICKET_ID" ] || ! [[ "$TICKET_ID" =~ ^[0-9]+$ ]]; then
+  echo "❌ Invalid ticket ID"
   echo "Usage: /triage <ticket-id>"
   exit 1
 fi

@@ -34,6 +34,19 @@ if [ -z "${FRESHSERVICE_API_KEY:-}" ] || [ -z "${FRESHSERVICE_DOMAIN:-}" ]; then
   exit 1
 fi
 
+# Validate domain format (alphanumeric and hyphens only, prevents SSRF)
+if ! [[ "$FRESHSERVICE_DOMAIN" =~ ^[a-zA-Z0-9-]+$ ]]; then
+  echo "Error: Invalid FRESHSERVICE_DOMAIN format" >&2
+  echo "Domain must contain only alphanumeric characters and hyphens" >&2
+  echo "Example: 'peninsula-sd' (not 'peninsula-sd.freshservice.com')" >&2
+  exit 1
+fi
+
+# Validate API key format (basic sanity check)
+if [ ${#FRESHSERVICE_API_KEY} -lt 20 ]; then
+  echo "Warning: API key appears too short. Please verify your configuration." >&2
+fi
+
 # API configuration
 API_BASE_URL="https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2"
 TICKET_ENDPOINT="${API_BASE_URL}/tickets/${TICKET_ID}"
@@ -44,9 +57,14 @@ TICKET_JSON="/tmp/fs-ticket-${TICKET_ID}.json"
 REQUESTER_JSON="/tmp/fs-requester-${TICKET_ID}.json"
 CONVERSATIONS_JSON="/tmp/fs-conversations-${TICKET_ID}.json"
 
+# Create output file with secure permissions (owner read/write only)
+touch "$OUTPUT_FILE"
+chmod 600 "$OUTPUT_FILE"
+
 # Cleanup function
 cleanup() {
   rm -f "$TICKET_JSON" "$REQUESTER_JSON" "$CONVERSATIONS_JSON"
+  rm -f "$OUTPUT_FILE"  # Also clean up output file
 }
 trap cleanup EXIT
 
@@ -54,28 +72,58 @@ trap cleanup EXIT
 api_request() {
   local url="$1"
   local output_file="$2"
+  local http_code_file="/tmp/fs-http-code-$$"
   local max_retries=3
   local retry_delay=2
   local attempt=1
 
   while [ $attempt -le $max_retries ]; do
-    if curl -f -s -u "${FRESHSERVICE_API_KEY}:X" \
+    # Make request and capture HTTP status code
+    http_code=$(curl -s -w "%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
          -H "Content-Type: application/json" \
          -X GET "$url" \
          -o "$output_file" \
-         --max-time 30; then
+         --max-time 30)
+
+    # Check for rate limiting (HTTP 429)
+    if [ "$http_code" = "429" ]; then
+      echo "Error: Rate limit exceeded. Please wait before retrying." >&2
+      echo "FreshService API has rate limits (typically 1000 requests/hour)." >&2
+      rm -f "$http_code_file"
+      return 1
+    fi
+
+    # Success (HTTP 200)
+    if [ "$http_code" = "200" ]; then
+      rm -f "$http_code_file"
       return 0
     fi
 
+    # Unauthorized (HTTP 401)
+    if [ "$http_code" = "401" ]; then
+      echo "Error: Authentication failed. Please check your API key." >&2
+      rm -f "$http_code_file"
+      return 1
+    fi
+
+    # Not found (HTTP 404)
+    if [ "$http_code" = "404" ]; then
+      echo "Error: Ticket not found. Please verify the ticket ID." >&2
+      rm -f "$http_code_file"
+      return 1
+    fi
+
+    # Retry on server errors (5xx)
     if [ $attempt -lt $max_retries ]; then
-      echo "Warning: API request failed (attempt $attempt/$max_retries), retrying in ${retry_delay}s..." >&2
+      echo "Warning: API request failed with HTTP $http_code (attempt $attempt/$max_retries), retrying in ${retry_delay}s..." >&2
       sleep $retry_delay
       retry_delay=$((retry_delay * 2))  # Exponential backoff
     fi
     attempt=$((attempt + 1))
   done
 
-  echo "Error: API request failed after $max_retries attempts" >&2
+  rm -f "$http_code_file"
+  echo "Error: API request failed after $max_retries attempts (last HTTP code: $http_code)" >&2
   return 1
 }
 
@@ -184,7 +232,7 @@ ${DESCRIPTION}
 
 ## Reporter Information
 - **Name**: ${REQUESTER_NAME}
-- **Email**: ${REQUESTER_EMAIL}
+- **Contact**: Available in FreshService ticket #${TICKET_ID}
 
 ## Steps to Reproduce
 (Please extract from description or conversations if available)
@@ -205,12 +253,13 @@ if [ "$HAS_ATTACHMENTS" = "true" ] && [ "$JQ_AVAILABLE" = true ]; then
   echo "$ATTACHMENTS" | jq -r '.[] | "- \(.name) (\(.size) bytes)"' >> "$OUTPUT_FILE"
 fi
 
-# Add conversation history if present
+# Add conversation history if present (sanitize HTML/script tags)
 if [ "$CONVERSATION_COUNT" -gt 0 ] && [ "$JQ_AVAILABLE" = true ]; then
   echo "" >> "$OUTPUT_FILE"
   echo "### Conversation History" >> "$OUTPUT_FILE"
   echo "" >> "$OUTPUT_FILE"
-  echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n\(.body_text // .body)\n"' >> "$OUTPUT_FILE"
+  # Sanitize by removing < and > characters to prevent markdown injection
+  echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n" + ((.body_text // .body) | gsub("[<>]"; "")) + "\n"' >> "$OUTPUT_FILE"
 fi
 
 # Add custom fields if present and not empty
@@ -220,6 +269,7 @@ if [ "$JQ_AVAILABLE" = true ]; then
     echo "" >> "$OUTPUT_FILE"
     echo "### Custom Fields" >> "$OUTPUT_FILE"
     echo '```json' >> "$OUTPUT_FILE"
+    echo "# Custom fields from FreshService - review before using" >> "$OUTPUT_FILE"
     echo "$CUSTOM_FIELDS" | jq '.' >> "$OUTPUT_FILE"
     echo '```' >> "$OUTPUT_FILE"
   fi
