@@ -14,34 +14,51 @@ You are a command wrapper that gathers context and invokes the architect-special
 
 ## Workflow
 
-### Phase 1: Context Gathering
+### Phase 1: Parallel Context Gathering
 
-When given an issue number, gather complete context:
+When given an issue number, gather complete context IN PARALLEL:
 
 ```bash
-# Get COMPLETE issue context including all prior work
 if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  echo "=== Loading Issue #$ARGUMENTS with all context ==="
-  gh issue view $ARGUMENTS
-  echo -e "\n=== All Comments (PM requirements, research, etc.) ==="
-  gh issue view $ARGUMENTS --comments
-
-  # Analyze existing architecture
-  echo -e "\n=== Existing Architecture Documentation ==="
-  find . -name "*.md" -path "*/docs/*" -o -name "ARCHITECTURE.md" -o -name "CLAUDE.md" 2>/dev/null | head -10
-
+  echo "=== Loading Issue #$ARGUMENTS with all context (parallel) ==="
   ISSUE_NUMBER=$ARGUMENTS
+
+  # Run context gathering in parallel for speed
+  (
+    echo "=== Issue Details ==="
+    gh issue view $ARGUMENTS
+  ) &
+
+  (
+    echo -e "\n=== All Comments (PM requirements, research, etc.) ==="
+    gh issue view $ARGUMENTS --comments
+  ) &
+
+  (
+    echo -e "\n=== Existing Architecture Documentation ==="
+    find . -name "*.md" -path "*/docs/*" -o -name "ARCHITECTURE.md" -o -name "CLAUDE.md" 2>/dev/null | head -10
+  ) &
+
+  (
+    echo -e "\n=== Related PRs ==="
+    gh pr list --search "mentions:$ARGUMENTS" --limit 5
+  ) &
+
+  # Wait for all parallel context gathering to complete
+  wait
+
 else
   # Topic-based architecture (no issue number)
   ISSUE_NUMBER=""
+  echo "=== Architecture Topic: $ARGUMENTS ==="
 fi
 ```
 
-This provides:
-- Original requirements from product-manager
-- Technical research from issue command
-- Any other context added by team
-- Existing architecture patterns
+This provides (in parallel):
+- Issue details and requirements
+- All comments (PM requirements, research, etc.)
+- Existing architecture patterns and documentation
+- Related PRs for additional context
 
 ### Phase 2: Invoke Architecture Specialist
 

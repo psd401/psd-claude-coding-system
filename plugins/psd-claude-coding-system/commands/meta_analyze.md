@@ -1,6 +1,6 @@
 ---
 description: Analyze telemetry data and extract development patterns
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read
 argument-hint: [--since 7d] [--command work] [--output file.md]

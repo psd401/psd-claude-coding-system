@@ -2,7 +2,7 @@
 allowed-tools: Bash(*), View, Edit, Create, WebSearch, Task
 description: Transform ideas into comprehensive product specifications and user stories
 argument-hint: [product idea, feature request, or user need]
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 ---
 

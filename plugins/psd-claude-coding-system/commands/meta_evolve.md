@@ -1,6 +1,6 @@
 ---
 description: Evolve agent prompts using genetic algorithms and historical performance data
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [--agents all|agent-name] [--generations 10] [--parallel] [--output report.md]
