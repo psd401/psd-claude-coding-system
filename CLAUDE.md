@@ -20,16 +20,22 @@ The plugin follows Claude Code's architecture with automatic telemetry via hooks
 ```
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
-  │   └── plugin.json          # Plugin metadata (v1.1.0)
+  │   └── plugin.json          # Plugin metadata (v1.7.0)
   ├── commands/                 # 18 slash commands (*.md)
   ├── agents/                   # 15 specialized AI agents (*.md)
+  ├── skills/                   # 5 reusable workflow skills (NEW v1.7.0)
+  │   ├── git-workflow.md       # Branch, commit, PR patterns
+  │   ├── test-runner.md        # Universal test execution
+  │   ├── security-scan.md      # Security checks
+  │   ├── telemetry-report.md   # Telemetry utilities
+  │   └── parallel-dispatch.md  # Multi-agent coordination
   ├── hooks/
   │   └── hooks.json            # Automatic telemetry collection
   ├── scripts/
   │   ├── telemetry-init.sh     # SessionStart hook
   │   ├── telemetry-command.sh  # UserPromptSubmit hook
   │   ├── telemetry-agent.sh    # SubagentStop hook
-  │   └── telemetry-track.sh    # Stop hook
+  │   └── telemetry-track.sh    # Stop hook (enhanced v1.7.0)
   ├── meta/                     # Telemetry data (git-ignored)
   └── README.md                 # Plugin documentation
 ```
@@ -48,7 +54,13 @@ plugins/psd-claude-coding-system/
 
 ### Workflow Commands (9 commands)
 
-Production-ready workflows all using latest Claude models (sonnet-4-5, opus-4-1) with extended-thinking enabled.
+Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) with extended-thinking enabled.
+
+**NEW in v1.7.0:**
+- **Opus 4.5** used for architecture/planning (80.9% SWE-bench, 66% cost reduction vs opus-4-1)
+- **Aggressive parallelism** - 2-3 agents dispatched simultaneously (Every's philosophy: speed > cost)
+- **Pre-implementation security** - Security review before coding, not after PR
+- **Skills layer** - Reusable workflow components for common patterns
 
 **Command Workflow Pattern**: Most commands follow this structure:
 1. **Phase 1**: Context gathering (git status, issue details, file analysis)
@@ -57,14 +69,14 @@ Production-ready workflows all using latest Claude models (sonnet-4-5, opus-4-1)
 4. **Phase 4**: Validation (tests, commits, PRs)
 
 **Key Commands**:
-- `/work [issue-number|description]` - Main implementation workflow, auto-detects issue vs quick-fix mode
-- `/architect [issue-number|topic]` - Architecture design using opus-4-1 for deep reasoning
+- `/work [issue-number|description]` - Main implementation workflow with parallel agent analysis (v1.7.0: always 2-3 agents)
+- `/architect [issue-number|topic]` - Architecture design using opus-4-5 with parallel context gathering
 - `/test [scope]` - Comprehensive testing with coverage validation
-- `/review_pr [number]` - Systematic PR feedback handling
+- `/review_pr [number]` - PR feedback handling with parallel categorization (v1.7.0)
 - `/compound_concepts` - Finds automation/systematization opportunities
 - `/security_audit` - Security review and vulnerability analysis
-- `/issue [description]` - Research and create structured GitHub issues
-- `/product-manager [idea]` - Transform ideas into product specs
+- `/issue [description]` - Research and create GitHub issues (opus-4-5)
+- `/product-manager [idea]` - Transform ideas into product specs (opus-4-5)
 - `/clean_branch` - Post-merge cleanup
 
 **Workflow Agents** (10 total):
@@ -74,6 +86,38 @@ Production-ready workflows all using latest Claude models (sonnet-4-5, opus-4-1)
 
 **Meta-Learning Agents** (5 total):
 - meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
+
+### Skills Layer (NEW v1.7.0)
+
+Reusable workflow components extracted from common patterns across commands:
+
+**git-workflow.md** - Git operations (branching, committing, PR creation)
+- Standardizes branch naming (feature/N-desc, fix/desc)
+- Handles issue vs quick-fix commit patterns
+- PR creation with proper templates
+
+**test-runner.md** - Universal test execution
+- Auto-detects framework (Jest, Vitest, pytest, cargo, go test)
+- Runs specific suites (unit, integration, e2e)
+- Coverage reporting
+- Quality checks (linting, type checking, formatting)
+
+**security-scan.md** - Security analysis workflows
+- Pre-implementation security guidance
+- Post-PR security review
+- Secret/vulnerability detection
+- Security checklist validation
+
+**telemetry-report.md** - Telemetry utilities
+- Query command history
+- Track parallel execution patterns
+- Get recommendations from historical data
+
+**parallel-dispatch.md** - Multi-agent coordination
+- Auto-detect which agents to invoke based on context
+- Pattern for parallel Task tool invocations
+- Synthesize multiple agent responses
+- Track parallelism for telemetry
 
 ### Meta-Learning Commands (9 commands)
 

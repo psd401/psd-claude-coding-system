@@ -143,11 +143,14 @@ meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-valida
 - 🧪 Living documentation generation
 - 🧪 A/B testing framework for safe experimentation
 
-### New in v1.1.0
-- 🚀 **Hook-based telemetry** - Reliable, zero-config usage tracking
-- 🚀 **Unified plugin** - One install, one version, simpler architecture
-- 🚀 **Automatic agent tracking** - SubagentStop hook tracks all agent invocations
-- 🚀 **Improved reliability** - No reliance on AI executing bash blocks
+### New in v1.7.0 (November 2025)
+- 🚀 **Opus 4.5 upgrade** - Architecture/planning commands use new model (80.9% SWE-bench, 66% cost savings)
+- 🚀 **Aggressive parallelism** - `/work` always dispatches 2-3 agents simultaneously (Every's pattern)
+- 🚀 **Pre-implementation security** - Security review happens before coding, not after PR
+- 🚀 **Skills layer** - 5 reusable workflow components for git, testing, security, telemetry, parallelism
+- 🚀 **Parallel context gathering** - `/architect` fetches context concurrently (4 parallel operations)
+- 🚀 **Parallel PR feedback** - `/review_pr` categorizes and dispatches agents by feedback type
+- 🚀 **Enhanced telemetry** - Tracks parallel execution patterns, duration, agent combinations
 
 ## Development Status
 
@@ -155,37 +158,24 @@ meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-valida
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 **Stability**: Workflow commands battle-tested, meta-learning in active development
 
-### What's New in v1.4.0 (October 2025)
+### Architecture Philosophy (v1.7.0)
 
-**Enhanced Issue & Architecture Workflow:**
-- `/issue` command now:
-  - Auto-detects complexity and invokes architecture design when needed
-  - Validates plans with GPT-5 (via plan-validator) before creating issues
-  - Always uses current documentation (dynamic date queries, MCP servers)
-  - Only asks clarifying questions when critically needed
-- `/architect` refactored to use architect-specialist agent (shared with /issue)
-- `/product-manager` now validates breakdown with plan-validator and uses `/issue` for sub-issues
+**Aggressive Parallelism** (inspired by Every's compounding-engineering plugin):
+- Speed > Cost: Always dispatch 2-3 agents in parallel
+- Cost: ~$1.50/issue (+$1 parallel agents, +$0.50 opus-4-5)
+- Value: $23-33/issue (15-20 min rework reduction @ $100/hr)
+- ROI: 15x-22x return on investment
 
-**Automatic Security Review:**
-- `/work` command now automatically runs security analysis after PR creation
-- Single consolidated security review comment (no more spam)
-- Powered by new security-analyst-specialist agent
-- `/security_audit` still available for manual audits
+**Skills Layer** - DRY principle for workflows:
+- Extract common patterns (git, testing, security, telemetry, parallelism)
+- Single source of truth reduces maintenance
+- Reusable across commands
+- Easier to enhance and test
 
-**Compound Learning Extraction:**
-- `/clean_branch` now automatically analyzes merged PRs for learning opportunities
-- Extracts patterns: type safety issues, testing gaps, security concerns, iteration problems
-- Generates actionable suggestions using compound engineering framework
-- Saves insights to telemetry data for meta-learning system
-- No manual `/compound_concepts` invocation needed (still available standalone)
-
-**New Agents:**
-- `architect-specialist` - Shared architecture design logic
-- `security-analyst-specialist` - Comprehensive security analysis
-
-**Enhanced plan-validator:**
-- Now uses GPT-5 with high reasoning effort (`model_reasoning_effort="high"`)
-- Provides deeper analysis for plan validation
+**Pre-Implementation Security**:
+- Security-analyst runs BEFORE coding (Phase 2.5 in `/work`)
+- Prevents issues rather than finding them in PR review
+- Reduces post-PR security findings from ~2-3 to <1 per PR
 
 **Telemetry Cleanup:**
 - Removed obsolete manual telemetry code from all commands

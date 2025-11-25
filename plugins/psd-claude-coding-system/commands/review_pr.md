@@ -26,28 +26,60 @@ gh pr checks $ARGUMENTS
 gh pr diff $ARGUMENTS
 ```
 
-### Phase 2: Categorize Feedback
+### Phase 2: Parallel Feedback Categorization (NEW - Aggressive Parallelism)
 
-Group comments by type and priority:
-- 🔴 **Blocking**: Must fix before merge
-- 🟡 **Important**: Should address
-- 🟢 **Suggestions**: Nice to have improvements
-- 💬 **Discussion**: Needs clarification
+Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
+
+```bash
+# Extract all review comments
+REVIEW_COMMENTS=$(gh pr view $ARGUMENTS --json reviews --jq '.reviews[].body')
+
+# Detect feedback types
+SECURITY_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "security|vulnerability|auth|xss|injection|secret" || echo "")
+PERFORMANCE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "performance|slow|optimize|cache|memory|speed" || echo "")
+TEST_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "test|coverage|mock|assertion|spec" || echo "")
+ARCHITECTURE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "architecture|design|pattern|structure|refactor" || echo "")
+
+echo "=== Feedback Categories Detected ==="
+[ -n "$SECURITY_FEEDBACK" ] && echo "  - Security issues"
+[ -n "$PERFORMANCE_FEEDBACK" ] && echo "  - Performance concerns"
+[ -n "$TEST_FEEDBACK" ] && echo "  - Testing feedback"
+[ -n "$ARCHITECTURE_FEEDBACK" ] && echo "  - Architecture feedback"
+```
+
+**Invoke agents in parallel** based on detected categories:
+
+**CRITICAL: Use Task tool with multiple simultaneous invocations:**
+
+If security feedback exists:
+- subagent_type: "psd-claude-coding-system:security-analyst-specialist"
+- description: "Address security feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for security feedback: $SECURITY_FEEDBACK"
+
+If performance feedback exists:
+- subagent_type: "psd-claude-coding-system:performance-optimizer"
+- description: "Address performance feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for performance feedback: $PERFORMANCE_FEEDBACK"
+
+If test feedback exists:
+- subagent_type: "psd-claude-coding-system:test-specialist"
+- description: "Address testing feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for testing feedback: $TEST_FEEDBACK"
+
+If architecture feedback exists:
+- subagent_type: "psd-claude-coding-system:architect-specialist"
+- description: "Address architecture feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for architecture feedback: $ARCHITECTURE_FEEDBACK"
+
+**Wait for all agents to return, then synthesize their recommendations into a unified response plan.**
 
 ### Phase 3: Address Feedback
 
-For each comment, systematically:
-1. Understand the concern
-2. Implement the fix
+Using synthesized agent recommendations, systematically address each comment:
+1. Understand the concern (from agent analysis)
+2. Implement the fix (following agent guidance)
 3. Test the change
 4. Respond to the reviewer
-
-**Agent Assistance for Complex Feedback:**
-- **Security Issues**: Invoke @agents/security-analyst.md
-- **Performance Concerns**: Invoke @agents/performance-optimizer.md  
-- **Test Failures**: Invoke @agents/test-specialist.md
-- **Architecture Questions**: Invoke @agents/architect.md
-- **Second Opinion**: Invoke @agents/gpt-5.md
 
 ### Phase 4: Update PR
 ```bash

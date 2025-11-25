@@ -199,6 +199,31 @@ if [ -n "$COMMAND_AGENTS" ]; then
 fi
 
 # ==============================================================================
+# PARALLEL EXECUTION TRACKING (v1.7.0+)
+# ==============================================================================
+
+# Check if session used parallel agent execution
+PARALLEL_EXECUTION="false"
+PARALLEL_AGENTS_JSON="null"
+PARALLEL_DURATION_MS="null"
+
+if grep -q "^PARALLEL=true" "$STATE_FILE" 2>/dev/null; then
+  PARALLEL_EXECUTION="true"
+
+  # Extract parallel agents list
+  PARALLEL_AGENTS=$(grep "^PARALLEL_AGENTS=" "$STATE_FILE" 2>/dev/null | cut -d= -f2)
+  if [ -n "$PARALLEL_AGENTS" ]; then
+    PARALLEL_AGENTS_JSON="[\"$(echo "$PARALLEL_AGENTS" | sed 's/ /", "/g')\"]"
+  fi
+
+  # Extract parallel execution duration
+  PARALLEL_DURATION=$(grep "^PARALLEL_DURATION_MS=" "$STATE_FILE" 2>/dev/null | cut -d= -f2)
+  if [ -n "$PARALLEL_DURATION" ]; then
+    PARALLEL_DURATION_MS="$PARALLEL_DURATION"
+  fi
+fi
+
+# ==============================================================================
 # BUILD COMPREHENSIVE METADATA JSON
 # ==============================================================================
 
@@ -226,6 +251,9 @@ METADATA_JSON=$(jq -n \
   --argjson tool_uses "$TOOL_USES_JSON" \
   --argjson errors "$ERRORS_JSON" \
   --argjson user_corrections "$USER_CORRECTIONS_JSON" \
+  --argjson parallel_exec "$PARALLEL_EXECUTION" \
+  --argjson parallel_agents "$PARALLEL_AGENTS_JSON" \
+  --argjson parallel_duration "$PARALLEL_DURATION_MS" \
   '{
     metrics: {
       files_changed: $files_changed,
@@ -235,6 +263,11 @@ METADATA_JSON=$(jq -n \
       issue_number: $issue_number,
       tool_uses: $tool_uses,
       edit_retries: $edit_retries
+    },
+    parallelism: {
+      enabled: $parallel_exec,
+      agents: $parallel_agents,
+      duration_ms: $parallel_duration
     },
     insights: {
       errors: $errors,

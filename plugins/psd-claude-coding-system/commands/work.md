@@ -60,27 +60,89 @@ echo "✓ Created feature branch from dev"
 
 ```
 
+### Phase 2.5: Parallel Agent Analysis (NEW - Aggressive Parallelism)
+
+**Always dispatch 2-3 agents in parallel** for maximum insight (Every's philosophy: speed > cost).
+
+#### Step 1: Detect Context & Determine Agents
+
+```bash
+# Get issue body and detect file patterns
+if [ "$WORK_TYPE" = "issue" ]; then
+  ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
+  # Extract mentioned files from issue if available
+  CHANGED_FILES=$(echo "$ISSUE_BODY" | grep -oE '\w+\.(ts|tsx|js|jsx|py|go|rs|sql|vue|svelte)' || echo "")
+else
+  ISSUE_BODY="$ARGUMENTS"
+  CHANGED_FILES=""
+fi
+
+# Determine agents to invoke (from @skills/parallel-dispatch.md pattern)
+AGENTS_TO_INVOKE="test-specialist"  # Always include for test strategy
+
+# Security-sensitive detection
+if echo "$ISSUE_BODY $CHANGED_FILES" | grep -iEq "auth|login|password|token|session|permission|role|encrypt|decrypt|payment|billing"; then
+  AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE security-analyst-specialist"
+  SECURITY_SENSITIVE=true
+  echo "ℹ️  Security-sensitive changes detected"
+fi
+
+# Domain detection
+if echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "component|\.tsx|\.jsx|\.vue|frontend|ui"; then
+  AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE frontend-specialist"
+  echo "ℹ️  Frontend work detected"
+elif echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "api|routes|controller|service|backend|\.go|\.rs"; then
+  AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE backend-specialist"
+  echo "ℹ️  Backend work detected"
+elif echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "schema|migration|database|\.sql"; then
+  AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE database-specialist"
+  echo "ℹ️  Database work detected"
+elif echo "$ISSUE_BODY" | grep -iEq "ai|llm|gpt|claude|openai|anthropic"; then
+  AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE llm-specialist"
+  echo "ℹ️  AI/LLM work detected"
+fi
+
+echo "=== Agents to invoke in parallel: $AGENTS_TO_INVOKE ==="
+```
+
+#### Step 2: Invoke Agents in Parallel
+
+**CRITICAL: Use Task tool to invoke ALL agents simultaneously in a SINGLE message with multiple tool calls.**
+
+For each agent in $AGENTS_TO_INVOKE:
+
+**test-specialist** (always):
+- subagent_type: "psd-claude-coding-system:test-specialist"
+- description: "Test strategy for issue #$ISSUE_NUMBER"
+- prompt: "Design comprehensive test strategy for: $ISSUE_BODY. Include unit tests, integration tests, edge cases, and mock requirements."
+
+**security-analyst-specialist** (if security-sensitive):
+- subagent_type: "psd-claude-coding-system:security-analyst-specialist"
+- description: "PRE-IMPLEMENTATION security guidance for #$ISSUE_NUMBER"
+- prompt: "Provide security guidance BEFORE implementation for: $ISSUE_BODY. Focus on requirements to follow, pitfalls to avoid, secure patterns, and security testing."
+
+**[domain]-specialist** (if detected):
+- subagent_type: "psd-claude-coding-system:[backend/frontend/database/llm]-specialist"
+- description: "[Domain] implementation guidance for #$ISSUE_NUMBER"
+- prompt: "Provide implementation guidance for: $ISSUE_BODY. Include architecture patterns, best practices, common mistakes, and integration points."
+
+#### Step 3: Synthesize Agent Recommendations
+
+After all agents return, synthesize their insights into an implementation plan:
+- Combine test strategy with implementation approach
+- Integrate security requirements into design
+- Follow domain-specific best practices
+- Create unified implementation roadmap
+
 ### Phase 3: Implementation
 
-Based on issue requirements, implement the solution following project patterns:
+Based on synthesized agent recommendations and issue requirements, implement the solution:
 - Check local CLAUDE.md for project-specific conventions
-- Follow established architecture patterns
+- Follow established architecture patterns from agents
+- Implement security requirements from security-analyst (if provided)
+- Follow test strategy from test-specialist
+- Apply domain best practices from specialist agents
 - Maintain type safety (no `any` types)
-- Use appropriate design patterns
-
-**Agent Assistance Available:**
-When encountering specialized work, invoke these agents:
-- **Frontend Components**: Invoke @agents/frontend-specialist.md
-- **Backend APIs**: Invoke @agents/backend-specialist.md
-- **Database Changes**: Invoke @agents/database-specialist.md
-- **AI Features**: Invoke @agents/llm-specialist.md
-- **Testing Strategy**: Invoke @agents/test-specialist.md
-- **Documentation**: Invoke @agents/documentation-writer.md
-- **Performance Issues**: Invoke @agents/performance-optimizer.md
-- **Security Concerns**: Invoke @agents/security-analyst.md
-- **Second Opinion**: Invoke @agents/gpt-5.md for validation
-
-**Note**: Agents automatically report their invocation to telemetry (if meta-learning system installed).
 
 ```bash
 ```
@@ -202,65 +264,24 @@ Quick fix: $ARGUMENTS
 - [ ] Breaking change" \
     --assignee "@me"
 fi
+
+echo "✅ PR created successfully"
 ```
 
-### Phase 5.5: Automated Security Review
-
-After PR creation, automatically perform security analysis:
-
-**Invoke security-analyst-specialist agent:**
-
-Use the Task tool to invoke security analysis:
-- `subagent_type`: "psd-claude-coding-system:security-analyst-specialist"
-- `description`: "Security audit for PR"
-- `prompt`: "Perform comprehensive security audit on the pull request that was just created. Analyze all changed files for:
-
-1. Security vulnerabilities (SQL injection, XSS, auth issues, secrets)
-2. Architecture violations (business logic in UI, improper layer separation)
-3. Best practices compliance (TypeScript quality, error handling, testing)
-
-Return structured findings in the specified format so they can be posted as a single consolidated PR comment."
-
-**The agent will return structured findings. Parse and post as single comment:**
+### Summary
 
 ```bash
-# Capture PR number from most recent PR
 PR_NUMBER=$(gh pr list --author "@me" --limit 1 --json number --jq '.[0].number')
-
-# Post consolidated security review comment
-# (Format the agent's structured findings into a single comment)
-gh pr comment $PR_NUMBER --body "## 🔍 Automated Security & Best Practices Review
-
-[Insert formatted findings from security-analyst-specialist agent]
-
-### Summary
-- 🔴 Critical Issues: [count]
-- 🟡 High Priority: [count]
-- 🟢 Suggestions: [count]
-
-### Critical Issues (🔴 Must Fix Before Merge)
-[Critical findings from agent]
-
-### High Priority (🟡 Should Fix Before Merge)
-[High priority findings from agent]
-
-### Suggestions (🟢 Consider for Improvement)
-[Suggestions from agent]
-
-### Positive Practices Observed
-[Good practices from agent]
-
-### Required Actions
-1. Address all 🔴 critical issues before merge
-2. Consider 🟡 high priority fixes
-3. Run tests after fixes: \`npm run test\`, \`npm run lint\`, \`npm run typecheck\`
-
----
-*Automated security review by security-analyst-specialist agent*"
 
 echo ""
 echo "✅ Work completed successfully!"
-echo "✅ Security review posted to PR #$PR_NUMBER"
+echo "✅ PR #$PR_NUMBER created and ready for review"
+echo ""
+echo "Key improvements in v1.7.0:"
+echo "  - Security review happened PRE-implementation (fewer surprises)"
+echo "  - Parallel agent analysis provided comprehensive guidance"
+echo "  - Test strategy defined before coding"
+echo ""
 ```
 
 ## Quick Reference
