@@ -143,7 +143,7 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     map(select(.sessionId == $sid)) |
     map(select(.message.role == "user")) |
     map(select((.message.content | type) == "string")) |
-    map(select(.message.content | test("terrible|awful|broken|doesn'"'"'t work|failed|wrong|bug|error|issue|problem|fix this|redo|revert|not what I wanted|missing|incomplete|frustrated|annoying|waste|have to|follow-up|didn'"'"'t work"; "i"))) |
+    map(select(.message.content | test("(this|that|it).{0,20}(doesn'"'"'t work|didn'"'"'t work|broke|broken|failed|wrong|not what I wanted|incomplete)|(you|it) (broke|broken|failed)|\\b(terrible|awful|redo|revert|waste|frustrated|annoying)\\b"; "i"))) |
     map({
       feedback: (.message.content | .[0:200]),
       sentiment: "negative",
