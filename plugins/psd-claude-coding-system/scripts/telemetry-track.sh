@@ -196,6 +196,25 @@ AGENTS_JSON="[]"
 if [ -n "$COMMAND_AGENTS" ]; then
   # Convert comma-separated list to JSON array
   AGENTS_JSON="[\"$(echo "$COMMAND_AGENTS" | sed 's/,/", "/g')\"]"
+else
+  # FALLBACK: Extract agents from transcript if SubagentStop hook didn't capture them
+  # This handles cases where the hook failed or wasn't running yet
+  if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
+    AGENTS_FROM_TRANSCRIPT=$(jq -sr --arg sid "$SESSION_ID" '
+      map(select(.sessionId == $sid)) |
+      map(select((.message.content | type) == "array")) |
+      map(select(.message.content[0].type == "tool_use")) |
+      map(select(.message.content[0].name == "Task")) |
+      map(.message.content[0].input.subagent_type // empty) |
+      map(select(. != "")) |
+      unique
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "[]")
+
+    # Use the extracted agents if we found any
+    if [ "$AGENTS_FROM_TRANSCRIPT" != "[]" ] && [ -n "$AGENTS_FROM_TRANSCRIPT" ]; then
+      AGENTS_JSON="$AGENTS_FROM_TRANSCRIPT"
+    fi
+  fi
 fi
 
 # ==============================================================================
