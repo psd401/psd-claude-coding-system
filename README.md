@@ -71,7 +71,7 @@ meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-valida
 
 - [Getting Started](./docs/GETTING_STARTED.md) (Coming soon)
 - [Workflow Plugin Guide](./docs/WORKFLOW_PLUGIN.md) (Coming soon)
-- [Meta-Learning System Guide](./docs/META_LEARNING_SYSTEM.md) (Coming soon)
+- [**Meta-Learning System Guide**](./docs/META_LEARNING_GUIDE.md) ✅ - Command reference, schedules, workflows
 - [Architecture](./docs/ARCHITECTURE.md) (Coming soon)
 
 **For detailed planning docs**, see:
