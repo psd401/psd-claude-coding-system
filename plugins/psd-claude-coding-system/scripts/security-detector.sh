@@ -156,12 +156,12 @@ detect_security_sensitive_changes() {
     # Validate inputs
     if [[ -z "$issue_number" || -z "$context_type" ]]; then
         echo "[Error] Usage: security-detector.sh <issue/pr number> <issue|pr>" >&2
-        return 1
+        return 2
     fi
 
     if [[ "$context_type" != "issue" && "$context_type" != "pr" ]]; then
         echo "[Error] context_type must be 'issue' or 'pr'" >&2
-        return 1
+        return 2
     fi
 
     # Run detection strategies (any match = security-sensitive)
