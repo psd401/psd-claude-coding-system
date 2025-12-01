@@ -87,7 +87,7 @@ safe_gh_call() {
 
 # Detect sensitive file patterns
 # Args: issue_number, context_type (issue|pr)
-# Returns: 0 if match found, 1 if no match
+# Returns: 0 if match found, 1 if no match, 2+ for API errors
 detect_sensitive_files() {
     local issue_number="$1"
     local context_type="$2"
@@ -96,14 +96,17 @@ detect_sensitive_files() {
     local pattern=$(IFS='|'; echo "${SENSITIVE_FILE_PATTERNS[*]}")
 
     local files=""
+    local gh_call_result
     if [[ "$context_type" == "pr" ]]; then
         # Get changed files from PR
         files=$(safe_gh_call gh pr view "$issue_number" --json files -q '.files[].path')
-        [[ $? -ne 0 ]] && return 1
+        gh_call_result=$?
+        [[ $gh_call_result -ne 0 ]] && return $gh_call_result
     elif [[ "$context_type" == "issue" ]]; then
         # Extract file mentions from issue body (files in backticks)
         local body=$(safe_gh_call gh issue view "$issue_number" --json body -q '.body')
-        [[ $? -ne 0 ]] && return 1
+        gh_call_result=$?
+        [[ $gh_call_result -ne 0 ]] && return $gh_call_result
 
         # Extract file mentions: `path/to/file.ext`
         files=$(echo "$body" | grep -oE '`[^`]*\.(ts|tsx|js|jsx|py|go|rs|java|rb|php|sql|sh|md)[^`]*`' | tr -d '`')
@@ -120,7 +123,7 @@ detect_sensitive_files() {
 
 # Detect security keywords in description
 # Args: issue_number, context_type (issue|pr)
-# Returns: 0 if keywords found, 1 if not
+# Returns: 0 if keywords found, 1 if not, 2+ for API errors
 detect_sensitive_keywords() {
     local issue_number="$1"
     local context_type="$2"
@@ -129,13 +132,16 @@ detect_sensitive_keywords() {
     local pattern=$(IFS='|'; echo "${SECURITY_KEYWORDS[*]}")
 
     local body=""
+    local gh_call_result
     if [[ "$context_type" == "pr" ]]; then
         body=$(safe_gh_call gh pr view "$issue_number" --json body,title -q '.title + " " + .body')
+        gh_call_result=$?
     else
         body=$(safe_gh_call gh issue view "$issue_number" --json body,title -q '.title + " " + .body')
+        gh_call_result=$?
     fi
 
-    [[ $? -ne 0 ]] && return 1
+    [[ $gh_call_result -ne 0 ]] && return $gh_call_result
 
     # Word boundaries to avoid false positives (e.g., "author" matching "auth")
     if echo "$body" | grep -qiE "\b($pattern)\b"; then
@@ -165,22 +171,31 @@ detect_security_sensitive_changes() {
     fi
 
     # Run detection strategies (any match = security-sensitive)
-    local file_match=false
-    local keyword_match=false
+    local file_result
+    local keyword_result
 
-    if detect_sensitive_files "$issue_number" "$context_type"; then
-        file_match=true
+    detect_sensitive_files "$issue_number" "$context_type"
+    file_result=$?
+
+    detect_sensitive_keywords "$issue_number" "$context_type"
+    keyword_result=$?
+
+    # Check for API errors (2+) from either detection function
+    if [[ $file_result -ge 2 || $keyword_result -ge 2 ]]; then
+        # Propagate the error code (prefer higher error code if both failed)
+        if [[ $file_result -ge $keyword_result ]]; then
+            return $file_result
+        else
+            return $keyword_result
+        fi
     fi
 
-    if detect_sensitive_keywords "$issue_number" "$context_type"; then
-        keyword_match=true
-    fi
-
-    # Return success if either strategy matched
-    if [[ "$file_match" == true || "$keyword_match" == true ]]; then
+    # Check if either strategy found security-sensitive content
+    if [[ $file_result -eq 0 || $keyword_result -eq 0 ]]; then
         return 0
     fi
 
+    # Neither found security content and no errors
     return 1
 }
 
