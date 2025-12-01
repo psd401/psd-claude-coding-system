@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peninsula School District combining:
 
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
-2. **Meta-Learning System** (Experimental) - 9 commands + 5 meta-learning agents that learn from usage
+2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.7.0
+**Version**: 1.8.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Architecture
