@@ -80,11 +80,11 @@ fi
 # Determine agents to invoke (from @skills/parallel-dispatch.md pattern)
 AGENTS_TO_INVOKE="test-specialist"  # Always include for test strategy
 
-# Security-sensitive detection
-if echo "$ISSUE_BODY $CHANGED_FILES" | grep -iEq "auth|login|password|token|session|permission|role|encrypt|decrypt|payment|billing"; then
+# Security-sensitive detection (using centralized detector)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$ISSUE_NUMBER" "issue" 2>&1; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE security-analyst-specialist"
   SECURITY_SENSITIVE=true
-  echo "ℹ️  Security-sensitive changes detected"
 fi
 
 # Domain detection

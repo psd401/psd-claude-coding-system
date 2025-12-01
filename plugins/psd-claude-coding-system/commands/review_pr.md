@@ -26,6 +26,21 @@ gh pr checks $ARGUMENTS
 gh pr diff $ARGUMENTS
 ```
 
+### Phase 1.5: Security-Sensitive File Detection
+
+```bash
+# Automatically detect if PR touches security-sensitive code
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SECURITY_SENSITIVE=false
+
+if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$ARGUMENTS" "pr" 2>&1; then
+  SECURITY_SENSITIVE=true
+  echo ""
+  echo "⚠️  This PR contains security-sensitive changes and will receive a security review."
+  echo ""
+fi
+```
+
 ### Phase 2: Parallel Feedback Categorization (NEW - Aggressive Parallelism)
 
 Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
@@ -39,6 +54,11 @@ SECURITY_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "security|vulnerability|a
 PERFORMANCE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "performance|slow|optimize|cache|memory|speed" || echo "")
 TEST_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "test|coverage|mock|assertion|spec" || echo "")
 ARCHITECTURE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "architecture|design|pattern|structure|refactor" || echo "")
+
+# Auto-trigger security review for sensitive file changes (from Phase 1.5)
+if [[ "$SECURITY_SENSITIVE" == true ]]; then
+  SECURITY_FEEDBACK="Auto-triggered: PR contains security-sensitive file changes"
+fi
 
 echo "=== Feedback Categories Detected ==="
 [ -n "$SECURITY_FEEDBACK" ] && echo "  - Security issues"
