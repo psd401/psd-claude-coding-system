@@ -12,11 +12,11 @@
         "fix_commits": 2,
         "comments_count": 12,
         "common_themes": {
-          "type_safety": true,
-          "testing": true,
-          "error_handling": true,
-          "security": true,
-          "performance": false
+          "type_safety": 8,
+          "testing": 5,
+          "error_handling": 2,
+          "security": 1,
+          "performance": 0
         }
       },
       "suggestions": [
@@ -49,11 +49,11 @@
         "fix_commits": 1,
         "comments_count": 6,
         "common_themes": {
-          "type_safety": true,
-          "testing": false,
-          "error_handling": true,
-          "security": false,
-          "performance": true
+          "type_safety": 4,
+          "testing": 0,
+          "error_handling": 3,
+          "security": 0,
+          "performance": 6
         }
       },
       "suggestions": [
@@ -86,11 +86,11 @@
         "fix_commits": 0,
         "comments_count": 2,
         "common_themes": {
-          "type_safety": false,
-          "testing": true,
-          "error_handling": true,
-          "security": true,
-          "performance": false
+          "type_safety": 0,
+          "testing": 7,
+          "error_handling": 4,
+          "security": 2,
+          "performance": 0
         }
       },
       "suggestions": [
@@ -123,11 +123,11 @@
         "fix_commits": 4,
         "comments_count": 18,
         "common_themes": {
-          "type_safety": true,
-          "testing": true,
-          "error_handling": true,
-          "security": false,
-          "performance": true
+          "type_safety": 9,
+          "testing": 6,
+          "error_handling": 5,
+          "security": 0,
+          "performance": 3
         }
       },
       "suggestions": [
@@ -160,11 +160,11 @@
         "fix_commits": 1,
         "comments_count": 7,
         "common_themes": {
-          "type_safety": false,
-          "testing": true,
-          "error_handling": false,
-          "security": false,
-          "performance": true
+          "type_safety": 0,
+          "testing": 4,
+          "error_handling": 0,
+          "security": 0,
+          "performance": 8
         }
       },
       "suggestions": [

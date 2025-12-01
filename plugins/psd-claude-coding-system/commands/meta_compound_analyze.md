@@ -42,18 +42,34 @@ set -- $ARGUMENTS
 while [ $# -gt 0 ]; do
   case "$1" in
     --since)
-      SINCE_DAYS="$2"
-      shift 2
+      if [[ -n "$2" && ! "$2" =~ ^-- ]]; then
+        SINCE_DAYS="$2"
+        shift 2
+      else
+        echo "Error: --since requires a value." >&2
+        exit 1
+      fi
       ;;
     --min-confidence)
-      MIN_CONFIDENCE="$2"
-      shift 2
+      if [[ -n "$2" && ! "$2" =~ ^-- ]]; then
+        MIN_CONFIDENCE="$2"
+        shift 2
+      else
+        echo "Error: --min-confidence requires a value." >&2
+        exit 1
+      fi
       ;;
     --output)
-      OUTPUT_FILE="$2"
-      shift 2
+      if [[ -n "$2" && ! "$2" =~ ^-- ]]; then
+        OUTPUT_FILE="$2"
+        shift 2
+      else
+        echo "Error: --output requires a value." >&2
+        exit 1
+      fi
       ;;
     *)
+      echo "Warning: ignoring unknown argument: $1" >&2
       shift
       ;;
   esac
@@ -158,7 +174,9 @@ if command -v jq >/dev/null 2>&1; then
     .compound_learnings // [] |
     map(.patterns_observed.common_themes // {}) |
     reduce .[] as $item ({};
-      . + ($item | to_entries | map({key: .key, value: .value}) | from_entries)
+      reduce ($item | to_entries[]) as $entry (.;
+        .[$entry.key] = (.[$entry.key] // 0) + $entry.value
+      )
     ) |
     to_entries |
     sort_by(-.value) |
@@ -363,14 +381,32 @@ echo "Analysis complete. Use /meta_implement to apply high-priority suggestions.
 
 ### Phase 7: Output to File (if --output specified)
 
+All analysis output from Phases 2-6 should be captured. If --output is specified, pipe the output to tee:
+
 ```bash
+# Wrap analysis logic in a function (already executed above in Phases 2-6)
+# If OUTPUT_FILE was specified, the output has been tee'd to the file
+
 if [ -n "$OUTPUT_FILE" ]; then
-  echo "Writing report to $OUTPUT_FILE..."
-
-  # Redirect all output to file
-  # (Implementation note: Re-run analysis with output redirect)
-
+  echo ""
+  echo "---"
   echo "✓ Report saved to $OUTPUT_FILE"
+fi
+```
+
+**Note**: To implement output file support, the script structure should use:
+```bash
+run_analysis() {
+  # All echo statements from Phases 2-6 go here
+  echo "=== THEME ANALYSIS ==="
+  # ... rest of analysis phases
+}
+
+# Execute with optional tee
+if [ -n "$OUTPUT_FILE" ]; then
+  run_analysis | tee "$OUTPUT_FILE"
+else
+  run_analysis
 fi
 ```
 
