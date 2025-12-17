@@ -1,6 +1,6 @@
 ---
 description: Master weekly improvement pipeline orchestrating all meta-learning commands
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--dry-run] [--skip COMMAND] [--only COMMAND]

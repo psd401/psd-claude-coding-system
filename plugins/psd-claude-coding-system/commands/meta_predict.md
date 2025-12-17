@@ -1,6 +1,6 @@
 ---
 description: Predict future issues using trend analysis and pattern matching
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read
 argument-hint: [--horizon 3m] [--confidence-threshold 0.70] [--output predictions.md]

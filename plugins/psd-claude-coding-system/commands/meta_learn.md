@@ -1,6 +1,6 @@
 ---
 description: Generate improvement suggestions from patterns with historical context and ROI
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--from-analysis file.md] [--confidence-threshold 0.80] [--output suggestions.md]

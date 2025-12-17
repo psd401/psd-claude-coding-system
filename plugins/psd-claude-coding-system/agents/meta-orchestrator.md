@@ -2,7 +2,7 @@
 name: meta-orchestrator
 description: Dynamic workflow orchestration - learns optimal agent combinations
 tools: Bash, Read, Edit, Write, Grep, Glob
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 color: purple
 ---

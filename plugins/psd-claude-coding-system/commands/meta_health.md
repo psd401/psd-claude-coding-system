@@ -1,6 +1,6 @@
 ---
 description: Generate system health dashboard with compound engineering metrics
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--publish] [--send-summary-email] [--output dashboard.md]

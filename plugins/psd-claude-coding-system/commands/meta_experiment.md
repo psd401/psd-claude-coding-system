@@ -1,6 +1,6 @@
 ---
 description: A/B testing framework for safe experimentation with statistical validation
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [create|status|analyze|promote|rollback] [experiment-id] [--auto]

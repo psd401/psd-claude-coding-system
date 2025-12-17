@@ -2,7 +2,7 @@
 allowed-tools: Bash(*), View, Edit, Create, Task
 description: Implement solutions for GitHub issues or quick fixes
 argument-hint: [issue number OR description of quick fix]
-model: claude-sonnet-4-5
+model: claude-opus-4-5-20251101
 extended-thinking: true
 ---
 

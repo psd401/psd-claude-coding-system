@@ -1,6 +1,6 @@
 ---
 description: Auto-implement improvements with dry-run safety checks and rollback
-model: claude-opus-4-1
+model: claude-opus-4-5-20251101
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [suggestion-id] [--dry-run] [--auto] [--confirm] [--rollback]

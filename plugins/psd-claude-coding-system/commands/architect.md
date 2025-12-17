@@ -2,7 +2,7 @@
 allowed-tools: Bash(*), Task
 description: System architecture design and technical decision making for complex features
 argument-hint: [issue number or architecture topic]
-model: claude-sonnet-4-5
+model: claude-opus-4-5-20251101
 extended-thinking: true
 ---
 
