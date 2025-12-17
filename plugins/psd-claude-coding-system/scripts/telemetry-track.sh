@@ -168,7 +168,46 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   HAS_ERRORS=$(echo "$ERRORS_JSON" | jq 'length > 0')
   USER_UNHAPPY=$(echo "$USER_CORRECTIONS_JSON" | jq 'length > 0')
 
-  if [ "$HAS_ERRORS" = "true" ] || [ "$USER_UNHAPPY" = "true" ]; then
+  # Command-specific success detection for known broken commands
+  if [[ "$COMMAND_NAME" =~ review_pr$ ]]; then
+    # Check for PR review completion indicators
+    PR_REVIEW_SUCCESS=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -E "(gh pr comment|gh pr review)" | head -1)
+
+    if [ -n "$PR_REVIEW_SUCCESS" ]; then
+      SUCCESS="true"
+    else
+      SUCCESS="false"
+    fi
+  elif [[ "$COMMAND_NAME" =~ clean_branch$ ]]; then
+    # Check for branch cleanup indicators
+    BRANCH_CLEANED=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -E "(git branch -[dD]|git push.*--delete|Already up.to.date|nothing to commit)" | head -1)
+
+    ISSUE_CLOSED=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -E "gh issue close" | head -1)
+
+    if [ -n "$BRANCH_CLEANED" ] || [ -n "$ISSUE_CLOSED" ]; then
+      SUCCESS="true"
+    else
+      SUCCESS="false"
+    fi
+  elif [ "$HAS_ERRORS" = "true" ] || [ "$USER_UNHAPPY" = "true" ]; then
     SUCCESS="false"
   else
     SUCCESS="true"
