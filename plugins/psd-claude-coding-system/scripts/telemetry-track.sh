@@ -168,7 +168,131 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   HAS_ERRORS=$(echo "$ERRORS_JSON" | jq 'length > 0')
   USER_UNHAPPY=$(echo "$USER_CORRECTIONS_JSON" | jq 'length > 0')
 
-  if [ "$HAS_ERRORS" = "true" ] || [ "$USER_UNHAPPY" = "true" ]; then
+  # Command-specific success detection for known broken commands
+  if [[ "$COMMAND_NAME" =~ work$ ]]; then
+    # Check for /work command completion indicators
+    # Success = successful commits OR PR created OR files edited
+
+    # Count successful git commits (check both tool_use command AND tool_result success)
+    WORK_COMMITS=$(jq -r --arg sid "$SESSION_ID" '
+      [
+        # Get all tool_use entries with git commit
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_use") |
+         select(.message.content[0].name == "Bash") |
+         select(.message.content[0].input.command | test("^git commit")) |
+         .message.content[0].id),
+        # Get all successful tool_results (no error)
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_result") |
+         select(.message.content[0].is_error != true) |
+         .message.content[0].tool_use_id)
+      ] | group_by(.) | map(select(length == 2)) | length
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+    # Count successful PR creations
+    WORK_PR=$(jq -r --arg sid "$SESSION_ID" '
+      [
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_use") |
+         select(.message.content[0].name == "Bash") |
+         select(.message.content[0].input.command | test("^gh pr create")) |
+         .message.content[0].id),
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_result") |
+         select(.message.content[0].is_error != true) |
+         .message.content[0].tool_use_id)
+      ] | group_by(.) | map(select(length == 2)) | length
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+    # Count unique files successfully edited (fixed duplicate counting + verify success)
+    FILES_EDITED=$(jq -r --arg sid "$SESSION_ID" '
+      [
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_use") |
+         select(.message.content[0].name == "Edit" or .message.content[0].name == "Write") |
+         {id: .message.content[0].id, file: .message.content[0].input.file_path}),
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_result") |
+         select(.message.content[0].is_error != true) |
+         {id: .message.content[0].tool_use_id, success: true})
+      ] | group_by(.id) | map(select(length == 2 and any(.success == true)) | .[0].file) | unique | length
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+    if [ "$WORK_COMMITS" -gt 0 ] || [ "$WORK_PR" -gt 0 ] || [ "$FILES_EDITED" -gt 0 ]; then
+      SUCCESS="true"
+    else
+      SUCCESS="false"
+    fi
+  elif [[ "$COMMAND_NAME" =~ review_pr$ ]]; then
+    # Check for PR review completion - verify command executed AND succeeded
+    PR_REVIEW_SUCCESS=$(jq -r --arg sid "$SESSION_ID" '
+      [
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_use") |
+         select(.message.content[0].name == "Bash") |
+         select(.message.content[0].input.command | test("(gh pr comment|gh pr review)")) |
+         .message.content[0].id),
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_result") |
+         select(.message.content[0].is_error != true) |
+         .message.content[0].tool_use_id)
+      ] | group_by(.) | map(select(length == 2)) | length
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+    if [ "$PR_REVIEW_SUCCESS" -gt 0 ]; then
+      SUCCESS="true"
+    else
+      SUCCESS="false"
+    fi
+  elif [[ "$COMMAND_NAME" =~ clean_branch$ ]]; then
+    # Check for successful branch cleanup - verify command executed AND succeeded
+    BRANCH_CLEANED=$(jq -r --arg sid "$SESSION_ID" '
+      [
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_use") |
+         select(.message.content[0].name == "Bash") |
+         select(.message.content[0].input.command | test("(git branch -[dD]|git push.*--delete)")) |
+         .message.content[0].id),
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_result") |
+         select(.message.content[0].is_error != true) |
+         .message.content[0].tool_use_id)
+      ] | group_by(.) | map(select(length == 2)) | length
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+    ISSUE_CLOSED=$(jq -r --arg sid "$SESSION_ID" '
+      [
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_use") |
+         select(.message.content[0].name == "Bash") |
+         select(.message.content[0].input.command | test("gh issue close")) |
+         .message.content[0].id),
+        (select(.sessionId == $sid) |
+         select((.message.content | type) == "array") |
+         select(.message.content[0].type == "tool_result") |
+         select(.message.content[0].is_error != true) |
+         .message.content[0].tool_use_id)
+      ] | group_by(.) | map(select(length == 2)) | length
+    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
+
+    if [ "$BRANCH_CLEANED" -gt 0 ] || [ "$ISSUE_CLOSED" -gt 0 ]; then
+      SUCCESS="true"
+    else
+      SUCCESS="false"
+    fi
+  elif [ "$HAS_ERRORS" = "true" ] || [ "$USER_UNHAPPY" = "true" ]; then
     SUCCESS="false"
   else
     SUCCESS="true"
