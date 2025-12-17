@@ -54,6 +54,9 @@ SECURITY_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "security|vulnerability|a
 PERFORMANCE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "performance|slow|optimize|cache|memory|speed" || echo "")
 TEST_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "test|coverage|mock|assertion|spec" || echo "")
 ARCHITECTURE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "architecture|design|pattern|structure|refactor" || echo "")
+TELEMETRY_DATA_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "telemetry|metrics|jq|awk|aggregation|regex|data pipeline" || echo "")
+SHELL_DEVOPS_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "exit code|shell|hook|parsing|tool_result|bash script" || echo "")
+CONFIG_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "version|model|consistency|configuration|env variable" || echo "")
 
 # Auto-trigger security review for sensitive file changes (from Phase 1.5)
 if [[ "$SECURITY_SENSITIVE" == true ]]; then
@@ -65,6 +68,9 @@ echo "=== Feedback Categories Detected ==="
 [ -n "$PERFORMANCE_FEEDBACK" ] && echo "  - Performance concerns"
 [ -n "$TEST_FEEDBACK" ] && echo "  - Testing feedback"
 [ -n "$ARCHITECTURE_FEEDBACK" ] && echo "  - Architecture feedback"
+[ -n "$TELEMETRY_DATA_FEEDBACK" ] && echo "  - Telemetry/Data pipeline issues"
+[ -n "$SHELL_DEVOPS_FEEDBACK" ] && echo "  - Shell/DevOps issues"
+[ -n "$CONFIG_FEEDBACK" ] && echo "  - Configuration consistency issues"
 ```
 
 **Invoke agents in parallel** based on detected categories:
@@ -90,6 +96,21 @@ If architecture feedback exists:
 - subagent_type: "psd-claude-coding-system:architect-specialist"
 - description: "Address architecture feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for architecture feedback: $ARCHITECTURE_FEEDBACK"
+
+If telemetry/data feedback exists:
+- subagent_type: "psd-claude-coding-system:telemetry-data-specialist"
+- description: "Address telemetry/data pipeline feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for telemetry/data feedback: $TELEMETRY_DATA_FEEDBACK. Validate jq queries, regex patterns, and aggregation logic."
+
+If shell/DevOps feedback exists:
+- subagent_type: "psd-claude-coding-system:shell-devops-specialist"
+- description: "Address shell/DevOps feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for shell/DevOps feedback: $SHELL_DEVOPS_FEEDBACK. Check exit codes, JSON parsing, hook integration."
+
+If configuration feedback exists:
+- subagent_type: "psd-claude-coding-system:configuration-validator"
+- description: "Address configuration consistency feedback for PR #$ARGUMENTS"
+- prompt: "Analyze and provide solutions for configuration feedback: $CONFIG_FEEDBACK. Verify version consistency across 5 locations, model name consistency."
 
 **Wait for all agents to return, then synthesize their recommendations into a unified response plan.**
 
