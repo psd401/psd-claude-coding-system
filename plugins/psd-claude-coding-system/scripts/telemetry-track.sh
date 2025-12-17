@@ -169,7 +169,39 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   USER_UNHAPPY=$(echo "$USER_CORRECTIONS_JSON" | jq 'length > 0')
 
   # Command-specific success detection for known broken commands
-  if [[ "$COMMAND_NAME" =~ review_pr$ ]]; then
+  if [[ "$COMMAND_NAME" =~ work$ ]]; then
+    # Check for /work command completion indicators
+    # Success = commits made OR PR created OR implementation completed
+    WORK_COMMITS=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -cE "^git commit" 2>/dev/null || echo "0")
+
+    WORK_PR=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Bash") |
+      .message.content[0].input.command
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -cE "^gh pr create" 2>/dev/null || echo "0")
+
+    FILES_EDITED=$(jq -r --arg sid "$SESSION_ID" '
+      select(.sessionId == $sid) |
+      select((.message.content | type) == "array") |
+      select(.message.content[0].type == "tool_use") |
+      select(.message.content[0].name == "Edit" or .message.content[0].name == "Write") |
+      .message.content[0].input.file_path
+    ' "$TRANSCRIPT_PATH" 2>/dev/null | wc -l)
+
+    if [ "$WORK_COMMITS" -gt 0 ] || [ "$WORK_PR" -gt 0 ] || [ "$FILES_EDITED" -gt 0 ]; then
+      SUCCESS="true"
+    else
+      SUCCESS="false"
+    fi
+  elif [[ "$COMMAND_NAME" =~ review_pr$ ]]; then
     # Check for PR review completion indicators
     PR_REVIEW_SUCCESS=$(jq -r --arg sid "$SESSION_ID" '
       select(.sessionId == $sid) |
