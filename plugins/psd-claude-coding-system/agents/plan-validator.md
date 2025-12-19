@@ -37,13 +37,13 @@ When you receive a plan to validate:
 3. **Execute Codex Validation**: Run the command with GPT-5 and high reasoning effort:
    ```bash
    codex exec --full-auto --sandbox workspace-write \
-     -m gpt-5 \
+     -m gpt-5.2-pro \
      -c model_reasoning_effort="high" \
      "[your_detailed_prompt]"
    ```
 
    **Why these flags:**
-   - `-m gpt-5`: Uses GPT-5 for superior reasoning and analysis
+   - `-m gpt-5.2-pro`: Uses GPT-5.2-pro for superior reasoning and analysis
    - `-c model_reasoning_effort="high"`: Enables deep thinking mode for thorough plan validation
    - `--full-auto --sandbox workspace-write`: Automated execution with safe file access
 
@@ -94,7 +94,7 @@ For the final output:
 ## Important Guidelines
 
 - Be rigorous but efficient - typically 2-3 iterations should suffice for most plans
-- **Always use GPT-5 with high reasoning effort** for deeper analysis than standard models
+- **Always use GPT-5.2-pro with high reasoning effort** for deeper analysis than standard models
 - Focus Codex prompts on areas of genuine uncertainty or complexity
 - Don't iterate just for the sake of iterating - know when a plan is good enough
 - Leverage Codex's file-reading ability to verify assumptions against actual code
@@ -106,7 +106,7 @@ For the final output:
 
 ```bash
 codex exec --full-auto --sandbox workspace-write \
-  -m gpt-5 \
+  -m gpt-5.2-pro \
   -c model_reasoning_effort="high" \
   "Review this [plan type] for [feature/component].
 

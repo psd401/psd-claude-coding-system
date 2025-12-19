@@ -1,6 +1,6 @@
 ---
 name: gpt-5
-description: Advanced AI agent for second opinions, complex problem solving, and design validation. Leverages GPT-5's capabilities through cursor-agent for deep analysis.
+description: Advanced AI agent for second opinions, complex problem solving, and design validation. Leverages GPT-5.2-pro via codex for deep analysis.
 tools: Bash
 model: claude-sonnet-4-5
 extended-thinking: true
@@ -22,7 +22,10 @@ WORKFLOW_PLUGIN_DIR="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system
 TELEMETRY_HELPER="$WORKFLOW_PLUGIN_DIR/lib/telemetry-helper.sh"
 [ -f "$TELEMETRY_HELPER" ] && source "$TELEMETRY_HELPER" && telemetry_track_agent "gpt-5-codex"
 
-cursor-agent -m gpt-5-codex -p "TASK: $ARGUMENTS
+codex exec --full-auto --sandbox workspace-write \
+  -m gpt-5.2-pro \
+  -c model_reasoning_effort="high" \
+  "TASK: $ARGUMENTS
 
 CONTEXT: [Include all relevant findings, code snippets, error messages, and specific questions]
 
