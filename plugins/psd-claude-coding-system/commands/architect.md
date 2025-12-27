@@ -60,6 +60,39 @@ This provides (in parallel):
 - Existing architecture patterns and documentation
 - Related PRs for additional context
 
+### Phase 1.5: UX Architecture Guidance (if UI-related)
+
+Check if architecture involves user-facing components and invoke UX specialist for heuristic-based guidance:
+
+```bash
+# Detect if architecture involves UI components
+if [[ "$ARGUMENTS" =~ (component|ui|interface|form|modal|dialog|page|screen|dashboard|menu|navigation|frontend) ]]; then
+  echo "=== UI architecture detected - invoking UX specialist for heuristics ==="
+  UI_ARCHITECTURE=true
+else
+  UI_ARCHITECTURE=false
+fi
+```
+
+**If UI architecture detected, invoke UX specialist BEFORE architect-specialist:**
+
+Use the Task tool:
+- `subagent_type`: "psd-claude-coding-system:ux-specialist"
+- `description`: "UX architectural guidance for issue #$ISSUE_NUMBER"
+- `prompt`: "Provide UX architectural guidance for: $ARGUMENTS
+
+Based on 47 usability heuristics, recommend:
+1. Component structure that supports user control (H3, H11, H44)
+2. State management patterns for feedback and status visibility (H1, H28, H47)
+3. Error handling architecture (H5, H9, H66)
+4. Accessibility requirements in component design (H40, H61)
+5. Navigation and discoverability patterns (H46, H57, H58)
+6. Data flow that minimizes cognitive load (H12, H17, H45)
+
+Provide specific architectural patterns and anti-patterns."
+
+**Incorporate UX guidance into architecture design.**
+
 ### Phase 2: Invoke Architecture Specialist
 
 Now invoke the architect-specialist agent with all gathered context:
