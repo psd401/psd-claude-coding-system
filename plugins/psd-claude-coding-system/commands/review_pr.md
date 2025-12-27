@@ -57,10 +57,17 @@ ARCHITECTURE_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "architecture|design|
 TELEMETRY_DATA_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "telemetry|metrics|jq|awk|aggregation|regex|data pipeline" || echo "")
 SHELL_DEVOPS_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "exit code|shell|hook|parsing|tool_result|bash script" || echo "")
 CONFIG_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "version|model|consistency|configuration|env variable" || echo "")
+UX_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "ux|usability|accessibility|a11y|wcag|user experience|heuristic|cognitive|feedback|error message|loading|progress|contrast|font size|touch target" || echo "")
 
 # Auto-trigger security review for sensitive file changes (from Phase 1.5)
 if [[ "$SECURITY_SENSITIVE" == true ]]; then
   SECURITY_FEEDBACK="Auto-triggered: PR contains security-sensitive file changes"
+fi
+
+# Auto-trigger UX review for UI file changes
+FILES_CHANGED=$(gh pr diff $ARGUMENTS --name-only)
+if echo "$FILES_CHANGED" | grep -iEq "component|\.tsx|\.jsx|\.vue|\.svelte|modal|dialog|form|button|input"; then
+  UX_FEEDBACK="${UX_FEEDBACK:-Auto-triggered: PR contains UI component changes}"
 fi
 
 echo "=== Feedback Categories Detected ==="
@@ -71,6 +78,7 @@ echo "=== Feedback Categories Detected ==="
 [ -n "$TELEMETRY_DATA_FEEDBACK" ] && echo "  - Telemetry/Data pipeline issues"
 [ -n "$SHELL_DEVOPS_FEEDBACK" ] && echo "  - Shell/DevOps issues"
 [ -n "$CONFIG_FEEDBACK" ] && echo "  - Configuration consistency issues"
+[ -n "$UX_FEEDBACK" ] && echo "  - UX/Usability issues"
 ```
 
 **Invoke agents in parallel** based on detected categories:
@@ -111,6 +119,11 @@ If configuration feedback exists:
 - subagent_type: "psd-claude-coding-system:configuration-validator"
 - description: "Address configuration consistency feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for configuration feedback: $CONFIG_FEEDBACK. Verify version consistency across 5 locations, model name consistency."
+
+If UX feedback exists or UI files changed:
+- subagent_type: "psd-claude-coding-system:ux-specialist"
+- description: "Address UX/usability feedback for PR #$ARGUMENTS"
+- prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK"
 
 **Wait for all agents to return, then synthesize their recommendations into a unified response plan.**
 

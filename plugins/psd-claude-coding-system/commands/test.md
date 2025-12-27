@@ -68,6 +68,56 @@ When coverage is insufficient or new features lack tests:
 - Performance test plans
 - Test data generation strategies
 
+### Phase 3.5: UX Testing Validation (if UI components)
+
+Detect UI component tests and invoke UX specialist for usability validation:
+
+```bash
+# Detect UI component testing
+if [[ "$ARGUMENTS" =~ (component|ui|interface|form|modal|dialog|button|input) ]] || \
+   find . -name "*.test.tsx" -o -name "*.test.jsx" | grep -iEq "component|ui|form|button|modal|dialog|input" 2>/dev/null; then
+  echo "=== UI component tests detected - invoking UX specialist for usability validation ==="
+  UI_TESTING=true
+else
+  UI_TESTING=false
+fi
+```
+
+**If UI testing detected, invoke UX specialist BEFORE quality gates:**
+
+Use the Task tool:
+- `subagent_type`: "psd-claude-coding-system:ux-specialist"
+- `description`: "UX testing validation for $ARGUMENTS"
+- `prompt`: "Validate UX testing coverage for: $ARGUMENTS
+
+Review test files and provide recommendations for:
+
+**Accessibility Testing (WCAG AA):**
+- Keyboard navigation tests (Tab, Enter, Esc, Arrow keys)
+- Screen reader compatibility (ARIA labels, roles, live regions)
+- Color contrast validation (4.5:1 for text, 3:1 for UI components)
+- Touch target sizes (minimum 44x44px for mobile)
+- Focus management and visible focus indicators
+- Form validation error announcements
+
+**Usability Testing:**
+- User control mechanisms (undo, cancel, escape)
+- System feedback (loading states, success/error messages, progress indicators)
+- Error prevention and recovery (confirmation dialogs, input validation)
+- Cognitive load reduction (information chunking, progressive disclosure)
+- Consistency checks (naming, behavior, visual design)
+
+**Component-Specific Tests:**
+- Form components: validation, error states, required fields, autofocus
+- Modal/Dialog: focus trap, keyboard close (Esc), backdrop click
+- Buttons: disabled states, loading states, click handlers
+- Navigation: keyboard navigation, current page indication
+- Lists/Tables: keyboard navigation, sorting, filtering, empty states
+
+Identify missing test coverage for these UX aspects and recommend specific test cases."
+
+**Incorporate UX recommendations into test implementation.**
+
 ### Phase 4: Quality Gates
 
 ```bash

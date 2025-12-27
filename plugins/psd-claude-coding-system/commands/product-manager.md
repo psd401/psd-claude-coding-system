@@ -157,6 +157,33 @@ Map out which issues must complete before others:
 
 **CRITICAL: Before creating any issues, validate the breakdown plan with plan-validator agent.**
 
+#### Step 1: UX Requirements Validation
+
+**For features with user-facing components, invoke UX specialist to validate UX completeness:**
+
+Use the Task tool:
+- `subagent_type`: "psd-claude-coding-system:ux-specialist"
+- `description`: "Validate UX requirements for PRD"
+- `prompt`: "Review this PRD for UX completeness:
+
+[PRD CONTENT]
+
+Evaluate against 68 usability heuristics and ensure:
+1. User stories include UX acceptance criteria
+2. Non-functional requirements cover usability metrics
+3. Error states are defined for all user actions
+4. Loading/empty states are specified
+5. Accessibility requirements included (WCAG AA minimum)
+6. User control mechanisms defined (undo, cancel, escape)
+7. Feedback mechanisms specified (confirmation, progress, status)
+8. Cognitive load considerations addressed (7±2 rule)
+
+Provide specific recommendations for missing UX requirements."
+
+**Incorporate UX feedback into PRD before proceeding.**
+
+#### Step 2: Plan Validation
+
 **Use the Task tool to invoke plan validation:**
 - `subagent_type`: "psd-claude-coding-system:plan-validator"
 - `description`: "Validate product breakdown for: [feature name]"
@@ -328,6 +355,7 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 ## Command & Agent Workflow
 
 **Phase 3.5 - Breakdown Validation:**
+- Invoke `psd-claude-coding-system:ux-specialist` to validate UX requirements (for user-facing features)
 - Invoke `psd-claude-coding-system:plan-validator` to validate issue structure
 
 **Phase 4 - Issue Creation:**
@@ -338,7 +366,8 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
   - Uses MCP documentation servers
 
 **Additional Agent Assistance:**
-- **UI/UX Design**: Invoke @agents/documentation-writer
+- **UX Evaluation**: Invoke @agents/ux-specialist for heuristic review and accessibility
+- **UI Implementation**: Invoke @agents/frontend-specialist for component patterns
 - **Market Research**: Use WebSearch extensively
 - **Second Opinion**: @agents/gpt-5 (already used via plan-validator)
 
@@ -366,7 +395,9 @@ Phase 2: Product Strategy (Vision, Metrics)
      ↓
 Phase 3: PRD Structure & Breakdown
      ↓
-Phase 3.5: Validate Breakdown (plan-validator agent)
+Phase 3.5: Validate Requirements
+     ├─→ UX validation (ux-specialist agent)
+     └─→ Plan validation (plan-validator agent)
      ↓
      Refine based on validation
      ↓

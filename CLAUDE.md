@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.11.0
+**Version**: 1.11.2
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Architecture
@@ -56,7 +56,12 @@ plugins/psd-claude-coding-system/
 
 Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) with extended-thinking enabled.
 
-**NEW in v1.7.0:**
+#### NEW in v1.11.2
+- **UX Specialist Agent** - Evaluates UI against 68 usability heuristics from 7 HCI frameworks
+- **Automatic UX review** - `/work`, `/product-manager`, `/review_pr`, `/architect`, `/test` auto-invoke for UI work
+- **GPT-5.2-pro upgrade** - Updated `gpt-5-codex` and `plan-validator` agents to use gpt-5.2-pro model
+
+#### In v1.7.0
 - **Opus 4.5** used for architecture/planning (80.9% SWE-bench, 66% cost reduction vs opus-4-1)
 - **Aggressive parallelism** - 2-3 agents dispatched simultaneously (Every's philosophy: speed > cost)
 - **Pre-implementation security** - Security review before coding, not after PR
@@ -79,13 +84,18 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-5)
 - `/clean_branch` - Post-merge cleanup
 
-**Workflow Agents** (10 total):
-- Domain specialists: backend-specialist, frontend-specialist, database-specialist, llm-specialist
-- Quality/security: test-specialist, security-analyst, performance-optimizer
-- Documentation/planning: documentation-writer, plan-validator, gpt-5
+#### Workflow Agents (11 total)
+- **Domain specialists**: backend-specialist, frontend-specialist, database-specialist, llm-specialist
+- **Quality/security**: test-specialist, security-analyst, performance-optimizer
+- **UX/Design**: ux-specialist (68 usability heuristics, accessibility, cognitive load)
+- **Documentation/planning**: documentation-writer, plan-validator, gpt-5
 
-**Meta-Learning Agents** (5 total):
-- meta-orchestrator, code-cleanup-specialist, pr-review-responder, document-validator, breaking-change-validator
+#### Meta-Learning Agents (5 total)
+- meta-orchestrator
+- code-cleanup-specialist
+- pr-review-responder
+- document-validator
+- breaking-change-validator
 
 ### Skills Layer (NEW v1.7.0)
 
