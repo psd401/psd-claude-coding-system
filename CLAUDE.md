@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.11.1
+**Version**: 1.11.2
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Architecture
@@ -56,7 +56,11 @@ plugins/psd-claude-coding-system/
 
 Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) with extended-thinking enabled.
 
-**NEW in v1.7.0:**
+**NEW in v1.11.2:**
+- **UX Specialist Agent** - Evaluates UI against 47 usability heuristics from 7 HCI frameworks
+- **Automatic UX review** - `/work`, `/product-manager`, `/review_pr` auto-invoke for UI work
+
+**In v1.7.0:**
 - **Opus 4.5** used for architecture/planning (80.9% SWE-bench, 66% cost reduction vs opus-4-1)
 - **Aggressive parallelism** - 2-3 agents dispatched simultaneously (Every's philosophy: speed > cost)
 - **Pre-implementation security** - Security review before coding, not after PR
@@ -79,9 +83,10 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-5)
 - `/clean_branch` - Post-merge cleanup
 
-**Workflow Agents** (10 total):
+**Workflow Agents** (11 total):
 - Domain specialists: backend-specialist, frontend-specialist, database-specialist, llm-specialist
 - Quality/security: test-specialist, security-analyst, performance-optimizer
+- UX/Design: ux-specialist (47 usability heuristics, accessibility, cognitive load)
 - Documentation/planning: documentation-writer, plan-validator, gpt-5
 
 **Meta-Learning Agents** (5 total):

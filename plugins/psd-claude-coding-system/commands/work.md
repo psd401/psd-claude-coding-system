@@ -102,6 +102,12 @@ elif echo "$ISSUE_BODY" | grep -iEq "ai|llm|gpt|claude|openai|anthropic"; then
   echo "ℹ️  AI/LLM work detected"
 fi
 
+# UX-sensitive detection (invoke UX specialist for UI work)
+if echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "component|\.tsx|\.jsx|\.vue|ui|form|button|modal|dialog|input|menu|navigation|toast|alert|dropdown|select|checkbox|radio|slider|toggle|tooltip|popover|card|list|table|grid|layout|responsive|mobile|accessibility|a11y|wcag|usability|ux|user.experience"; then
+  AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE ux-specialist"
+  echo "ℹ️  UI work detected - UX heuristic review included"
+fi
+
 echo "=== Agents to invoke in parallel: $AGENTS_TO_INVOKE ==="
 ```
 
@@ -125,6 +131,11 @@ For each agent in $AGENTS_TO_INVOKE:
 - subagent_type: "psd-claude-coding-system:[backend/frontend/database/llm]-specialist"
 - description: "[Domain] implementation guidance for #$ISSUE_NUMBER"
 - prompt: "Provide implementation guidance for: $ISSUE_BODY. Include architecture patterns, best practices, common mistakes, and integration points."
+
+**ux-specialist** (if UI work detected):
+- subagent_type: "psd-claude-coding-system:ux-specialist"
+- description: "UX heuristic review for #$ISSUE_NUMBER"
+- prompt: "Evaluate UX considerations for: $ISSUE_BODY. Check against 47 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Provide specific recommendations."
 
 #### Step 3: Synthesize Agent Recommendations
 
@@ -189,6 +200,7 @@ npm run build
 - **Performance concerns**: Invoke @agents/performance-optimizer
 - **Security features**: Invoke @agents/security-analyst
 - **API documentation**: Invoke @agents/documentation-writer
+- **UI/UX evaluation**: Invoke @agents/ux-specialist for heuristic review
 
 ```bash
 ```
