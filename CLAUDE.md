@@ -57,7 +57,7 @@ plugins/psd-claude-coding-system/
 Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) with extended-thinking enabled.
 
 **NEW in v1.11.2:**
-- **UX Specialist Agent** - Evaluates UI against 47 usability heuristics from 7 HCI frameworks
+- **UX Specialist Agent** - Evaluates UI against 68 usability heuristics from 7 HCI frameworks
 - **Automatic UX review** - `/work`, `/product-manager`, `/review_pr` auto-invoke for UI work
 
 **In v1.7.0:**
@@ -86,7 +86,7 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 **Workflow Agents** (11 total):
 - Domain specialists: backend-specialist, frontend-specialist, database-specialist, llm-specialist
 - Quality/security: test-specialist, security-analyst, performance-optimizer
-- UX/Design: ux-specialist (47 usability heuristics, accessibility, cognitive load)
+- UX/Design: ux-specialist (68 usability heuristics, accessibility, cognitive load)
 - Documentation/planning: documentation-writer, plan-validator, gpt-5
 
 **Meta-Learning Agents** (5 total):

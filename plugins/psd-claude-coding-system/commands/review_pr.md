@@ -123,7 +123,7 @@ If configuration feedback exists:
 If UX feedback exists or UI files changed:
 - subagent_type: "psd-claude-coding-system:ux-specialist"
 - description: "Address UX/usability feedback for PR #$ARGUMENTS"
-- prompt: "Evaluate UX considerations for PR changes. Check against 47 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK"
+- prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK"
 
 **Wait for all agents to return, then synthesize their recommendations into a unified response plan.**
 

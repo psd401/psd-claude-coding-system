@@ -168,7 +168,7 @@ Use the Task tool:
 
 [PRD CONTENT]
 
-Evaluate against 47 usability heuristics and ensure:
+Evaluate against 68 usability heuristics and ensure:
 1. User stories include UX acceptance criteria
 2. Non-functional requirements cover usability metrics
 3. Error states are defined for all user actions

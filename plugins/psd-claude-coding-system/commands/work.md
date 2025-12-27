@@ -103,7 +103,9 @@ elif echo "$ISSUE_BODY" | grep -iEq "ai|llm|gpt|claude|openai|anthropic"; then
 fi
 
 # UX-sensitive detection (invoke UX specialist for UI work)
-if echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "component|\.tsx|\.jsx|\.vue|ui|form|button|modal|dialog|input|menu|navigation|toast|alert|dropdown|select|checkbox|radio|slider|toggle|tooltip|popover|card|list|table|grid|layout|responsive|mobile|accessibility|a11y|wcag|usability|ux|user.experience"; then
+# Excludes api/, lib/, utils/, types/ to avoid false positives on data models
+FILTERED_FILES=$(echo "$CHANGED_FILES" | grep -vE "^(api|lib|utils|types)/")
+if echo "$FILTERED_FILES $ISSUE_BODY" | grep -iEq "components/|pages/|views/|\.component\.(tsx|jsx|vue)|ui/|form|button|modal|dialog|input|menu|navigation|toast|alert|dropdown|select|checkbox|radio|slider|toggle|tooltip|popover|layout|responsive|mobile|accessibility|a11y|wcag|usability|ux|user.experience"; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE ux-specialist"
   echo "ℹ️  UI work detected - UX heuristic review included"
 fi
@@ -135,7 +137,7 @@ For each agent in $AGENTS_TO_INVOKE:
 **ux-specialist** (if UI work detected):
 - subagent_type: "psd-claude-coding-system:ux-specialist"
 - description: "UX heuristic review for #$ISSUE_NUMBER"
-- prompt: "Evaluate UX considerations for: $ISSUE_BODY. Check against 47 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Provide specific recommendations."
+- prompt: "Evaluate UX considerations for: $ISSUE_BODY. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Provide specific recommendations."
 
 #### Step 3: Synthesize Agent Recommendations
 

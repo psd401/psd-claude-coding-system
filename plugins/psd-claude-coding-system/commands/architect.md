@@ -81,7 +81,7 @@ Use the Task tool:
 - `description`: "UX architectural guidance for issue #$ISSUE_NUMBER"
 - `prompt`: "Provide UX architectural guidance for: $ARGUMENTS
 
-Based on 47 usability heuristics, recommend:
+Based on 68 usability heuristics, recommend:
 1. Component structure that supports user control (H3, H11, H44)
 2. State management patterns for feedback and status visibility (H1, H28, H47)
 3. Error handling architecture (H5, H9, H66)
