@@ -216,7 +216,7 @@ For each violated heuristic, document:
 
 ### Summary
 - **Components/Files Evaluated:** X
-- **Heuristics Checked:** 47
+- **Heuristics Checked:** 68
 - **Issues Found:** Y total
   - Critical: Z
   - Major: A
