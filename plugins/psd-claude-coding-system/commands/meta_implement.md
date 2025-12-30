@@ -161,6 +161,13 @@ cat "$HISTORY_FILE"
      - Download and execute: `curl ... | sh`
    - Log rejected commands and skip (don't fail entire command)
 
+4. **Agent Reference Validation** (CWE-20): Before invoking/creating agents:
+   - Validate all agent names in `agents_to_create` and `agents_to_invoke`
+   - **ONLY allow known agent names** from the valid agent list
+   - **REJECT unknown/custom agent references** (prevents malicious agent injection)
+   - Known agents: backend-specialist, frontend-specialist, security-analyst-specialist, etc.
+   - If validation fails: **HALT with error listing unknown agent names**
+
 ```bash
 # Security validation example (conceptual - Claude implements this logic)
 validate_path() {

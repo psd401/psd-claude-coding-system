@@ -390,6 +390,7 @@ function validateCompoundHistorySchema(json: any): ValidationResult {
 /**
  * Validate implementation plan structure
  * Ensures expected sections exist before execution
+ * CWE-20: Input Validation - validates agent references
  */
 function validateImplementationPlan(plan: any): ValidationResult {
   const errors: string[] = [];
@@ -406,6 +407,34 @@ function validateImplementationPlan(plan: any): ValidationResult {
   for (const key of Object.keys(plan)) {
     if (!validSections.includes(key) && !['suggestion_id', 'confidence', 'estimated_effort_hours', 'commands_to_update', 'agents_to_invoke'].includes(key)) {
       errors.push(`Unexpected section in implementation plan: ${key}`);
+    }
+  }
+
+  // Validate agent references if present
+  const validAgentNames = [
+    'backend-specialist', 'frontend-specialist', 'database-specialist', 'llm-specialist',
+    'test-specialist', 'security-analyst-specialist', 'performance-optimizer',
+    'documentation-writer', 'architect-specialist', 'plan-validator', 'gpt-5', 'ux-specialist',
+    'meta-orchestrator', 'code-cleanup-specialist', 'pr-review-responder',
+    'document-validator', 'breaking-change-validator', 'telemetry-data-specialist',
+    'shell-devops-specialist', 'configuration-validator'
+  ];
+
+  if (plan.agents_to_create && Array.isArray(plan.agents_to_create)) {
+    for (const agent of plan.agents_to_create) {
+      const agentName = typeof agent === 'string' ? agent : agent.name;
+      if (agentName && !validAgentNames.includes(agentName)) {
+        errors.push(`Unknown agent name in agents_to_create: ${agentName}`);
+      }
+    }
+  }
+
+  if (plan.agents_to_invoke && Array.isArray(plan.agents_to_invoke)) {
+    for (const agent of plan.agents_to_invoke) {
+      const agentName = typeof agent === 'string' ? agent : agent.name;
+      if (agentName && !validAgentNames.includes(agentName)) {
+        errors.push(`Unknown agent name in agents_to_invoke: ${agentName}`);
+      }
     }
   }
 
@@ -430,8 +459,8 @@ function validatePathSafety(path: string, projectRoot: string = '.'): Validation
   }
 
   // Check for dangerous system directories (CWE-22 fix: use startsWith not includes)
-  // Security fix: path.includes() causes false positives for paths like "src/user/home.tsx"
-  const dangerousPaths = ['/etc/', '/usr/', '/bin/', '/sbin/', '/var/', '/tmp/', '/root/', '/home/'];
+  // Security fix: Reduced to critical system dirs only - allows CI workspaces like /home/runner/work/
+  const dangerousPaths = ['/etc/', '/usr/', '/bin/', '/sbin/', '/root/'];
   for (const dangerous of dangerousPaths) {
     if (path.startsWith(dangerous)) {
       errors.push(`Path targets system directory: ${path}`);
@@ -457,7 +486,7 @@ function validateBashCommand(command: string): ValidationResult {
   const allowedPrefixes = [
     'npm ', 'npx ', 'yarn ', 'pnpm ',     // Package managers
     'git ', 'gh ',                          // Git/GitHub
-    'mkdir ', 'cp ', 'mv ', 'rm ',          // File operations
+    'mkdir ', 'cp ', 'mv ', 'rm ',          // File operations (rm has specific validation below)
     'echo ', 'cat ', 'grep ', 'find ',      // Read-only utilities
     'test ', 'ls ', 'pwd ', 'cd '           // Navigation
   ];
@@ -480,7 +509,8 @@ function validateBashCommand(command: string): ValidationResult {
     /wget.*\|\s*(ba)?sh/i,         // Download and execute
     /source\s+/i,                  // Source external scripts
     /\.\s+\/.*\.sh/,               // Dot-sourcing scripts
-    /\$\{/,                        // Variable expansion ${...}
+    /\$\{[^}]*\$\(/,               // Variable expansion with command substitution: ${...$(cmd)}
+    /rm\s+(-[rf]+\s+|.*\/)/i,      // rm with -rf flags or absolute paths
   ];
 
   for (const pattern of dangerousPatterns) {
