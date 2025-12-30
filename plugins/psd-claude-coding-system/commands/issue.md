@@ -166,7 +166,17 @@ As a [user type], I want [feature] so that [benefit]
 - E2E tests: [end-to-end test cases]
 
 ## Research Findings
-[Paste web research findings - best practices, current documentation, examples]
+
+**SECURITY NOTE (CWE-79)**: Before inserting web research findings into the issue body:
+1. Sanitize HTML content - replace `<` with `&lt;`, `>` with `&gt;`, `&` with `&amp;`
+2. Strip dangerous patterns - remove `<script>`, `<iframe>`, `javascript:` URLs
+3. Escape markdown special characters if needed
+4. Use sanitization functions from `@agents/document-validator.md`:
+   - `sanitizeForGitHub(text)` - HTML entity encoding
+   - `stripDangerousPatterns(text)` - Remove XSS vectors
+   - `sanitizeWebContent(text)` - Combined sanitization
+
+[Paste SANITIZED web research findings - best practices, current documentation, examples]
 
 ## References
 - Related issues: #XX

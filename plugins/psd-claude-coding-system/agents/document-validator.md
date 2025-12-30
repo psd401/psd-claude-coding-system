@@ -288,6 +288,205 @@ function sanitizeForJson(text: string): string {
     .replace(/\r/g, '\\r')         // Escape carriage returns
     .replace(/\t/g, '\\t')         // Escape tabs
 }
+
+// ============================================================================
+// Security Sanitization Functions (CWE-79, CWE-94)
+// Added for issue #18 - Security Enhancement
+// ============================================================================
+
+/**
+ * Sanitize content for safe insertion into GitHub issues/markdown
+ * Prevents XSS via HTML injection (CWE-79)
+ */
+function sanitizeForGitHub(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')        // Escape ampersands first
+    .replace(/</g, '&lt;')         // Escape less-than
+    .replace(/>/g, '&gt;')         // Escape greater-than
+    .replace(/"/g, '&quot;')       // Escape quotes
+    .replace(/'/g, '&#39;')        // Escape single quotes
+}
+
+/**
+ * Escape markdown special characters to prevent formatting injection
+ */
+function sanitizeMarkdown(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\')        // Escape backslashes
+    .replace(/\*/g, '\\*')         // Escape asterisks
+    .replace(/_/g, '\\_')          // Escape underscores
+    .replace(/\[/g, '\\[')         // Escape brackets
+    .replace(/\]/g, '\\]')         // Escape brackets
+    .replace(/`/g, '\\`')          // Escape backticks
+    .replace(/#/g, '\\#')          // Escape hash
+    .replace(/\|/g, '\\|')         // Escape pipes (tables)
+}
+
+/**
+ * Remove dangerous patterns that could execute code
+ * Prevents script injection (CWE-94)
+ */
+function stripDangerousPatterns(text: string): string {
+  return text
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')    // Remove script tags
+    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '')    // Remove iframes
+    .replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '')    // Remove objects
+    .replace(/<embed[^>]*>/gi, '')                        // Remove embeds
+    .replace(/javascript:/gi, '')                          // Remove javascript: URLs
+    .replace(/data:[^,]*;base64/gi, '')                   // Remove data: URIs
+    .replace(/on\w+\s*=/gi, '')                           // Remove event handlers
+    .replace(/vbscript:/gi, '')                            // Remove vbscript: URLs
+}
+
+/**
+ * Combined sanitization for external web content
+ * Use this for WebFetch results before inserting into GitHub issues
+ */
+function sanitizeWebContent(text: string): string {
+  return sanitizeForGitHub(stripDangerousPatterns(text))
+}
+
+// ============================================================================
+// JSON Schema Validation Functions (CWE-20, CWE-94)
+// For compound_history.json validation in /meta_implement
+// ============================================================================
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Validate compound_history.json entry structure
+ * Prevents malicious YAML/JSON injection
+ */
+function validateCompoundHistorySchema(json: any): ValidationResult {
+  const errors: string[] = [];
+  const requiredFields = [
+    'suggestion_id',
+    'confidence',
+    'estimated_effort_hours',
+    'implementation_plan'
+  ];
+
+  for (const field of requiredFields) {
+    if (!(field in json)) {
+      errors.push(`Missing required field: ${field}`);
+    }
+  }
+
+  // Type validations
+  if (typeof json.confidence !== 'number' || json.confidence < 0 || json.confidence > 1) {
+    errors.push('confidence must be a number between 0 and 1');
+  }
+
+  if (typeof json.estimated_effort_hours !== 'number' || json.estimated_effort_hours < 0) {
+    errors.push('estimated_effort_hours must be a positive number');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate implementation plan structure
+ * Ensures expected sections exist before execution
+ */
+function validateImplementationPlan(plan: any): ValidationResult {
+  const errors: string[] = [];
+  const validSections = [
+    'files_to_create',
+    'files_to_modify',
+    'agents_to_create',
+    'bash_commands',
+    'validation_tests',
+    'rollback_plan'
+  ];
+
+  // Check for unexpected/dangerous sections
+  for (const key of Object.keys(plan)) {
+    if (!validSections.includes(key) && !['suggestion_id', 'confidence', 'estimated_effort_hours', 'commands_to_update', 'agents_to_invoke'].includes(key)) {
+      errors.push(`Unexpected section in implementation plan: ${key}`);
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate file path is safe (no directory traversal)
+ * Prevents CWE-22 Path Traversal attacks
+ */
+function validatePathSafety(path: string, projectRoot: string = '.'): ValidationResult {
+  const errors: string[] = [];
+
+  // Check for directory traversal
+  if (path.includes('..')) {
+    errors.push(`Path traversal detected: ${path} contains ".." - rejected for security`);
+  }
+
+  // Check for absolute paths outside project
+  if (path.startsWith('/') && !path.startsWith(projectRoot)) {
+    errors.push(`Absolute path outside project root: ${path}`);
+  }
+
+  // Check for dangerous system directories
+  const dangerousPaths = ['/etc/', '/usr/', '/bin/', '/sbin/', '/var/', '/tmp/', '/root/', '/home/'];
+  for (const dangerous of dangerousPaths) {
+    if (path.includes(dangerous)) {
+      errors.push(`Path targets system directory: ${path}`);
+    }
+  }
+
+  // Check for null bytes (CWE-158)
+  if (path.includes('\0')) {
+    errors.push(`Null byte detected in path: rejected for security`);
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate bash command is safe to execute
+ * Prevents command injection (CWE-78)
+ */
+function validateBashCommand(command: string): ValidationResult {
+  const errors: string[] = [];
+
+  // Whitelist of allowed command prefixes
+  const allowedPrefixes = [
+    'npm ', 'npx ', 'yarn ', 'pnpm ',     // Package managers
+    'git ', 'gh ',                          // Git/GitHub
+    'mkdir ', 'cp ', 'mv ', 'rm ',          // File operations
+    'echo ', 'cat ', 'grep ', 'find ',      // Read-only utilities
+    'test ', 'ls ', 'pwd ', 'cd '           // Navigation
+  ];
+
+  const commandLower = command.trim().toLowerCase();
+  const isAllowed = allowedPrefixes.some(prefix => commandLower.startsWith(prefix));
+
+  if (!isAllowed) {
+    errors.push(`Command not in whitelist: "${command.substring(0, 50)}..."`);
+  }
+
+  // Check for dangerous patterns
+  const dangerousPatterns = [
+    /eval\s+/i,                    // eval command
+    /\$\(/,                        // Command substitution
+    /`[^`]+`/,                     // Backtick substitution
+    /;\s*rm\s+-rf/i,               // Destructive command chaining
+    /\|\s*sh\s*$/i,                // Piping to shell
+    /curl.*\|\s*(ba)?sh/i,         // Download and execute
+    /wget.*\|\s*(ba)?sh/i,         // Download and execute
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(command)) {
+      errors.push(`Dangerous command pattern detected: ${pattern.source}`);
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
 ```
 
 ## Validation Workflow
