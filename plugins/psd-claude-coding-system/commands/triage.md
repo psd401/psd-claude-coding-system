@@ -284,16 +284,14 @@ if [ "$CONVERSATION_COUNT" -gt 0 ] && [ "$JQ_AVAILABLE" = true ]; then
 
 ### Conversation History
 "
-  # Enhanced sanitization: remove dangerous patterns, then HTML entity encode
+  # Enhanced sanitization: strip ALL HTML tags completely, then entity encode
+  # Security fix: Pattern-specific removal can be bypassed with crafted tags
   CONVERSATION_TEXT=$(echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n" + (
     (.body_text // .body)
-    | gsub("<script[^>]*>[\\s\\S]*?</script>"; "")    # Remove script tags
-    | gsub("<iframe[^>]*>[\\s\\S]*?</iframe>"; "")    # Remove iframes
-    | gsub("javascript:"; "")                          # Remove javascript: URLs
-    | gsub("on\\w+\\s*="; "")                          # Remove event handlers
-    | gsub("&"; "&amp;")                               # Encode ampersands first
-    | gsub("<"; "&lt;")                                # Encode less-than
-    | gsub(">"; "&gt;")                                # Encode greater-than
+    | gsub("<[^>]+>"; "")     # Strip ALL HTML tags completely (CWE-79 fix)
+    | gsub("&"; "&amp;")      # Encode ampersands first
+    | gsub("<"; "&lt;")       # Encode any remaining less-than
+    | gsub(">"; "&gt;")       # Encode any remaining greater-than
   ) + "\n"')
   ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}${CONVERSATION_TEXT}"
 fi

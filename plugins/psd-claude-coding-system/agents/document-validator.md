@@ -429,10 +429,11 @@ function validatePathSafety(path: string, projectRoot: string = '.'): Validation
     errors.push(`Absolute path outside project root: ${path}`);
   }
 
-  // Check for dangerous system directories
+  // Check for dangerous system directories (CWE-22 fix: use startsWith not includes)
+  // Security fix: path.includes() causes false positives for paths like "src/user/home.tsx"
   const dangerousPaths = ['/etc/', '/usr/', '/bin/', '/sbin/', '/var/', '/tmp/', '/root/', '/home/'];
   for (const dangerous of dangerousPaths) {
-    if (path.includes(dangerous)) {
+    if (path.startsWith(dangerous)) {
       errors.push(`Path targets system directory: ${path}`);
     }
   }
@@ -468,15 +469,18 @@ function validateBashCommand(command: string): ValidationResult {
     errors.push(`Command not in whitelist: "${command.substring(0, 50)}..."`);
   }
 
-  // Check for dangerous patterns
+  // Check for dangerous patterns (CWE-78 command injection prevention)
   const dangerousPatterns = [
     /eval\s+/i,                    // eval command
-    /\$\(/,                        // Command substitution
-    /`[^`]+`/,                     // Backtick substitution
+    /\$\(/,                        // Command substitution $(...)
+    /`/,                           // ANY backtick (simpler, catches all cases)
     /;\s*rm\s+-rf/i,               // Destructive command chaining
     /\|\s*sh\s*$/i,                // Piping to shell
     /curl.*\|\s*(ba)?sh/i,         // Download and execute
     /wget.*\|\s*(ba)?sh/i,         // Download and execute
+    /source\s+/i,                  // Source external scripts
+    /\.\s+\/.*\.sh/,               // Dot-sourcing scripts
+    /\$\{/,                        // Variable expansion ${...}
   ];
 
   for (const pattern of dangerousPatterns) {
