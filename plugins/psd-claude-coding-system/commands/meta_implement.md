@@ -126,6 +126,80 @@ echo "Loading suggestion: $SUGGESTION_ID"
 cat "$HISTORY_FILE"
 ```
 
+### Phase 1.5: Security Validation (CWE-20, CWE-78, CWE-22)
+
+**CRITICAL SECURITY STEP**: Before processing any implementation plan from compound_history.json, validate the data structure to prevent injection attacks.
+
+**Security Functions Reference**: See `@agents/document-validator.md` for:
+- `validateCompoundHistorySchema()` - Schema validation
+- `validateImplementationPlan()` - Plan structure validation
+- `validatePathSafety()` - Path traversal prevention (CWE-22)
+- `validateBashCommand()` - Command injection prevention (CWE-78)
+
+**Validation Workflow**:
+
+1. **JSON Structure Validation**: Before parsing compound_history.json entry:
+   - Verify required fields exist: `suggestion_id`, `confidence`, `estimated_effort_hours`, `implementation_plan`
+   - Validate `confidence` is number between 0-1
+   - Reject entries with unexpected/unknown fields
+   - If validation fails: **HALT with error message listing missing/invalid fields**
+
+2. **Path Safety Validation**: Before any file operations:
+   - Validate all paths in `files_to_create` and `files_to_modify`
+   - **REJECT paths containing `../`** (directory traversal)
+   - **REJECT absolute paths** outside project root
+   - **REJECT paths targeting system directories** (/etc/, /usr/, /bin/, etc.)
+   - Log rejected paths and skip those operations (don't fail entire command)
+
+3. **Bash Command Validation**: Before executing any `bash_commands`:
+   - Use `printf %q` for escaping variables
+   - **NEVER use `eval`** with untrusted strings
+   - Whitelist allowed command prefixes: `npm`, `npx`, `yarn`, `git`, `gh`, `mkdir`, `cp`
+   - **REJECT commands with dangerous patterns**:
+     - Command substitution: `$(...)` or backticks
+     - Pipe to shell: `| sh` or `| bash`
+     - Download and execute: `curl ... | sh`
+   - Log rejected commands and skip (don't fail entire command)
+
+4. **Agent Reference Validation** (CWE-20): Before invoking/creating agents:
+   - Validate all agent names in `agents_to_create` and `agents_to_invoke`
+   - **ONLY allow known agent names** from the valid agent list
+   - **REJECT unknown/custom agent references** (prevents malicious agent injection)
+   - Known agents: backend-specialist, frontend-specialist, security-analyst-specialist, etc.
+   - If validation fails: **HALT with error listing unknown agent names**
+
+```bash
+# Security validation example (conceptual - Claude implements this logic)
+validate_path() {
+  local path="$1"
+  # Reject directory traversal
+  if [[ "$path" == *".."* ]]; then
+    echo "❌ SECURITY: Path rejected (contains ..): $path"
+    return 1
+  fi
+  # Reject absolute paths outside project
+  if [[ "$path" == /* ]] && [[ "$path" != "$PROJECT_ROOT"* ]]; then
+    echo "❌ SECURITY: Absolute path outside project: $path"
+    return 1
+  fi
+  return 0
+}
+
+validate_command() {
+  local cmd="$1"
+  # Check for dangerous patterns
+  if [[ "$cmd" == *'$('* ]] || [[ "$cmd" == *'`'* ]]; then
+    echo "❌ SECURITY: Command substitution not allowed: $cmd"
+    return 1
+  fi
+  if [[ "$cmd" == *'| sh'* ]] || [[ "$cmd" == *'| bash'* ]]; then
+    echo "❌ SECURITY: Pipe to shell not allowed: $cmd"
+    return 1
+  fi
+  return 0
+}
+```
+
 ### Phase 2: Validate Suggestion
 
 Using extended thinking, validate the suggestion is safe to implement:

@@ -277,12 +277,25 @@ ${ATTACHMENTS_LIST}"
 fi
 
 # Add conversation history if present (sanitize HTML/script tags)
+# SECURITY FIX (CWE-79): Enhanced sanitization beyond simple <> removal
+# See @agents/document-validator.md for sanitizeWebContent() function
 if [ "$CONVERSATION_COUNT" -gt 0 ] && [ "$JQ_AVAILABLE" = true ]; then
   ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
 
 ### Conversation History
 "
-  CONVERSATION_TEXT=$(echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n" + ((.body_text // .body) | gsub("[<>]"; "")) + "\n"')
+  # ⚠️ SECURITY NOTE: This jq-based sanitization is LIMITED
+  # - For production: Use DOMPurify library (see @agents/document-validator.md)
+  # - This approach: Strips HTML tags, encodes special chars
+  # - Limitation: Cannot handle complex XSS vectors or encoding bypasses
+  # - Acceptable for: GitHub markdown issues (renderer has additional protections)
+  CONVERSATION_TEXT=$(echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n" + (
+    (.body_text // .body)
+    | gsub("<[^>]+>"; "")     # Strip ALL HTML tags completely
+    | gsub("&"; "&amp;")      # Encode ampersands first
+    | gsub("<"; "&lt;")       # Encode any remaining less-than
+    | gsub(">"; "&gt;")       # Encode any remaining greater-than
+  ) + "\n"')
   ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}${CONVERSATION_TEXT}"
 fi
 

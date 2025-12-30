@@ -142,6 +142,91 @@ describe('Component', () => {
 });
 ```
 
+## Security Best Practices
+
+**CRITICAL**: All frontend code must address these security concerns to prevent common vulnerabilities.
+
+### XSS Prevention (CWE-79, OWASP A03:2021)
+
+Cross-Site Scripting is one of the most common web vulnerabilities. Follow these practices:
+
+- **React Auto-Escaping**: React escapes values by default - trust this for most cases
+- **Never use `dangerouslySetInnerHTML`** without sanitization:
+  ```typescript
+  // ❌ DANGEROUS - Never do this with untrusted content
+  <div dangerouslySetInnerHTML={{ __html: userInput }} />
+
+  // ✅ SAFE - Use a sanitization library
+  import DOMPurify from 'dompurify';
+  <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(userInput) }} />
+  ```
+- **Sanitize URL inputs**: Validate and sanitize user-provided URLs
+  ```typescript
+  // ❌ DANGEROUS - Regex validation can be bypassed
+  <a href={userUrl}>Link</a>
+  const isSafeUrl = (url: string) => url.startsWith('https://');  // Bypassed by "javascript: alert(1)"
+
+  // ✅ SAFE - Use URL API for robust protocol validation
+  function isSafeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url, window.location.origin);
+      // Allow only HTTPS and relative URLs
+      return parsed.protocol === 'https:' || parsed.protocol === 'http:' ||
+             url.startsWith('/') && !url.startsWith('//');
+    } catch {
+      return false; // Invalid URL format
+    }
+  }
+
+  {isSafeUrl(userUrl) && <a href={userUrl}>Link</a>}
+  ```
+- **Content Security Policy**: Implement CSP headers to prevent inline script execution
+
+### CSRF Prevention (CWE-352, OWASP A01:2021)
+
+Cross-Site Request Forgery exploits authenticated sessions. Protect state-changing requests:
+
+- **Include CSRF tokens** in all state-changing requests (POST, PUT, DELETE)
+- **Validate SameSite cookie attributes**: Use `SameSite=Strict` or `SameSite=Lax`
+- **Check request origin headers** on the server side
+- **Use anti-CSRF tokens** from your framework:
+  ```typescript
+  // Include CSRF token in API calls
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  fetch('/api/resource', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify(data)
+  });
+  ```
+
+### Secure Token Storage
+
+Never store sensitive tokens insecurely:
+
+- **Never store tokens in localStorage** - vulnerable to XSS attacks
+- **Use secure, HttpOnly cookies** for session tokens
+- **Implement token refresh mechanisms** - short-lived access tokens + refresh tokens
+- **Clear tokens on logout** - both client-side and server-side invalidation
+  ```typescript
+  // ❌ DANGEROUS - Never store tokens in localStorage
+  localStorage.setItem('authToken', token);
+
+  // ✅ SAFE - Let server set HttpOnly cookie
+  // Server sets: Set-Cookie: token=xyz; HttpOnly; Secure; SameSite=Strict
+  ```
+
+### Secure API Communication
+
+- **Always use HTTPS** - never HTTP for authenticated requests
+- **Validate SSL certificates** in production
+- **Implement certificate pinning** for mobile apps
+- **Never hardcode API credentials** in frontend code
+
 ## Quick Reference
 
 ### Framework Detection

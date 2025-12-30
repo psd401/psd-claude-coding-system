@@ -207,6 +207,145 @@ export function errorHandler(
 }
 ```
 
+## Security Guidance
+
+**CRITICAL**: Backend code is the last line of defense. Follow these security practices rigorously.
+
+### SQL Injection Prevention (CWE-89, OWASP A03:2021)
+
+SQL injection is one of the most dangerous vulnerabilities. Prevent it:
+
+- **Always use parameterized queries**:
+  ```typescript
+  // ❌ DANGEROUS - SQL Injection vulnerability
+  const user = await db.query(`SELECT * FROM users WHERE id = '${userId}'`);
+
+  // ✅ SAFE - Parameterized query
+  const user = await db.query('SELECT * FROM users WHERE id = ?', [userId]);
+
+  // ✅ SAFE - Named parameters
+  const user = await db.query(
+    'SELECT * FROM users WHERE id = :id',
+    { id: userId }
+  );
+  ```
+- **Never concatenate user input into SQL strings** - even for column names
+- **Use ORM methods that auto-parameterize**:
+  ```typescript
+  // ✅ SAFE - ORM handles escaping
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  ```
+- **Validate input types before database operations**
+- **Use stored procedures** for complex queries
+- **Implement database user permissions** - application user shouldn't have DROP privileges
+
+### CSRF Validation (CWE-352, OWASP A01:2021)
+
+Cross-Site Request Forgery exploits trusted sessions:
+
+- **Validate request origin** for state-changing operations:
+  ```typescript
+  function validateOrigin(req: Request): boolean {
+    const origin = req.headers.origin || req.headers.referer;
+    return ALLOWED_ORIGINS.includes(origin);
+  }
+  ```
+- **Use CSRF tokens** for form submissions
+- **Implement SameSite cookie attribute**:
+  ```typescript
+  res.cookie('session', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict'
+  });
+  ```
+- **Require re-authentication** for sensitive operations
+
+### Credential Management (CWE-798, OWASP A02:2021)
+
+Secrets must be protected throughout the application:
+
+- **Load secrets from environment variables**:
+  ```typescript
+  const dbPassword = process.env.DB_PASSWORD;
+  if (!dbPassword) throw new Error('DB_PASSWORD not configured');
+  ```
+- **Use credential managers** (AWS Secrets Manager, HashiCorp Vault) for production
+- **Never log credentials or tokens**:
+  ```typescript
+  // ❌ DANGEROUS
+  logger.info('User login', { password: req.body.password });
+
+  // ✅ SAFE - Never log sensitive data
+  logger.info('User login', { userId: user.id });
+  ```
+- **Rotate credentials regularly**
+- **Use different credentials** for development/staging/production
+
+### Access Control (OWASP A01:2021)
+
+Broken access control is the #1 web vulnerability:
+
+- **Implement role-based access control (RBAC)**:
+  ```typescript
+  function authorize(...allowedRoles: Role[]) {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (!allowedRoles.includes(req.user?.role)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      next();
+    };
+  }
+  ```
+- **Verify authorization on every endpoint** - never trust client-side checks
+- **Use principle of least privilege** - grant minimum permissions needed
+- **Validate object-level access**:
+  ```typescript
+  // ❌ DANGEROUS - No ownership check
+  const doc = await getDocument(req.params.id);
+
+  // ✅ SAFE - Verify ownership
+  const doc = await getDocument(req.params.id);
+  if (doc.ownerId !== req.user.id) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  ```
+
+### Input Validation (CWE-20)
+
+Validate all input at the API boundary:
+
+- **Use validation schemas** (Zod, Joi, class-validator):
+  ```typescript
+  const createUserSchema = z.object({
+    email: z.string().email(),
+    name: z.string().min(1).max(100),
+    age: z.number().int().positive().optional()
+  });
+
+  const validated = createUserSchema.parse(req.body);
+  ```
+- **Validate Content-Type headers** to prevent content-type attacks:
+  ```typescript
+  // Middleware to enforce Content-Type
+  function requireJSON(req: Request, res: Response, next: NextFunction) {
+    const contentType = req.headers['content-type'];
+
+    if (!contentType || !contentType.includes('application/json')) {
+      return res.status(415).json({
+        error: 'Unsupported Media Type',
+        expected: 'application/json'
+      });
+    }
+    next();
+  }
+
+  // Apply to routes that expect JSON
+  app.post('/api/users', requireJSON, createUser);
+  ```
+- **Sanitize input before use** - remove dangerous characters
+- **Implement rate limiting** to prevent abuse
+
 ## Quick Reference
 
 ### Common Patterns

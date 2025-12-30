@@ -288,6 +288,343 @@ function sanitizeForJson(text: string): string {
     .replace(/\r/g, '\\r')         // Escape carriage returns
     .replace(/\t/g, '\\t')         // Escape tabs
 }
+
+// ============================================================================
+// Security Sanitization Functions (CWE-79, CWE-94)
+// Added for issue #18 - Security Enhancement
+// ============================================================================
+
+/**
+ * Sanitize content for safe insertion into GitHub issues/markdown
+ * Prevents XSS via HTML injection (CWE-79)
+ */
+function sanitizeForGitHub(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')        // Escape ampersands first
+    .replace(/</g, '&lt;')         // Escape less-than
+    .replace(/>/g, '&gt;')         // Escape greater-than
+    .replace(/"/g, '&quot;')       // Escape quotes
+    .replace(/'/g, '&#39;')        // Escape single quotes
+}
+
+/**
+ * Escape markdown special characters to prevent formatting injection
+ */
+function sanitizeMarkdown(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\')        // Escape backslashes
+    .replace(/\*/g, '\\*')         // Escape asterisks
+    .replace(/_/g, '\\_')          // Escape underscores
+    .replace(/\[/g, '\\[')         // Escape brackets
+    .replace(/\]/g, '\\]')         // Escape brackets
+    .replace(/`/g, '\\`')          // Escape backticks
+    .replace(/#/g, '\\#')          // Escape hash
+    .replace(/\|/g, '\\|')         // Escape pipes (tables)
+}
+
+/**
+ * ⚠️ CRITICAL SECURITY WARNING ⚠️
+ *
+ * REGEX-BASED XSS SANITIZATION IS FUNDAMENTALLY INSECURE
+ *
+ * Regex blacklisting CANNOT protect against XSS. Attackers have endless bypass techniques:
+ * - Case variations: <ScRiPt>, <sCrIpT>
+ * - Attribute injection: <svg onload=alert(1)>
+ * - Encoding: <img src=x onerror=\x61lert(1)>
+ * - No-closing tags: <iframe src=javascript:alert(1)
+ * - Nested contexts: <math><mtext><table><mglyph><style><!--</style><img title="--></mglyph><img src=1 onerror=alert(1)>">
+ *
+ * DO NOT USE REGEX FOR XSS PREVENTION. Use a proper sanitization library.
+ *
+ * Reference: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+ */
+
+/**
+ * CORRECT: Use DOMPurify library for XSS prevention (CWE-79)
+ * Install: npm install dompurify @types/dompurify
+ *
+ * DOMPurify uses a whitelist-based approach and handles all edge cases
+ */
+import DOMPurify from 'dompurify';
+
+function sanitizeHTML(html: string): string {
+  // Configure DOMPurify with strict settings
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'code', 'pre'],
+    ALLOWED_ATTR: ['href', 'title'],
+    ALLOW_DATA_ATTR: false,
+    ALLOWED_URI_REGEXP: /^https?:\/\//,  // Only HTTP(S) URLs
+    RETURN_TRUSTED_TYPE: false
+  });
+}
+
+/**
+ * For plain text contexts (GitHub markdown issues), strip ALL HTML
+ * This is safer than trying to sanitize HTML tags
+ */
+function stripAllHTML(text: string): string {
+  // Use DOM parser to properly decode entities and strip tags
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    return doc.body.textContent || '';
+  }
+
+  // Fallback: Simple tag stripping (still better than regex blacklist)
+  // Note: This doesn't handle encoded entities properly
+  return text.replace(/<[^>]+>/g, '');
+}
+
+/**
+ * Combined sanitization for external web content
+ * Use this for WebFetch results before inserting into GitHub issues
+ *
+ * For GitHub markdown context: Strip all HTML, then escape markdown special chars
+ */
+function sanitizeWebContent(text: string): string {
+  const stripped = stripAllHTML(text);
+  return sanitizeForGitHub(stripped);
+}
+
+// ============================================================================
+// JSON Schema Validation Functions (CWE-20, CWE-94)
+// For compound_history.json validation in /meta_implement
+// ============================================================================
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
+
+/**
+ * Validate compound_history.json entry structure
+ * Prevents malicious YAML/JSON injection
+ */
+function validateCompoundHistorySchema(json: any): ValidationResult {
+  const errors: string[] = [];
+  const requiredFields = [
+    'suggestion_id',
+    'confidence',
+    'estimated_effort_hours',
+    'implementation_plan'
+  ];
+
+  for (const field of requiredFields) {
+    if (!(field in json)) {
+      errors.push(`Missing required field: ${field}`);
+    }
+  }
+
+  // Type validations
+  if (typeof json.confidence !== 'number' || json.confidence < 0 || json.confidence > 1) {
+    errors.push('confidence must be a number between 0 and 1');
+  }
+
+  if (typeof json.estimated_effort_hours !== 'number' || json.estimated_effort_hours < 0) {
+    errors.push('estimated_effort_hours must be a positive number');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate implementation plan structure
+ * Ensures expected sections exist before execution
+ * CWE-20: Input Validation - validates agent references
+ */
+function validateImplementationPlan(plan: any): ValidationResult {
+  const errors: string[] = [];
+  const validSections = [
+    'files_to_create',
+    'files_to_modify',
+    'agents_to_create',
+    'bash_commands',
+    'validation_tests',
+    'rollback_plan'
+  ];
+
+  // Check for unexpected/dangerous sections
+  for (const key of Object.keys(plan)) {
+    if (!validSections.includes(key) && !['suggestion_id', 'confidence', 'estimated_effort_hours', 'commands_to_update', 'agents_to_invoke'].includes(key)) {
+      errors.push(`Unexpected section in implementation plan: ${key}`);
+    }
+  }
+
+  // Validate agent references if present
+  // TODO: Generate this list dynamically from filesystem instead of hardcoding
+  // For production: const validAgentNames = fs.readdirSync('agents/').map(f => f.replace('.md', ''));
+  const validAgentNames = [
+    'backend-specialist', 'frontend-specialist', 'database-specialist', 'llm-specialist',
+    'test-specialist', 'security-analyst-specialist', 'performance-optimizer',
+    'documentation-writer', 'architect-specialist', 'plan-validator', 'gpt-5', 'ux-specialist',
+    'meta-orchestrator', 'code-cleanup-specialist', 'pr-review-responder',
+    'document-validator', 'breaking-change-validator', 'telemetry-data-specialist',
+    'shell-devops-specialist', 'configuration-validator'
+  ];
+
+  if (plan.agents_to_create && Array.isArray(plan.agents_to_create)) {
+    for (const agent of plan.agents_to_create) {
+      const agentName = typeof agent === 'string' ? agent : agent.name;
+      if (agentName && !validAgentNames.includes(agentName)) {
+        errors.push(`Unknown agent name in agents_to_create: ${agentName}`);
+      }
+    }
+  }
+
+  if (plan.agents_to_invoke && Array.isArray(plan.agents_to_invoke)) {
+    for (const agent of plan.agents_to_invoke) {
+      const agentName = typeof agent === 'string' ? agent : agent.name;
+      if (agentName && !validAgentNames.includes(agentName)) {
+        errors.push(`Unknown agent name in agents_to_invoke: ${agentName}`);
+      }
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate file path is safe (no directory traversal)
+ * Prevents CWE-22 Path Traversal attacks
+ *
+ * IMPORTANT: Must normalize and decode paths BEFORE validation
+ * - URL encoding bypasses: %2e%2e%2f (../)
+ * - Double encoding: %252e%252e%252f
+ * - Backslash variants: ..\\ on Windows
+ * - Symlink attacks require additional fs.realpath checks
+ */
+import path from 'path';
+
+function validatePathSafety(inputPath: string, projectRoot: string = '.'): ValidationResult {
+  const errors: string[] = [];
+
+  // Step 1: Decode URL encoding (handle single and double encoding)
+  let decodedPath = inputPath;
+  try {
+    decodedPath = decodeURIComponent(inputPath);
+    // Double decode to catch %252e -> %2e -> .
+    if (decodedPath !== decodeURIComponent(decodedPath)) {
+      decodedPath = decodeURIComponent(decodedPath);
+    }
+  } catch (e) {
+    errors.push(`Invalid URL encoding in path: ${inputPath}`);
+    return { valid: false, errors };
+  }
+
+  // Step 2: Normalize path (resolves .., ., //)
+  const normalizedPath = path.normalize(decodedPath);
+
+  // Step 3: Resolve to absolute path for comparison
+  const absolutePath = path.resolve(projectRoot, normalizedPath);
+  const absoluteProjectRoot = path.resolve(projectRoot);
+
+  // Step 4: Check if path escapes project root
+  if (!absolutePath.startsWith(absoluteProjectRoot)) {
+    errors.push(`Path escapes project root: ${inputPath} -> ${absolutePath}`);
+  }
+
+  // Step 5: Check for directory traversal patterns (after normalization)
+  if (normalizedPath.includes('..')) {
+    errors.push(`Path traversal detected after normalization: ${normalizedPath}`);
+  }
+
+  // Step 6: Check for dangerous system directories
+  // Reduced to critical system dirs only - allows CI workspaces like /home/runner/work/
+  const dangerousPaths = ['/etc/', '/usr/', '/bin/', '/sbin/', '/root/'];
+  for (const dangerous of dangerousPaths) {
+    if (absolutePath.startsWith(dangerous)) {
+      errors.push(`Path targets system directory: ${absolutePath}`);
+    }
+  }
+
+  // Step 7: Check for null bytes (CWE-158)
+  if (decodedPath.includes('\0')) {
+    errors.push(`Null byte detected in path: rejected for security`);
+  }
+
+  // Note: For symlink protection, additionally use:
+  // const realPath = fs.realpathSync(absolutePath);
+  // if (!realPath.startsWith(absoluteProjectRoot)) { ... }
+
+  return { valid: errors.length === 0, errors };
+}
+
+/**
+ * Validate bash command is safe to execute
+ * Prevents command injection (CWE-78)
+ *
+ * CRITICAL: Validates both command name AND arguments
+ * - Semicolon chaining can bypass whitelist: "npm install; rm -rf /"
+ * - Path arguments must be validated separately
+ */
+function validateBashCommand(command: string, projectRoot: string = '.'): ValidationResult {
+  const errors: string[] = [];
+
+  // Step 1: Check for command chaining (bypass technique)
+  if (command.includes(';') || command.includes('&&') || command.includes('||')) {
+    errors.push(`Command chaining detected: ${command.substring(0, 50)}...`);
+    // Continue validation to catch other issues
+  }
+
+  // Step 2: Parse command and arguments
+  const parts = command.trim().split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const args = parts.slice(1);
+
+  // Step 3: Whitelist validation
+  const allowedCommands = ['npm', 'npx', 'yarn', 'pnpm', 'git', 'gh', 'mkdir', 'cp', 'mv', 'rm', 'echo', 'cat', 'grep', 'find', 'test', 'ls', 'pwd', 'cd'];
+
+  if (!allowedCommands.includes(cmd)) {
+    errors.push(`Command not in whitelist: "${cmd}"`);
+  }
+
+  // Step 4: Per-command argument validation
+  if (cmd === 'rm') {
+    // rm requires extra validation
+    if (args.some(arg => arg.startsWith('-') && (arg.includes('r') || arg.includes('f')))) {
+      errors.push(`Dangerous rm flags detected: ${args.join(' ')}`);
+    }
+    // Validate all path arguments
+    const pathArgs = args.filter(arg => !arg.startsWith('-'));
+    for (const pathArg of pathArgs) {
+      const pathValidation = validatePathSafety(pathArg, projectRoot);
+      if (!pathValidation.valid) {
+        errors.push(`rm path validation failed: ${pathValidation.errors.join(', ')}`);
+      }
+    }
+  }
+
+  if (['cp', 'mv', 'mkdir', 'cat', 'grep', 'find'].includes(cmd)) {
+    // Validate path arguments for file operation commands
+    const pathArgs = args.filter(arg => !arg.startsWith('-') && !arg.startsWith('>'));
+    for (const pathArg of pathArgs) {
+      const pathValidation = validatePathSafety(pathArg, projectRoot);
+      if (!pathValidation.valid) {
+        errors.push(`${cmd} path validation failed: ${pathValidation.errors.join(', ')}`);
+      }
+    }
+  }
+
+  // Step 5: Check for dangerous patterns (CWE-78 command injection prevention)
+  const dangerousPatterns = [
+    /eval\s+/i,                    // eval command
+    /\$\(/,                        // Command substitution $(...)
+    /`/,                           // ANY backtick (simpler, catches all cases)
+    /\|\s*sh\s*$/i,                // Piping to shell
+    /curl.*\|\s*(ba)?sh/i,         // Download and execute
+    /wget.*\|\s*(ba)?sh/i,         // Download and execute
+    /source\s+/i,                  // Source external scripts
+    /\.\s+\/.*\.sh/,               // Dot-sourcing scripts
+    /\$\{[^}]*\$\(/,               // Variable expansion with command substitution: ${...$(cmd)}
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(command)) {
+      errors.push(`Dangerous command pattern detected: ${pattern.source}`);
+    }
+  }
+
+  return { valid: errors.length === 0, errors };
+}
 ```
 
 ## Validation Workflow

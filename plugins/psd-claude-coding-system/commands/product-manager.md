@@ -214,6 +214,22 @@ Provide specific feedback on gaps, reordering, or improvements needed."
 - Adjust priorities based on dependencies
 - Add missing issues identified
 
+### Phase 3.6: Content Security (CWE-79)
+
+**CRITICAL**: Before creating any GitHub issues, sanitize all user-provided and external content:
+
+1. **User Input Sanitization**: Sanitize the product request (`$ARGUMENTS`) if inserting into issue body
+2. **Web Research Sanitization**: Apply sanitization to any WebFetch/WebSearch results:
+   - Replace `<` with `&lt;`, `>` with `&gt;`, `&` with `&amp;`, `"` with `&quot;`
+   - Remove `<script>`, `<iframe>`, `javascript:` URLs, `data:` URIs
+   - Strip event handlers (`onclick`, `onerror`, etc.)
+3. **Agent Output Validation**: Verify agent responses don't contain unexpected HTML/scripts
+
+**Sanitization Functions Reference**: See `@agents/document-validator.md` for:
+- `sanitizeForGitHub(text)` - HTML entity encoding
+- `stripDangerousPatterns(text)` - Remove XSS vectors
+- `sanitizeWebContent(text)` - Combined sanitization for external content
+
 ### Phase 4: Issue Creation Using /issue Command
 
 #### Epic Creation with Full PRD
