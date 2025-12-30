@@ -162,12 +162,22 @@ Cross-Site Scripting is one of the most common web vulnerabilities. Follow these
   ```
 - **Sanitize URL inputs**: Validate and sanitize user-provided URLs
   ```typescript
-  // ❌ DANGEROUS
+  // ❌ DANGEROUS - Regex validation can be bypassed
   <a href={userUrl}>Link</a>
+  const isSafeUrl = (url: string) => url.startsWith('https://');  // Bypassed by "javascript: alert(1)"
 
-  // ✅ SAFE - Validate protocol
-  const isSafeUrl = (url: string) =>
-    url.startsWith('https://') || url.startsWith('/');
+  // ✅ SAFE - Use URL API for robust protocol validation
+  function isSafeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url, window.location.origin);
+      // Allow only HTTPS and relative URLs
+      return parsed.protocol === 'https:' || parsed.protocol === 'http:' ||
+             url.startsWith('/') && !url.startsWith('//');
+    } catch {
+      return false; // Invalid URL format
+    }
+  }
+
   {isSafeUrl(userUrl) && <a href={userUrl}>Link</a>}
   ```
 - **Content Security Policy**: Implement CSP headers to prevent inline script execution

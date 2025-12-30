@@ -323,27 +323,66 @@ function sanitizeMarkdown(text: string): string {
 }
 
 /**
- * Remove dangerous patterns that could execute code
- * Prevents script injection (CWE-94)
+ * ⚠️ CRITICAL SECURITY WARNING ⚠️
+ *
+ * REGEX-BASED XSS SANITIZATION IS FUNDAMENTALLY INSECURE
+ *
+ * Regex blacklisting CANNOT protect against XSS. Attackers have endless bypass techniques:
+ * - Case variations: <ScRiPt>, <sCrIpT>
+ * - Attribute injection: <svg onload=alert(1)>
+ * - Encoding: <img src=x onerror=\x61lert(1)>
+ * - No-closing tags: <iframe src=javascript:alert(1)
+ * - Nested contexts: <math><mtext><table><mglyph><style><!--</style><img title="--></mglyph><img src=1 onerror=alert(1)>">
+ *
+ * DO NOT USE REGEX FOR XSS PREVENTION. Use a proper sanitization library.
+ *
+ * Reference: https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
  */
-function stripDangerousPatterns(text: string): string {
-  return text
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')    // Remove script tags
-    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '')    // Remove iframes
-    .replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '')    // Remove objects
-    .replace(/<embed[^>]*>/gi, '')                        // Remove embeds
-    .replace(/javascript:/gi, '')                          // Remove javascript: URLs
-    .replace(/data:[^,]*;base64/gi, '')                   // Remove data: URIs
-    .replace(/on\w+\s*=/gi, '')                           // Remove event handlers
-    .replace(/vbscript:/gi, '')                            // Remove vbscript: URLs
+
+/**
+ * CORRECT: Use DOMPurify library for XSS prevention (CWE-79)
+ * Install: npm install dompurify @types/dompurify
+ *
+ * DOMPurify uses a whitelist-based approach and handles all edge cases
+ */
+import DOMPurify from 'dompurify';
+
+function sanitizeHTML(html: string): string {
+  // Configure DOMPurify with strict settings
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'p', 'br', 'ul', 'ol', 'li', 'code', 'pre'],
+    ALLOWED_ATTR: ['href', 'title'],
+    ALLOW_DATA_ATTR: false,
+    ALLOWED_URI_REGEXP: /^https?:\/\//,  // Only HTTP(S) URLs
+    RETURN_TRUSTED_TYPE: false
+  });
+}
+
+/**
+ * For plain text contexts (GitHub markdown issues), strip ALL HTML
+ * This is safer than trying to sanitize HTML tags
+ */
+function stripAllHTML(text: string): string {
+  // Use DOM parser to properly decode entities and strip tags
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    return doc.body.textContent || '';
+  }
+
+  // Fallback: Simple tag stripping (still better than regex blacklist)
+  // Note: This doesn't handle encoded entities properly
+  return text.replace(/<[^>]+>/g, '');
 }
 
 /**
  * Combined sanitization for external web content
  * Use this for WebFetch results before inserting into GitHub issues
+ *
+ * For GitHub markdown context: Strip all HTML, then escape markdown special chars
  */
 function sanitizeWebContent(text: string): string {
-  return sanitizeForGitHub(stripDangerousPatterns(text))
+  const stripped = stripAllHTML(text);
+  return sanitizeForGitHub(stripped);
 }
 
 // ============================================================================
@@ -411,6 +450,8 @@ function validateImplementationPlan(plan: any): ValidationResult {
   }
 
   // Validate agent references if present
+  // TODO: Generate this list dynamically from filesystem instead of hardcoding
+  // For production: const validAgentNames = fs.readdirSync('agents/').map(f => f.replace('.md', ''));
   const validAgentNames = [
     'backend-specialist', 'frontend-specialist', 'database-specialist', 'llm-specialist',
     'test-specialist', 'security-analyst-specialist', 'performance-optimizer',
@@ -444,33 +485,65 @@ function validateImplementationPlan(plan: any): ValidationResult {
 /**
  * Validate file path is safe (no directory traversal)
  * Prevents CWE-22 Path Traversal attacks
+ *
+ * IMPORTANT: Must normalize and decode paths BEFORE validation
+ * - URL encoding bypasses: %2e%2e%2f (../)
+ * - Double encoding: %252e%252e%252f
+ * - Backslash variants: ..\\ on Windows
+ * - Symlink attacks require additional fs.realpath checks
  */
-function validatePathSafety(path: string, projectRoot: string = '.'): ValidationResult {
+import path from 'path';
+
+function validatePathSafety(inputPath: string, projectRoot: string = '.'): ValidationResult {
   const errors: string[] = [];
 
-  // Check for directory traversal
-  if (path.includes('..')) {
-    errors.push(`Path traversal detected: ${path} contains ".." - rejected for security`);
+  // Step 1: Decode URL encoding (handle single and double encoding)
+  let decodedPath = inputPath;
+  try {
+    decodedPath = decodeURIComponent(inputPath);
+    // Double decode to catch %252e -> %2e -> .
+    if (decodedPath !== decodeURIComponent(decodedPath)) {
+      decodedPath = decodeURIComponent(decodedPath);
+    }
+  } catch (e) {
+    errors.push(`Invalid URL encoding in path: ${inputPath}`);
+    return { valid: false, errors };
   }
 
-  // Check for absolute paths outside project
-  if (path.startsWith('/') && !path.startsWith(projectRoot)) {
-    errors.push(`Absolute path outside project root: ${path}`);
+  // Step 2: Normalize path (resolves .., ., //)
+  const normalizedPath = path.normalize(decodedPath);
+
+  // Step 3: Resolve to absolute path for comparison
+  const absolutePath = path.resolve(projectRoot, normalizedPath);
+  const absoluteProjectRoot = path.resolve(projectRoot);
+
+  // Step 4: Check if path escapes project root
+  if (!absolutePath.startsWith(absoluteProjectRoot)) {
+    errors.push(`Path escapes project root: ${inputPath} -> ${absolutePath}`);
   }
 
-  // Check for dangerous system directories (CWE-22 fix: use startsWith not includes)
-  // Security fix: Reduced to critical system dirs only - allows CI workspaces like /home/runner/work/
+  // Step 5: Check for directory traversal patterns (after normalization)
+  if (normalizedPath.includes('..')) {
+    errors.push(`Path traversal detected after normalization: ${normalizedPath}`);
+  }
+
+  // Step 6: Check for dangerous system directories
+  // Reduced to critical system dirs only - allows CI workspaces like /home/runner/work/
   const dangerousPaths = ['/etc/', '/usr/', '/bin/', '/sbin/', '/root/'];
   for (const dangerous of dangerousPaths) {
-    if (path.startsWith(dangerous)) {
-      errors.push(`Path targets system directory: ${path}`);
+    if (absolutePath.startsWith(dangerous)) {
+      errors.push(`Path targets system directory: ${absolutePath}`);
     }
   }
 
-  // Check for null bytes (CWE-158)
-  if (path.includes('\0')) {
+  // Step 7: Check for null bytes (CWE-158)
+  if (decodedPath.includes('\0')) {
     errors.push(`Null byte detected in path: rejected for security`);
   }
+
+  // Note: For symlink protection, additionally use:
+  // const realPath = fs.realpathSync(absolutePath);
+  // if (!realPath.startsWith(absoluteProjectRoot)) { ... }
 
   return { valid: errors.length === 0, errors };
 }
@@ -478,39 +551,70 @@ function validatePathSafety(path: string, projectRoot: string = '.'): Validation
 /**
  * Validate bash command is safe to execute
  * Prevents command injection (CWE-78)
+ *
+ * CRITICAL: Validates both command name AND arguments
+ * - Semicolon chaining can bypass whitelist: "npm install; rm -rf /"
+ * - Path arguments must be validated separately
  */
-function validateBashCommand(command: string): ValidationResult {
+function validateBashCommand(command: string, projectRoot: string = '.'): ValidationResult {
   const errors: string[] = [];
 
-  // Whitelist of allowed command prefixes
-  const allowedPrefixes = [
-    'npm ', 'npx ', 'yarn ', 'pnpm ',     // Package managers
-    'git ', 'gh ',                          // Git/GitHub
-    'mkdir ', 'cp ', 'mv ', 'rm ',          // File operations (rm has specific validation below)
-    'echo ', 'cat ', 'grep ', 'find ',      // Read-only utilities
-    'test ', 'ls ', 'pwd ', 'cd '           // Navigation
-  ];
-
-  const commandLower = command.trim().toLowerCase();
-  const isAllowed = allowedPrefixes.some(prefix => commandLower.startsWith(prefix));
-
-  if (!isAllowed) {
-    errors.push(`Command not in whitelist: "${command.substring(0, 50)}..."`);
+  // Step 1: Check for command chaining (bypass technique)
+  if (command.includes(';') || command.includes('&&') || command.includes('||')) {
+    errors.push(`Command chaining detected: ${command.substring(0, 50)}...`);
+    // Continue validation to catch other issues
   }
 
-  // Check for dangerous patterns (CWE-78 command injection prevention)
+  // Step 2: Parse command and arguments
+  const parts = command.trim().split(/\s+/);
+  const cmd = parts[0].toLowerCase();
+  const args = parts.slice(1);
+
+  // Step 3: Whitelist validation
+  const allowedCommands = ['npm', 'npx', 'yarn', 'pnpm', 'git', 'gh', 'mkdir', 'cp', 'mv', 'rm', 'echo', 'cat', 'grep', 'find', 'test', 'ls', 'pwd', 'cd'];
+
+  if (!allowedCommands.includes(cmd)) {
+    errors.push(`Command not in whitelist: "${cmd}"`);
+  }
+
+  // Step 4: Per-command argument validation
+  if (cmd === 'rm') {
+    // rm requires extra validation
+    if (args.some(arg => arg.startsWith('-') && (arg.includes('r') || arg.includes('f')))) {
+      errors.push(`Dangerous rm flags detected: ${args.join(' ')}`);
+    }
+    // Validate all path arguments
+    const pathArgs = args.filter(arg => !arg.startsWith('-'));
+    for (const pathArg of pathArgs) {
+      const pathValidation = validatePathSafety(pathArg, projectRoot);
+      if (!pathValidation.valid) {
+        errors.push(`rm path validation failed: ${pathValidation.errors.join(', ')}`);
+      }
+    }
+  }
+
+  if (['cp', 'mv', 'mkdir', 'cat', 'grep', 'find'].includes(cmd)) {
+    // Validate path arguments for file operation commands
+    const pathArgs = args.filter(arg => !arg.startsWith('-') && !arg.startsWith('>'));
+    for (const pathArg of pathArgs) {
+      const pathValidation = validatePathSafety(pathArg, projectRoot);
+      if (!pathValidation.valid) {
+        errors.push(`${cmd} path validation failed: ${pathValidation.errors.join(', ')}`);
+      }
+    }
+  }
+
+  // Step 5: Check for dangerous patterns (CWE-78 command injection prevention)
   const dangerousPatterns = [
     /eval\s+/i,                    // eval command
     /\$\(/,                        // Command substitution $(...)
     /`/,                           // ANY backtick (simpler, catches all cases)
-    /;\s*rm\s+-rf/i,               // Destructive command chaining
     /\|\s*sh\s*$/i,                // Piping to shell
     /curl.*\|\s*(ba)?sh/i,         // Download and execute
     /wget.*\|\s*(ba)?sh/i,         // Download and execute
     /source\s+/i,                  // Source external scripts
     /\.\s+\/.*\.sh/,               // Dot-sourcing scripts
     /\$\{[^}]*\$\(/,               // Variable expansion with command substitution: ${...$(cmd)}
-    /rm\s+(-[rf]+\s+|.*\/)/i,      // rm with -rf flags or absolute paths
   ];
 
   for (const pattern of dangerousPatterns) {

@@ -284,11 +284,14 @@ if [ "$CONVERSATION_COUNT" -gt 0 ] && [ "$JQ_AVAILABLE" = true ]; then
 
 ### Conversation History
 "
-  # Enhanced sanitization: strip ALL HTML tags completely, then entity encode
-  # Security fix: Pattern-specific removal can be bypassed with crafted tags
+  # ⚠️ SECURITY NOTE: This jq-based sanitization is LIMITED
+  # - For production: Use DOMPurify library (see @agents/document-validator.md)
+  # - This approach: Strips HTML tags, encodes special chars
+  # - Limitation: Cannot handle complex XSS vectors or encoding bypasses
+  # - Acceptable for: GitHub markdown issues (renderer has additional protections)
   CONVERSATION_TEXT=$(echo "$CONVERSATIONS" | jq -r '.[] | "**\(.user_id // "User")** (\(.created_at)):\n" + (
     (.body_text // .body)
-    | gsub("<[^>]+>"; "")     # Strip ALL HTML tags completely (CWE-79 fix)
+    | gsub("<[^>]+>"; "")     # Strip ALL HTML tags completely
     | gsub("&"; "&amp;")      # Encode ampersands first
     | gsub("<"; "&lt;")       # Encode any remaining less-than
     | gsub(">"; "&gt;")       # Encode any remaining greater-than

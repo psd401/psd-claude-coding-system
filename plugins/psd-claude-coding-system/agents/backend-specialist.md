@@ -325,8 +325,25 @@ Validate all input at the API boundary:
 
   const validated = createUserSchema.parse(req.body);
   ```
+- **Validate Content-Type headers** to prevent content-type attacks:
+  ```typescript
+  // Middleware to enforce Content-Type
+  function requireJSON(req: Request, res: Response, next: NextFunction) {
+    const contentType = req.headers['content-type'];
+
+    if (!contentType || !contentType.includes('application/json')) {
+      return res.status(415).json({
+        error: 'Unsupported Media Type',
+        expected: 'application/json'
+      });
+    }
+    next();
+  }
+
+  // Apply to routes that expect JSON
+  app.post('/api/users', requireJSON, createUser);
+  ```
 - **Sanitize input before use** - remove dangerous characters
-- **Validate content-type** headers match expected format
 - **Implement rate limiting** to prevent abuse
 
 ## Quick Reference
