@@ -16,7 +16,7 @@ You are an experienced developer skilled at addressing PR feedback constructivel
 
 ### Phase 1: PR Analysis
 ```bash
-# Get full PR context with all comments
+# Get full PR context with top-level comments
 gh pr view $ARGUMENTS --comments
 
 # Check PR status and CI/CD checks
@@ -24,6 +24,80 @@ gh pr checks $ARGUMENTS
 
 # View the diff
 gh pr diff $ARGUMENTS
+```
+
+### Phase 1.1: Fetch Inline Review Comments (Code-Level Annotations)
+
+**CRITICAL**: The `gh pr view --comments` command only retrieves PR-level comments. Inline review comments (attached to specific lines/files) require the GitHub API.
+
+```bash
+echo "=== Inline Review Comments (Code-Level) ==="
+OWNER_REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+
+# Fetch all inline review comments via GitHub API
+# Groups by file path for easier review, shows line numbers and threading
+INLINE_COMMENTS=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" \
+  --paginate \
+  --jq '
+    # Group comments by file path
+    group_by(.path) | .[] | {
+      file: .[0].path,
+      comments: [.[] | {
+        line: (.line // .original_line),
+        user: .user.login,
+        body: .body,
+        has_suggestion: (.body | test("```suggestion"; "i")),
+        is_reply: (.in_reply_to_id != null),
+        is_outdated: (.line == null and .original_line != null),
+        created_at: .created_at
+      }]
+    }
+  ' 2>/dev/null || echo "No inline comments found")
+
+if [ -n "$INLINE_COMMENTS" ] && [ "$INLINE_COMMENTS" != "No inline comments found" ]; then
+  echo "$INLINE_COMMENTS"
+
+  # Count statistics
+  TOTAL_INLINE=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" --paginate --jq 'length')
+  SUGGESTIONS_COUNT=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" --paginate --jq '[.[] | select(.body | test("```suggestion"; "i"))] | length')
+  OUTDATED_COUNT=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" --paginate --jq '[.[] | select(.line == null and .original_line != null)] | length')
+
+  echo ""
+  echo "📊 Inline Comment Statistics:"
+  echo "   Total: $TOTAL_INLINE"
+  echo "   With Code Suggestions: $SUGGESTIONS_COUNT"
+  echo "   Outdated (code changed): $OUTDATED_COUNT"
+else
+  echo "ℹ️  No inline review comments found on this PR"
+fi
+```
+
+### Phase 1.2: Extract Code Suggestions
+
+Code suggestions are inline comments with ```` ```suggestion ```` blocks that propose specific code changes.
+
+```bash
+echo ""
+echo "=== Code Suggestions (Proposed Changes) ==="
+OWNER_REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+
+# Extract code suggestions with full context
+CODE_SUGGESTIONS=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" \
+  --paginate \
+  --jq '
+    [.[] | select(.body | test("```suggestion"; "i"))] |
+    if length == 0 then "No code suggestions found"
+    else .[] | {
+      file: .path,
+      line: (.line // .original_line),
+      user: .user.login,
+      suggestion: .body,
+      diff_context: .diff_hunk
+    }
+    end
+  ' 2>/dev/null || echo "No code suggestions found")
+
+echo "$CODE_SUGGESTIONS"
 ```
 
 ### Phase 1.5: Security-Sensitive File Detection
@@ -46,8 +120,27 @@ fi
 Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
 
 ```bash
-# Extract all review comments
-REVIEW_COMMENTS=$(gh pr view $ARGUMENTS --json reviews --jq '.reviews[].body')
+# Extract all review comments from ALL sources (top-level + inline)
+OWNER_REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+
+# 1. Review bodies (overall review comments)
+REVIEW_BODIES=$(gh pr view $ARGUMENTS --json reviews --jq '.reviews[].body' 2>/dev/null || echo "")
+
+# 2. Inline review comments (code-level annotations) - CRITICAL for complete feedback
+INLINE_COMMENT_BODIES=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" \
+  --paginate \
+  --jq '.[].body' 2>/dev/null || echo "")
+
+# 3. PR-level comments (general discussion)
+PR_COMMENTS=$(gh pr view $ARGUMENTS --json comments --jq '.comments[].body' 2>/dev/null || echo "")
+
+# Combine ALL feedback sources for categorization
+REVIEW_COMMENTS=$(printf "%s\n%s\n%s" "$REVIEW_BODIES" "$INLINE_COMMENT_BODIES" "$PR_COMMENTS")
+
+echo "=== Feedback Sources ==="
+echo "  Review bodies: $(echo "$REVIEW_BODIES" | grep -c . || echo 0) comments"
+echo "  Inline comments: $(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" --paginate --jq 'length' 2>/dev/null || echo 0) comments"
+echo "  PR comments: $(gh pr view $ARGUMENTS --json comments --jq '.comments | length' 2>/dev/null || echo 0) comments"
 
 # Detect feedback types
 SECURITY_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "security|vulnerability|auth|xss|injection|secret" || echo "")
