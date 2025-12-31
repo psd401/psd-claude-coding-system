@@ -16,7 +16,7 @@ You are an experienced developer skilled at addressing PR feedback constructivel
 
 ### Phase 1: PR Analysis
 ```bash
-# Get full PR context with all comments
+# Get full PR context with top-level comments
 gh pr view $ARGUMENTS --comments
 
 # Check PR status and CI/CD checks
@@ -24,6 +24,88 @@ gh pr checks $ARGUMENTS
 
 # View the diff
 gh pr diff $ARGUMENTS
+```
+
+### Phase 1.1: Fetch Inline Review Comments (Code-Level Annotations)
+
+**CRITICAL**: The `gh pr view --comments` command only retrieves PR-level comments. Inline review comments (attached to specific lines/files) require the GitHub API.
+
+```bash
+echo "=== Inline Review Comments (Code-Level) ==="
+OWNER_REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+
+# Fetch ALL inline review comments once and cache for reuse
+# This prevents redundant API calls in Phases 1.1, 1.2, and 2
+INLINE_COMMENTS_RAW=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" \
+  --paginate \
+  2>/dev/null || echo "[]")
+
+# Check if any inline comments exist
+if [ "$INLINE_COMMENTS_RAW" = "[]" ] || [ -z "$INLINE_COMMENTS_RAW" ]; then
+  echo "ℹ️  No inline review comments found on this PR"
+  INLINE_COMMENTS="No inline comments found"
+  TOTAL_INLINE=0
+  SUGGESTIONS_COUNT=0
+  OUTDATED_COUNT=0
+else
+  # Group by file path for display
+  INLINE_COMMENTS=$(echo "$INLINE_COMMENTS_RAW" | jq '
+    group_by(.path) | .[] | {
+      file: .[0].path,
+      comments: [.[] | {
+        line: (.line // .original_line),
+        user: .user.login,
+        body: .body,
+        has_suggestion: (.body | test("```suggestion"; "i")),
+        is_reply: (.in_reply_to_id != null),
+        is_outdated: (.line == null and .original_line != null),
+        created_at: .created_at
+      }]
+    }
+  ' 2>/dev/null)
+
+  echo "$INLINE_COMMENTS"
+
+  # Calculate statistics from cached data (no additional API calls)
+  TOTAL_INLINE=$(echo "$INLINE_COMMENTS_RAW" | jq 'length' 2>/dev/null || echo 0)
+  SUGGESTIONS_COUNT=$(echo "$INLINE_COMMENTS_RAW" | jq '[.[] | select(.body | test("```suggestion"; "i"))] | length' 2>/dev/null || echo 0)
+  OUTDATED_COUNT=$(echo "$INLINE_COMMENTS_RAW" | jq '[.[] | select(.line == null and .original_line != null)] | length' 2>/dev/null || echo 0)
+
+  echo ""
+  echo "📊 Inline Comment Statistics:"
+  echo "   Total: $TOTAL_INLINE"
+  echo "   With Code Suggestions: $SUGGESTIONS_COUNT"
+  echo "   Outdated (code changed): $OUTDATED_COUNT"
+fi
+```
+
+### Phase 1.2: Extract Code Suggestions
+
+Code suggestions are inline comments with ```` ```suggestion ```` blocks that propose specific code changes.
+
+```bash
+echo ""
+echo "=== Code Suggestions (Proposed Changes) ==="
+
+# Reuse cached inline comments data from Phase 1.1 (no additional API call)
+if [ "$INLINE_COMMENTS_RAW" = "[]" ] || [ -z "$INLINE_COMMENTS_RAW" ]; then
+  echo "No code suggestions found"
+else
+  CODE_SUGGESTIONS=$(echo "$INLINE_COMMENTS_RAW" | jq '
+    [.[] | select(.body | test("```suggestion"; "i"))] |
+    if length == 0 then "No code suggestions found"
+    else .[] | {
+      file: .path,
+      line: (.line // .original_line),
+      user: .user.login,
+      suggestion: .body,
+      diff_context: .diff_hunk
+    }
+    end
+  ' 2>/dev/null || echo "No code suggestions found")
+
+  echo "$CODE_SUGGESTIONS"
+fi
 ```
 
 ### Phase 1.5: Security-Sensitive File Detection
@@ -46,8 +128,25 @@ fi
 Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
 
 ```bash
-# Extract all review comments
-REVIEW_COMMENTS=$(gh pr view $ARGUMENTS --json reviews --jq '.reviews[].body')
+# Extract all review comments from ALL sources (top-level + inline)
+# Reuses cached INLINE_COMMENTS_RAW from Phase 1.1 to avoid redundant API calls
+
+# 1. Review bodies (overall review comments)
+REVIEW_BODIES=$(gh pr view $ARGUMENTS --json reviews --jq '.reviews[].body' 2>/dev/null || echo "")
+
+# 2. Inline review comments (code-level annotations) - Reuse cached data from Phase 1.1
+INLINE_COMMENT_BODIES=$(echo "$INLINE_COMMENTS_RAW" | jq -r '.[].body' 2>/dev/null || echo "")
+
+# 3. PR-level comments (general discussion)
+PR_COMMENTS=$(gh pr view $ARGUMENTS --json comments --jq '.comments[].body' 2>/dev/null || echo "")
+
+# Combine ALL feedback sources for categorization
+REVIEW_COMMENTS=$(printf "%s\n%s\n%s" "$REVIEW_BODIES" "$INLINE_COMMENT_BODIES" "$PR_COMMENTS")
+
+echo "=== Feedback Sources ==="
+echo "  Review bodies: $(echo "$REVIEW_BODIES" | grep -c . || echo 0) comments"
+echo "  Inline comments: $TOTAL_INLINE comments"
+echo "  PR comments: $(gh pr view $ARGUMENTS --json comments --jq '.comments | length' 2>/dev/null || echo 0) comments"
 
 # Detect feedback types
 SECURITY_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "security|vulnerability|auth|xss|injection|secret" || echo "")
