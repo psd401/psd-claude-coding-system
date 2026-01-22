@@ -559,6 +559,32 @@ git commit -m "chore: Bump version to X.Y.Z ([reason])"
 git push origin main
 ```
 
+**Release tagging** (REQUIRED for all version bumps):
+```bash
+# Create annotated tag with release summary
+git tag -a vX.Y.Z -m "Release vX.Y.Z - Brief description
+
+- Key change 1
+- Key change 2
+- Key change 3"
+
+# Push tag to origin
+git push origin vX.Y.Z
+```
+
+**Tag naming convention:**
+- Always prefix with `v` (e.g., `v1.13.0`)
+- Use annotated tags (`-a`) with descriptive messages
+- Push tags immediately after creating them
+
+**Complete release workflow:**
+1. Update all 6 version locations listed above
+2. Add CHANGELOG.md entry
+3. Commit: `git commit -m "chore: Bump version to X.Y.Z ([reason])"`
+4. Push: `git push origin main`
+5. Tag: `git tag -a vX.Y.Z -m "Release summary..."`
+6. Push tag: `git push origin vX.Y.Z`
+
 ### Git Workflow
 - Always branch from `dev`, not `main` (see `/work` command Phase 2)
 - Branch naming: `feature/[issue-number]-brief-description` for issues, `fix/brief-description` for quick fixes
