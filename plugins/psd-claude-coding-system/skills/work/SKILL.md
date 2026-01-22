@@ -1,8 +1,16 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, Task
+name: work
 description: Implement solutions for GitHub issues or quick fixes
-argument-hint: [issue number OR description of quick fix]
+argument-hint: "[issue number OR description of quick fix]"
 model: claude-opus-4-5-20251101
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Bash(*)
+  - Read
+  - Edit
+  - Write
+  - Task
 extended-thinking: true
 ---
 
@@ -56,7 +64,7 @@ else
   git checkout -b fix/$BRANCH_NAME
 fi
 
-echo "✓ Created feature branch from dev"
+echo "Created feature branch from dev"
 
 ```
 
@@ -90,16 +98,16 @@ fi
 # Domain detection
 if echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "component|\.tsx|\.jsx|\.vue|frontend|ui"; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE frontend-specialist"
-  echo "ℹ️  Frontend work detected"
+  echo "Frontend work detected"
 elif echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "api|routes|controller|service|backend|\.go|\.rs"; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE backend-specialist"
-  echo "ℹ️  Backend work detected"
+  echo "Backend work detected"
 elif echo "$CHANGED_FILES $ISSUE_BODY" | grep -iEq "schema|migration|database|\.sql"; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE database-specialist"
-  echo "ℹ️  Database work detected"
+  echo "Database work detected"
 elif echo "$ISSUE_BODY" | grep -iEq "ai|llm|gpt|claude|openai|anthropic"; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE llm-specialist"
-  echo "ℹ️  AI/LLM work detected"
+  echo "AI/LLM work detected"
 fi
 
 # UX-sensitive detection (invoke UX specialist for UI work)
@@ -107,7 +115,7 @@ fi
 FILTERED_FILES=$(echo "$CHANGED_FILES" | grep -vE "^(api|lib|utils|types)/")
 if echo "$FILTERED_FILES $ISSUE_BODY" | grep -iEq "components/|pages/|views/|\.component\.(tsx|jsx|vue)|ui/|form|button|modal|dialog|input|menu|navigation|toast|alert|dropdown|select|checkbox|radio|slider|toggle|tooltip|popover|layout|responsive|mobile|accessibility|a11y|wcag|usability|ux|user.experience"; then
   AGENTS_TO_INVOKE="$AGENTS_TO_INVOKE ux-specialist"
-  echo "ℹ️  UI work detected - UX heuristic review included"
+  echo "UI work detected - UX heuristic review included"
 fi
 
 echo "=== Agents to invoke in parallel: $AGENTS_TO_INVOKE ==="
@@ -220,10 +228,10 @@ if [ "$WORK_TYPE" = "issue" ]; then
 - [Note any breaking changes]
 
 Closes #$ISSUE_NUMBER"
-  
+
   # Push to remote
   git push origin feature/$ISSUE_NUMBER-brief-description
-  
+
   # Create PR for issue
   gh pr create \
     --base dev \
@@ -254,10 +262,10 @@ else
 
 - [Describe what was fixed]
 - [Note any side effects]"
-  
+
   # Push to remote
   git push origin HEAD
-  
+
   # Create PR for quick fix
   gh pr create \
     --base dev \
@@ -279,7 +287,7 @@ Quick fix: $ARGUMENTS
     --assignee "@me"
 fi
 
-echo "✅ PR created successfully"
+echo "PR created successfully"
 ```
 
 ### Summary
@@ -288,8 +296,8 @@ echo "✅ PR created successfully"
 PR_NUMBER=$(gh pr list --author "@me" --limit 1 --json number --jq '.[0].number')
 
 echo ""
-echo "✅ Work completed successfully!"
-echo "✅ PR #$PR_NUMBER created and ready for review"
+echo "Work completed successfully!"
+echo "PR #$PR_NUMBER created and ready for review"
 echo ""
 echo "Key improvements in v1.7.0:"
 echo "  - Security review happened PRE-implementation (fewer surprises)"
@@ -320,8 +328,8 @@ test -f vite.config.ts && echo "Vite project"
 test -f angular.json && echo "Angular project"
 
 # Check for project docs
-test -f CLAUDE.md && echo "✓ Project conventions found"
-test -f CONTRIBUTING.md && echo "✓ Contributing guide found"
+test -f CLAUDE.md && echo "Project conventions found"
+test -f CONTRIBUTING.md && echo "Contributing guide found"
 ```
 
 ## Best Practices
@@ -344,10 +352,10 @@ When invoking agents:
 
 ## Success Criteria
 
-- ✅ Issue requirements fully implemented
-- ✅ All tests passing
-- ✅ No linting or type errors
-- ✅ PR created to `dev` branch
-- ✅ Issue will auto-close when PR merges
+- Issue requirements fully implemented
+- All tests passing
+- No linting or type errors
+- PR created to `dev` branch
+- Issue will auto-close when PR merges
 
 Remember: Quality over speed. Use agents for expertise beyond general development.

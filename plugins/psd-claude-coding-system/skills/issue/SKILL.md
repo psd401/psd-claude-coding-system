@@ -1,8 +1,18 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, WebSearch, WebFetch, Context7, Task
+name: issue
 description: Research and create well-structured GitHub issues for feature requests, bug reports, or improvements
-argument-hint: [feature description, bug report, or improvement idea]
+argument-hint: "[feature description, bug report, or improvement idea]"
 model: claude-opus-4-5-20251101
+context: fork
+agent: Explore
+allowed-tools:
+  - Bash(*)
+  - Read
+  - Edit
+  - Write
+  - WebSearch
+  - WebFetch
+  - Task
 extended-thinking: true
 ---
 
@@ -284,7 +294,7 @@ Brief description of what needs improvement and why
 - External service integration: +1
 - Estimated files affected > 5: +1
 
-**If complexity score ≥ 5 (not 3!)**, consider adding architectural guidance AFTER issue creation:
+**If complexity score >= 5 (not 3!)**, consider adding architectural guidance AFTER issue creation:
 
 ```bash
 # Get the issue number that was just created
@@ -365,9 +375,9 @@ After creating the issue:
 3. **Note any follow-up** research or clarification that might be helpful
 
 ```bash
-echo "✅ Issue #$ISSUE_NUMBER created successfully!"
-echo "🔗 URL: [issue-url]"
-echo "📋 Next: /work $ISSUE_NUMBER"
+echo "Issue #$ISSUE_NUMBER created successfully!"
+echo "URL: [issue-url]"
+echo "Next: /work $ISSUE_NUMBER"
 ```
 
 ## Examples
@@ -375,30 +385,30 @@ echo "📋 Next: /work $ISSUE_NUMBER"
 **Simple Feature:**
 ```
 /issue "Add dark mode toggle to settings page"
-→ Research dark mode best practices (Oct 2025)
-→ Check project conventions
-→ Create issue with Feature Request template
-→ Ready for /work
+-> Research dark mode best practices (Oct 2025)
+-> Check project conventions
+-> Create issue with Feature Request template
+-> Ready for /work
 ```
 
 **Bug Fix:**
 ```
 /issue "Login button doesn't respond on mobile Safari"
-→ Research Safari-specific issues
-→ Check existing similar bugs
-→ Create issue with Bug Report template
-→ Ready for /work
+-> Research Safari-specific issues
+-> Check existing similar bugs
+-> Create issue with Bug Report template
+-> Ready for /work
 ```
 
 **Complex Feature (with optional enhancement):**
 ```
 /issue "Add OAuth integration for Google and Microsoft"
-→ Research latest OAuth 2.1 standards (2025)
-→ Check security best practices
-→ Create comprehensive issue
-→ Optionally: Invoke architect to add architectural design comment
-→ Optionally: Invoke plan-validator to add validation comment
-→ Ready for /work
+-> Research latest OAuth 2.1 standards (2025)
+-> Check security best practices
+-> Create comprehensive issue
+-> Optionally: Invoke architect to add architectural design comment
+-> Optionally: Invoke plan-validator to add validation comment
+-> Ready for /work
 ```
 
 Remember: A well-written issue with thorough research saves hours of development time and reduces back-and-forth clarification. The issue you create should be comprehensive enough to start work immediately.

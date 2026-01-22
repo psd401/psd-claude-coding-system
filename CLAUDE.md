@@ -9,48 +9,78 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.12.3
+**Version**: 1.13.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
+
+### NEW in v1.13.0 - Skills Architecture Migration
+
+This version migrates from `commands/` to `skills/` directory structure to align with Claude Code 2.1.x:
+- **Skills replace Commands**: All 20 commands migrated to `skills/<name>/SKILL.md` format
+- **New frontmatter fields**: `context: fork`, `agent` type specification
+- **Hot-reload support**: Skills auto-reload without session restart
+- **New skill**: `/claude_code_updates` - Analyzes Claude Code releases and recommends plugin improvements
 
 ## Architecture
 
 ### Unified Plugin Structure
 
-The plugin follows Claude Code's architecture with automatic telemetry via hooks:
+The plugin follows Claude Code 2.1.x architecture with skills-based organization:
 ```
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
-  │   └── plugin.json          # Plugin metadata (v1.7.0)
-  ├── commands/                 # 18 slash commands (*.md)
-  ├── agents/                   # 15 specialized AI agents (*.md)
-  ├── skills/                   # 5 reusable workflow skills (NEW v1.7.0)
-  │   ├── git-workflow.md       # Branch, commit, PR patterns
-  │   ├── test-runner.md        # Universal test execution
-  │   ├── security-scan.md      # Security checks
-  │   ├── telemetry-report.md   # Telemetry utilities
-  │   └── parallel-dispatch.md  # Multi-agent coordination
+  │   └── plugin.json           # Plugin metadata (v1.13.0)
+  ├── skills/                   # 21 user-invocable skills (NEW v1.13.0)
+  │   ├── work/SKILL.md         # Main implementation workflow
+  │   ├── test/SKILL.md         # Testing and validation
+  │   ├── review-pr/SKILL.md    # PR feedback handling
+  │   ├── architect/SKILL.md    # Architecture design
+  │   ├── issue/SKILL.md        # Issue creation with research
+  │   ├── product-manager/SKILL.md  # Product specs
+  │   ├── security-audit/SKILL.md   # Security review
+  │   ├── claude-code-updates/SKILL.md  # Release monitoring (NEW)
+  │   ├── meta-*/SKILL.md       # 10 meta-learning skills
+  │   ├── git-workflow.md       # Reusable: branch/commit/PR patterns
+  │   ├── test-runner.md        # Reusable: universal test execution
+  │   ├── security-scan.md      # Reusable: security checks
+  │   ├── telemetry-report.md   # Reusable: telemetry utilities
+  │   └── parallel-dispatch.md  # Reusable: multi-agent coordination
+  ├── commands/                 # DEPRECATED - migrated to skills/
+  ├── agents/                   # 22 specialized AI agents (*.md)
   ├── hooks/
   │   └── hooks.json            # Automatic telemetry collection
   ├── scripts/
   │   ├── telemetry-init.sh     # SessionStart hook
   │   ├── telemetry-command.sh  # UserPromptSubmit hook
   │   ├── telemetry-agent.sh    # SubagentStop hook
-  │   └── telemetry-track.sh    # Stop hook (enhanced v1.7.0)
+  │   └── telemetry-track.sh    # Stop hook
   ├── meta/                     # Telemetry data (git-ignored)
   └── README.md                 # Plugin documentation
 ```
 
-### Command vs Agent Pattern
+### Skills vs Agents Pattern (Claude Code 2.1.x)
 
-**Commands** are user-facing workflows invoked with `/command-name`:
-- Contain YAML frontmatter defining allowed-tools, model, extended-thinking
+**Skills** are user-facing workflows invoked with `/skill-name`:
+- Located in `skills/<name>/SKILL.md` directory structure
+- Contain YAML frontmatter with new fields:
+  - `name`: Skill identifier
+  - `description`: What the skill does
+  - `argument-hint`: Usage hint shown to user
+  - `model`: Which Claude model to use
+  - `context: fork`: Run in isolated subagent context
+  - `agent`: Agent type when forking (Explore, Plan, general-purpose)
+  - `allowed-tools`: YAML list of permitted tools
+  - `extended-thinking`: Enable deep reasoning
 - Include bash scripts and structured workflows
 - May invoke agents via the Task tool for specialized work
+- Support hot-reload (changes apply without session restart)
 
-**Agents** are specialized AI assistants invoked by commands or other Claude Code instances:
-- Contain YAML frontmatter with name, description, model, color
+**Agents** are specialized AI assistants invoked by skills or other Claude Code instances:
+- Located in `agents/<name>.md`
+- Contain YAML frontmatter with name, description, tools, model, color
 - Focused on specific domains (backend, frontend, security, testing, etc.)
 - Run autonomously with specific tool access
+
+**DEPRECATED: Commands** (in `commands/` directory) have been migrated to skills
 
 ### Workflow Commands (9 commands)
 
@@ -98,9 +128,25 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 - document-validator
 - breaking-change-validator
 
-### Skills Layer (NEW v1.7.0)
+### Skills Layer (Updated v1.13.0)
 
-Reusable workflow components extracted from common patterns across commands:
+Skills are now the primary user-facing interface. There are two types:
+
+**User-Invocable Skills** (in `skills/<name>/SKILL.md`):
+- `/work` - Main implementation workflow
+- `/test` - Comprehensive testing
+- `/review_pr` - PR feedback handling
+- `/architect` - Architecture design
+- `/issue` - GitHub issue creation
+- `/product-manager` - Product specifications
+- `/security_audit` - Security review
+- `/compound_concepts` - Automation opportunities
+- `/clean_branch` - Post-merge cleanup
+- `/triage` - FreshService ticket triage
+- `/claude_code_updates` - **NEW** - Analyze Claude Code releases
+- `/meta_*` - 10 meta-learning skills
+
+**Reusable Workflow Components** (helper skills):
 
 **git-workflow.md** - Git operations (branching, committing, PR creation)
 - Standardizes branch naming (feature/N-desc, fix/desc)
@@ -258,8 +304,9 @@ psd-claude-coding-system/
   │   └── psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
-  │       ├── commands/       # 18 slash commands
-  │       ├── agents/         # 17 AI agents
+  │       ├── skills/         # 21 user-invocable skills (NEW v1.13.0)
+  │       ├── commands/       # DEPRECATED - migrated to skills/
+  │       ├── agents/         # 22 AI agents
   │       ├── hooks/          # Hook configurations
   │       └── scripts/        # Hook scripts
   ├── README.md              # User-facing documentation
@@ -301,11 +348,15 @@ git push origin main
 /plugin install psd-claude-coding-system
 ```
 
-### Modifying Commands or Agents
+### Modifying Skills or Agents
 
-1. Edit the relevant `.md` file in `plugins/[plugin]/commands/` or `plugins/[plugin]/agents/`
-2. Frontmatter YAML controls behavior (model, tools, extended-thinking, color)
-3. Test changes by reinstalling: `/plugin uninstall [name]` then `/plugin install [name]`
+1. Edit the relevant file:
+   - Skills: `plugins/[plugin]/skills/<name>/SKILL.md`
+   - Agents: `plugins/[plugin]/agents/<name>.md`
+2. Frontmatter YAML controls behavior:
+   - Skills: name, description, argument-hint, model, context, agent, allowed-tools, extended-thinking
+   - Agents: name, description, tools, model, extended-thinking, color
+3. Skills support hot-reload - changes apply without reinstalling
 4. No build step required - Claude Code reads markdown directly
 
 ### Testing Individual Commands
@@ -463,9 +514,10 @@ Use `/compound_concepts` after completing work to extract systematization opport
 **Version bumping locations** (update ALL of these):
 1. `plugins/psd-claude-coding-system/.claude-plugin/plugin.json` - `"version": "X.Y.Z"`
 2. `.claude-plugin/marketplace.json` - `metadata.version` AND `plugins[0].version`
-3. `CLAUDE.md` - Line 12: `**Version**: X.Y.Z`
-4. `README.md` - Line 13: `**Version**: X.Y.Z` (2 instances, use replace_all)
-5. `plugins/psd-claude-coding-system/README.md` - Line 5: `Version: X.Y.Z`
+3. `CLAUDE.md` - `**Version**: X.Y.Z` in Repository Overview section
+4. `README.md` - `**Version**: X.Y.Z` (may have multiple instances, use replace_all)
+5. `plugins/psd-claude-coding-system/README.md` - `Version: X.Y.Z`
+6. **CHANGELOG.md** - Add new version section at top with date and changes (REQUIRED)
 
 **Semantic versioning:**
 - **Major (2.0.0)**: Breaking changes, incompatible API changes
@@ -477,9 +529,32 @@ Use `/compound_concepts` after completing work to extract systematization opport
 - ✅ After adding features (minor: 1.1.0 → 1.2.0)
 - ✅ After breaking changes (major: 1.1.0 → 2.0.0)
 
+**CHANGELOG.md format** (Keep a Changelog standard):
+```markdown
+## [X.Y.Z] - YYYY-MM-DD
+
+### Added
+- New features
+
+### Changed
+- Changes to existing functionality
+
+### Deprecated
+- Features to be removed in future
+
+### Removed
+- Removed features
+
+### Fixed
+- Bug fixes
+
+### Security
+- Security improvements
+```
+
 **Example commit:**
 ```bash
-git add [all 5 files above]
+git add [all 6 files above including CHANGELOG.md]
 git commit -m "chore: Bump version to X.Y.Z ([reason])"
 git push origin main
 ```

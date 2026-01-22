@@ -1,8 +1,17 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, WebSearch, Task
+name: product-manager
 description: Transform ideas into comprehensive product specifications and user stories
-argument-hint: [product idea, feature request, or user need]
+argument-hint: "[product idea, feature request, or user need]"
 model: claude-opus-4-5-20251101
+context: fork
+agent: Plan
+allowed-tools:
+  - Bash(*)
+  - Read
+  - Edit
+  - Write
+  - WebSearch
+  - Task
 extended-thinking: true
 ---
 
@@ -60,7 +69,7 @@ Create a comprehensive Product Requirements Document with implementation breakdo
 
 ## 1. Executive Summary
 - Problem Statement
-- Proposed Solution  
+- Proposed Solution
 - Expected Outcomes
 
 ## 2. User Personas & Stories
@@ -98,7 +107,7 @@ Acceptance Criteria:
 
 ### System Design
 ```
-Frontend → API → Service → Database
+Frontend -> API -> Service -> Database
 ```
 
 ### Data Model
@@ -143,7 +152,7 @@ Break down the epic into discrete, actionable issues:
 
 ### Issue Dependencies
 Map out which issues must complete before others:
-- Issue A → Issue B → Issue C
+- Issue A -> Issue B -> Issue C
 - Parallel work streams
 - Critical path identification
 
@@ -176,7 +185,7 @@ Evaluate against 68 usability heuristics and ensure:
 5. Accessibility requirements included (WCAG AA minimum)
 6. User control mechanisms defined (undo, cancel, escape)
 7. Feedback mechanisms specified (confirmation, progress, status)
-8. Cognitive load considerations addressed (7±2 rule)
+8. Cognitive load considerations addressed (7+/-2 rule)
 
 Provide specific recommendations for missing UX requirements."
 
@@ -264,14 +273,14 @@ The `/issue` command provides:
 **For each sub-issue identified in the validated breakdown:**
 
 ```bash
-# Use the SlashCommand tool to invoke /issue with plugin prefix
+# Use the Skill tool to invoke /issue with plugin prefix
 # This leverages all the enhanced features (architecture, validation, research)
 
 # Example: Create database schema issue
-SlashCommand: "/psd-claude-coding-system:issue Setup user authentication database schema with OAuth provider tokens, refresh tokens, and session management. Must support Google and Microsoft OAuth flows."
+/psd-claude-coding-system:issue Setup user authentication database schema with OAuth provider tokens, refresh tokens, and session management. Must support Google and Microsoft OAuth flows.
 
 # The /issue command will:
-# 1. Assess complexity (likely ≥3, triggers architecture)
+# 1. Assess complexity (likely >=3, triggers architecture)
 # 2. Use MCP docs for latest OAuth specs
 # 3. Search "October 2025 OAuth database schema best practices"
 # 4. Invoke architect-specialist for schema design
@@ -305,10 +314,10 @@ done
 #### Dependency Map
 ```
 Epic #100 (PRD)
-├── Issue #101 (Database) - Created via /issue
-├── Issue #102 (Backend API) - Created via /issue
-├── Issue #103 (Frontend Auth) - Created via /issue
-└── Issue #104 (Integration Tests) - Created via /issue
++-- Issue #101 (Database) - Created via /issue
++-- Issue #102 (Backend API) - Created via /issue
++-- Issue #103 (Frontend Auth) - Created via /issue
++-- Issue #104 (Integration Tests) - Created via /issue
 
 Each issue includes:
 - Architecture design (if complex)
@@ -375,7 +384,7 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 - Invoke `psd-claude-coding-system:plan-validator` to validate issue structure
 
 **Phase 4 - Issue Creation:**
-- Use SlashCommand tool with `/psd-claude-coding-system:issue` for each sub-issue
+- Use Skill tool with `/psd-claude-coding-system:issue` for each sub-issue
   - Automatically invokes `psd-claude-coding-system:architect-specialist` for complex issues
   - Automatically invokes `psd-claude-coding-system:plan-validator` for complex issues
   - Conducts current documentation research
@@ -389,42 +398,42 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 
 ## Success Criteria
 
-- ✅ PRD complete and reviewed
-- ✅ Implementation breakdown created
-- ✅ Breakdown validated with plan-validator (GPT-5)
-- ✅ Epic created with full PRD
-- ✅ All sub-issues created via /issue command
-- ✅ Complex issues include architecture design
-- ✅ All issues validated with latest documentation
-- ✅ Dependencies mapped
-- ✅ Timeline established
-- ✅ Success metrics defined
-- ✅ Team aligned
-- ✅ Risks identified
+- PRD complete and reviewed
+- Implementation breakdown created
+- Breakdown validated with plan-validator (GPT-5)
+- Epic created with full PRD
+- All sub-issues created via /issue command
+- Complex issues include architecture design
+- All issues validated with latest documentation
+- Dependencies mapped
+- Timeline established
+- Success metrics defined
+- Team aligned
+- Risks identified
 
 ## Workflow Summary
 
 ```
 Phase 1: Discovery & Research
-     ↓
+     |
 Phase 2: Product Strategy (Vision, Metrics)
-     ↓
+     |
 Phase 3: PRD Structure & Breakdown
-     ↓
+     |
 Phase 3.5: Validate Requirements
-     ├─→ UX validation (ux-specialist agent)
-     └─→ Plan validation (plan-validator agent)
-     ↓
+     +-> UX validation (ux-specialist agent)
+     +-> Plan validation (plan-validator agent)
+     |
      Refine based on validation
-     ↓
+     |
 Phase 4: Issue Creation
-     ├─→ Create Epic (PRD)
-     └─→ Create Sub-Issues (/issue command for each)
-          ├─→ Complexity assessment
-          ├─→ Documentation research
-          ├─→ Architecture (if complex)
-          └─→ Validation (if complex)
-     ↓
+     +-> Create Epic (PRD)
+     +-> Create Sub-Issues (/issue command for each)
+          +-> Complexity assessment
+          +-> Documentation research
+          +-> Architecture (if complex)
+          +-> Validation (if complex)
+     |
 Phase 5: Communication & Alignment
 ```
 

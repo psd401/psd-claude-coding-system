@@ -1,6 +1,9 @@
 ---
+name: meta_evolve
 description: Evolve agent prompts using genetic algorithms and historical performance data
 model: claude-opus-4-5-20251101
+context: fork
+agent: general-purpose
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [--agents all|agent-name] [--generations 10] [--parallel] [--output report.md]
@@ -223,6 +226,7 @@ Generating 5 initial variants for [agent-name]...
 ```markdown
 **Variant 2**: Add explicit SQL injection checklist
 ---
+name: meta_evolve
 (Base prompt +)
 
 **SQL Injection Check Protocol**:
@@ -232,9 +236,11 @@ Generating 5 initial variants for [agent-name]...
 4. Test for blind SQL injection patterns
 5. Validate ORM usage correctness
 ---
+name: meta_evolve
 
 **Variant 3**: Add parallel analysis workflow
 ---
+name: meta_evolve
 (Base prompt +)
 
 **Analysis Strategy**:
@@ -245,9 +251,11 @@ Run these checks in parallel:
 
 Aggregate findings and report
 ---
+name: meta_evolve
 
 **Variant 4**: Add historical pattern matching
 ---
+name: meta_evolve
 (Base prompt +)
 
 **Known Vulnerability Patterns**:
@@ -256,6 +264,7 @@ Reference these past incidents:
 - Issue #58: SQL injection (scan for analogous code)
 - Issue #127: XSS vulnerability (validate input escaping)
 ---
+name: meta_evolve
 ```
 
 **Step 3: Evaluate Each Variant on Historical Data**
@@ -568,6 +577,7 @@ Update `agent_variants.json` with evolution results:
 Generated: [timestamp]
 
 ---
+name: meta_evolve
 
 ## Summary
 
@@ -577,6 +587,7 @@ Generated: [timestamp]
 **Average Improvement**: +[percentage]%
 
 ---
+name: meta_evolve
 
 ## Agent: [agent-name]
 
@@ -634,12 +645,14 @@ v4 (predictive): 0.94 ██████████ ← PROMOTED
 **Backup**: Baseline saved as `[agent-name].md.v[N-1].backup`
 
 ---
+name: meta_evolve
 
 ## Agent: [next-agent]
 
 [Same format for each agent evolved]
 
 ---
+name: meta_evolve
 
 ## Overall Statistics
 
@@ -666,6 +679,7 @@ v4 (predictive): 0.94 ██████████ ← PROMOTED
 - **Success rate**: [N]/[N] agents improved
 
 ---
+name: meta_evolve
 
 ## Recommendations
 
@@ -690,6 +704,7 @@ v4 (predictive): 0.94 ██████████ ← PROMOTED
    - [Strategy idea based on results]
 
 ---
+name: meta_evolve
 
 **Evolution completed**: [timestamp]
 **Next scheduled evolution**: [date] (6 months)
@@ -809,5 +824,6 @@ Deep evolution of single agent with more generations.
 Evolves multiple agents simultaneously (faster but uses more resources).
 
 ---
+name: meta_evolve
 
 **Remember**: Agent evolution is compound learning in action. Each generation builds on previous improvements, creating agents that perform 30-40% better than human-written baselines after 6-12 months of evolution.

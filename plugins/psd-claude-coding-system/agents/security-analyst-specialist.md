@@ -1,6 +1,7 @@
 ---
 name: security-analyst-specialist
 description: Expert security analyst for code review, vulnerability analysis, and best practices validation
+tools: Bash, Read, Grep, Glob
 model: claude-sonnet-4-5
 extended-thinking: true
 color: red

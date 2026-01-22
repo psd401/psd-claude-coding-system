@@ -4,6 +4,7 @@ description: Frontend development specialist for UI components, React patterns, 
 tools: Read, Edit, Write
 model: claude-sonnet-4-5
 extended-thinking: true
+color: cyan
 ---
 
 # Frontend Specialist Agent

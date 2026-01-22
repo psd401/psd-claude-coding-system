@@ -1,6 +1,9 @@
 ---
+name: meta_implement
 description: Auto-implement improvements with dry-run safety checks and rollback
 model: claude-opus-4-5-20251101
+context: fork
+agent: general-purpose
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [suggestion-id] [--dry-run] [--auto] [--confirm] [--rollback]
@@ -445,6 +448,7 @@ fi
 **Timestamp**: [timestamp]
 
 ---
+name: meta_implement
 
 ### Suggestion Summary
 
@@ -454,6 +458,7 @@ fi
 **Implementation Effort**: [Y] hours
 
 ---
+name: meta_implement
 
 ### Changes Made ([N] total)
 
@@ -478,6 +483,7 @@ fi
 2. [description] - [command]
 
 ---
+name: meta_implement
 
 ### Validation Results
 
@@ -489,6 +495,7 @@ fi
 **Overall**: [ALL TESTS PASSED | SOME TESTS FAILED]
 
 ---
+name: meta_implement
 
 ### Dry-Run Analysis
 
@@ -523,6 +530,7 @@ fi
 4. After PR approval, merge to main
 
 ---
+name: meta_implement
 
 ### Files Changed
 
@@ -534,6 +542,7 @@ git diff --stat
 [Show actual git diff output]
 
 ---
+name: meta_implement
 
 ### Rollback Instructions
 
@@ -551,6 +560,7 @@ git branch -D [implementation-branch]
 [List each rollback step from YAML]
 
 ---
+name: meta_implement
 
 **Implementation completed**: [timestamp]
 **Branch**: [branch-name]
@@ -596,6 +606,7 @@ EOF
 **Estimated ROI**: [X] hours/month
 
 ---
+name: meta_implement
 
 ### Summary
 
@@ -621,6 +632,7 @@ $(git diff main..HEAD --stat)
 See commit message for full details.
 
 ---
+name: meta_implement
 
 **Review Checklist**:
 - [ ] Changes match suggestion intent
@@ -792,5 +804,6 @@ echo "ROI tracking will begin after merge."
 ```
 
 ---
+name: meta_implement
 
 **Remember**: Auto-implementation is powerful but requires safety-first approach. Dry-run extensively, validate thoroughly, and always provide human oversight through PR review process.

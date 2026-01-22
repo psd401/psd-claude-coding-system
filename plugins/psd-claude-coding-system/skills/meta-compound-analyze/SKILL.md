@@ -1,6 +1,9 @@
 ---
+name: meta_compound_analyze
 description: Analyze compound_learnings from PR retrospectives and generate prioritized improvement roadmap
 model: claude-opus-4-5-20251101
+context: fork
+agent: Explore
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--since 30d] [--min-confidence high] [--output roadmap.md]
@@ -499,6 +502,7 @@ Min confidence: all levels
    - Priority Score: 14
 
 ---
+name: meta_compound_analyze
 Analysis complete. Use /meta_implement to apply high-priority suggestions.
 ```
 

@@ -1,8 +1,16 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, Task
+name: test
 description: Comprehensive testing command for running, writing, and validating tests
-argument-hint: [issue number, PR number, or test scope]
+argument-hint: "[issue number, PR number, or test scope]"
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Bash(*)
+  - Read
+  - Edit
+  - Write
+  - Task
 extended-thinking: true
 ---
 
@@ -36,7 +44,7 @@ find . -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" | head -20
 # Unit tests
 npm run test:unit || npm test
 
-# Integration tests  
+# Integration tests
 npm run test:integration
 
 # E2E tests (if applicable)
@@ -160,7 +168,7 @@ if [ -n "$TELEMETRY_SESSION_ID" ]; then
 fi
 
 echo ""
-echo "✅ Testing completed successfully!"
+echo "Testing completed successfully!"
 ```
 
 ## Quick Reference
@@ -202,11 +210,11 @@ npm test -- -u
 
 ## Success Criteria
 
-- ✅ All tests passing
-- ✅ Coverage > 80%
-- ✅ No flaky tests
-- ✅ Tests are maintainable
-- ✅ Critical paths covered
-- ✅ Edge cases tested
+- All tests passing
+- Coverage > 80%
+- No flaky tests
+- Tests are maintainable
+- Critical paths covered
+- Edge cases tested
 
 Remember: Tests are not just about coverage, but about confidence in the code.

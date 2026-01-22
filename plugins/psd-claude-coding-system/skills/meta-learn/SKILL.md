@@ -1,6 +1,9 @@
 ---
+name: meta_learn
 description: Generate improvement suggestions from patterns with historical context and ROI
 model: claude-opus-4-5-20251101
+context: fork
+agent: general-purpose
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--from-analysis file.md] [--confidence-threshold 0.80] [--output suggestions.md]
@@ -164,6 +167,7 @@ Generated: [timestamp]
 Based on: [N] executions, [N] patterns, [N] historical suggestions
 
 ---
+name: meta_learn
 
 ### QUICK WINS (High ROI, Low Effort, High Confidence)
 
@@ -244,12 +248,14 @@ rollback_plan:
 **→ SIMILAR PROJECTS**: [If applicable, reference similar work in other systems]
 
 ---
+name: meta_learn
 
 **SUGGESTION #2**: [Next suggestion...]
 
 [Repeat format for each suggestion]
 
 ---
+name: meta_learn
 
 ### MEDIUM-TERM IMPROVEMENTS (High Impact, Moderate Effort)
 
@@ -259,6 +265,7 @@ rollback_plan:
 [Same format as above]
 
 ---
+name: meta_learn
 
 ### EXPERIMENTAL IDEAS (Novel or Uncertain, Needs Testing)
 
@@ -275,6 +282,7 @@ rollback_plan:
    - Rollback triggers: [when to abort]
 
 ---
+name: meta_learn
 
 ## SUMMARY
 
@@ -302,6 +310,7 @@ rollback_plan:
    - Suggestion #[N]: [title]
 
 ---
+name: meta_learn
 
 **Analysis Metadata**:
 - Suggestions generated: [N]
@@ -316,6 +325,7 @@ rollback_plan:
 - Confidence ≥85%: [N] ([percentage]%)
 
 ---
+name: meta_learn
 
 **To update history after implementation**:
 Review each suggestion and use `/meta_implement` to track outcomes, or manually update `compound_history.json` with implementation status and actual ROI.
@@ -472,6 +482,7 @@ The meta-learning system needs more data to generate reliable improvement sugges
 - Time span of 1-2 weeks minimum
 
 ---
+name: meta_learn
 
 **Preliminary Observations** (low confidence):
 [If any weak patterns exist, list them here as areas to watch]
@@ -508,5 +519,6 @@ The meta-learning system needs more data to generate reliable improvement sugges
 ```
 
 ---
+name: meta_learn
 
 **Remember**: Your goal is to transform telemetry patterns into concrete, high-ROI improvements that compound over time. Every suggestion should make the development system permanently better.

@@ -4,6 +4,7 @@ description: Performance optimization specialist for web vitals, database querie
 tools: Bash, Read, Edit, Write, WebSearch
 model: claude-sonnet-4-5
 extended-thinking: true
+color: purple
 ---
 
 # Performance Optimizer Agent - Enterprise Grade

@@ -4,6 +4,7 @@ description: Technical documentation specialist for API docs, user guides, and a
 tools: Bash, Read, Edit, Write, WebSearch
 model: claude-sonnet-4-5
 extended-thinking: true
+color: green
 ---
 
 # Documentation Writer Agent

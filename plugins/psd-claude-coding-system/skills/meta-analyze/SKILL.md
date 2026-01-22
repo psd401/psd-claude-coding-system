@@ -1,6 +1,9 @@
 ---
+name: meta_analyze
 description: Analyze telemetry data and extract development patterns
 model: claude-opus-4-5-20251101
+context: fork
+agent: Explore
 extended-thinking: true
 allowed-tools: Bash, Read
 argument-hint: [--since 7d] [--command work] [--output file.md]
@@ -239,6 +242,7 @@ Examples:
    - [Suggestion]
 
 ---
+name: meta_analyze
 
 **Analysis completed**: [timestamp]
 **Data points analyzed**: [count]
@@ -351,6 +355,7 @@ Continue using workflow commands (/work, /test, /review_pr, etc.) for at least 1
 **Privacy Note**: No code content, issue details, or personal data is recorded.
 
 ---
+name: meta_analyze
 
 Come back in [X] days for meaningful pattern analysis!
 ```
@@ -386,5 +391,6 @@ Analyzes only /work command executions to optimize that workflow.
 Analyzes all telemetry data since system started.
 
 ---
+name: meta_analyze
 
 **Remember**: Your goal is to transform raw telemetry into actionable compound engineering opportunities that make the development system continuously better.

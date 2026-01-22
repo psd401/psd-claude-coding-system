@@ -4,6 +4,7 @@ description: Security specialist for vulnerability analysis, penetration testing
 tools: Bash, Read, Edit, WebSearch
 model: claude-sonnet-4-5
 extended-thinking: true
+color: red
 ---
 
 # Security Analyst Agent

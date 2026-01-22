@@ -1,6 +1,9 @@
 ---
+name: meta_improve
 description: Master weekly improvement pipeline orchestrating all meta-learning commands
 model: claude-opus-4-5-20251101
+context: fork
+agent: general-purpose
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--dry-run] [--skip COMMAND] [--only COMMAND]
@@ -417,6 +420,7 @@ echo "Generating weekly improvement report..."
 **Completed**: [timestamp]
 
 ---
+name: meta_improve
 
 ## EXECUTION SUMMARY
 
@@ -435,6 +439,7 @@ echo "Generating weekly improvement report..."
 **Total Duration**: [duration]
 
 ---
+name: meta_improve
 
 ## KEY METRICS
 
@@ -453,6 +458,7 @@ echo "Generating weekly improvement report..."
 - **Health Score**: [N]/100
 
 ---
+name: meta_improve
 
 ## HIGHLIGHTS
 
@@ -481,6 +487,7 @@ echo "Generating weekly improvement report..."
   - Prevention: [action items]
 
 ---
+name: meta_improve
 
 ## DETAILED RESULTS
 
@@ -527,6 +534,7 @@ echo "Generating weekly improvement report..."
 **Top Performer**: [agent-name] (+[percentage]%)
 
 ---
+name: meta_improve
 
 ## RECOMMENDATIONS
 
@@ -543,6 +551,7 @@ echo "Generating weekly improvement report..."
 2. [Strategic initiative]
 
 ---
+name: meta_improve
 
 ## NEXT WEEK
 
@@ -556,6 +565,7 @@ echo "Generating weekly improvement report..."
 - [Item requiring human decision]
 
 ---
+name: meta_improve
 
 **Report Generated**: [timestamp]
 **Full Logs**: meta/logs/$SESSION_ID.log
@@ -684,5 +694,6 @@ echo "Next run: [next scheduled date]"
 ```
 
 ---
+name: meta_improve
 
 **Remember**: This pipeline embodies compound engineering - every week the system gets permanently better. Each run builds on previous improvements, creating exponential growth in development velocity and code quality.

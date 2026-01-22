@@ -1,6 +1,9 @@
 ---
+name: meta_document
 description: Auto-generate and sync living documentation from code changes
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [--sync-from-code] [--validate-patterns] [--from-pr PR_NUMBER]
@@ -231,6 +234,7 @@ For each pattern detected, generate comprehensive documentation:
 **Auto-Generated**: [Date] from [PR/Commit]
 
 ---
+name: meta_document
 
 ## Pattern Description
 
@@ -243,6 +247,7 @@ For each pattern detected, generate comprehensive documentation:
 **Context**: [When should this pattern be used?]
 
 ---
+name: meta_document
 
 ## Code Example
 
@@ -259,6 +264,7 @@ For each pattern detected, generate comprehensive documentation:
 ```
 
 ---
+name: meta_document
 
 ## Detection Script
 
@@ -284,6 +290,7 @@ fi
 Save as: `scripts/validate-[pattern-name].sh`
 
 ---
+name: meta_document
 
 ## Validation Test
 
@@ -304,6 +311,7 @@ describe('[Pattern Name] compliance', () => {
 ```
 
 ---
+name: meta_document
 
 ## Automated Enforcement
 
@@ -329,6 +337,7 @@ module.exports = {
 ```
 
 ---
+name: meta_document
 
 ## Real-World Examples
 
@@ -346,6 +355,7 @@ module.exports = {
 - Fix: [How it was corrected]
 
 ---
+name: meta_document
 
 ## Related Patterns
 
@@ -353,6 +363,7 @@ module.exports = {
 - [Related Pattern 2]: [Relationship]
 
 ---
+name: meta_document
 
 ## References
 
@@ -362,6 +373,7 @@ module.exports = {
 - Documentation: [Links]
 
 ---
+name: meta_document
 
 **Last Updated**: [Date] (auto-validated)
 **Validation Status**: ✅ Passing
@@ -549,6 +561,7 @@ fi
 **Changes Analyzed**: [N] commits, [N] files
 
 ---
+name: meta_document
 
 ### Patterns Documented ([N])
 
@@ -572,11 +585,13 @@ fi
 - ✅ Created: ESLint rule (if applicable)
 
 ---
+name: meta_document
 
 #### 2. [Next Pattern]
 [Same format]
 
 ---
+name: meta_document
 
 ### Documentation Updates ([N])
 
@@ -586,6 +601,7 @@ fi
 - **ESLint Rules**: Added [N] rules
 
 ---
+name: meta_document
 
 ### Validation Results
 
@@ -600,6 +616,7 @@ fi
 - [percentage]% pattern compliance
 
 ---
+name: meta_document
 
 ### Automated Enforcement Added
 
@@ -616,6 +633,7 @@ fi
 - Nightly validation scheduled
 
 ---
+name: meta_document
 
 ### Recommendations
 
@@ -630,6 +648,7 @@ fi
 3. Create pattern library showcase
 
 ---
+name: meta_document
 
 **Next Update**: Scheduled for [date] or on next significant PR merge
 
@@ -763,5 +782,6 @@ Checks all patterns still apply to current codebase.
 Scans code to find undocumented patterns and best practices.
 
 ---
+name: meta_document
 
 **Remember**: Living documentation stays synchronized with code. Every bug becomes a prevention system. Every pattern includes automated enforcement. Documentation accuracy = 98% vs typical 60% after 6 months.

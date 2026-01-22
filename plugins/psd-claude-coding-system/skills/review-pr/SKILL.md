@@ -1,8 +1,16 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, Task
+name: review_pr
 description: Address feedback from pull request reviews systematically and efficiently
-argument-hint: [PR number]
+argument-hint: "[PR number]"
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Bash(*)
+  - Read
+  - Edit
+  - Write
+  - Task
 extended-thinking: true
 ---
 
@@ -42,7 +50,7 @@ INLINE_COMMENTS_RAW=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" \
 
 # Check if any inline comments exist
 if [ "$INLINE_COMMENTS_RAW" = "[]" ] || [ -z "$INLINE_COMMENTS_RAW" ]; then
-  echo "ℹ️  No inline review comments found on this PR"
+  echo "No inline review comments found on this PR"
   INLINE_COMMENTS="No inline comments found"
   TOTAL_INLINE=0
   SUGGESTIONS_COUNT=0
@@ -72,7 +80,7 @@ else
   OUTDATED_COUNT=$(echo "$INLINE_COMMENTS_RAW" | jq '[.[] | select(.line == null and .original_line != null)] | length' 2>/dev/null || echo 0)
 
   echo ""
-  echo "📊 Inline Comment Statistics:"
+  echo "Inline Comment Statistics:"
   echo "   Total: $TOTAL_INLINE"
   echo "   With Code Suggestions: $SUGGESTIONS_COUNT"
   echo "   Outdated (code changed): $OUTDATED_COUNT"
@@ -118,7 +126,7 @@ SECURITY_SENSITIVE=false
 if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$ARGUMENTS" "pr" 2>&1; then
   SECURITY_SENSITIVE=true
   echo ""
-  echo "⚠️  This PR contains security-sensitive changes and will receive a security review."
+  echo "This PR contains security-sensitive changes and will receive a security review."
   echo ""
 fi
 ```
@@ -247,14 +255,14 @@ git commit -m "fix: address PR feedback
 Addresses review comments in PR #$ARGUMENTS"
 
 # Post summary comment on PR
-gh pr comment $ARGUMENTS --body "## ✅ Review Feedback Addressed
+gh pr comment $ARGUMENTS --body "## Review Feedback Addressed
 
 I've addressed all the review comments:
 
 ### Changes Made:
-- ✅ [Specific change 1]
-- ✅ [Specific change 2]
-- ✅ [Specific change 3]
+- [Specific change 1]
+- [Specific change 2]
+- [Specific change 3]
 
 ### Testing:
 - All tests passing
@@ -285,7 +293,7 @@ gh pr checks $ARGUMENTS --watch
 
 ### For Bug Fixes
 ```markdown
-Good catch! Fixed in [commit-hash]. The issue was [explanation]. 
+Good catch! Fixed in [commit-hash]. The issue was [explanation].
 Added a test to prevent regression.
 ```
 
@@ -302,7 +310,7 @@ Updated to follow project conventions. Changes in [commit-hash].
 
 ### For Clarification Requests
 ```markdown
-Thanks for asking. [Detailed explanation]. 
+Thanks for asking. [Detailed explanation].
 I've also added a comment in the code for future clarity.
 ```
 
@@ -348,11 +356,11 @@ After PR is approved and merged:
 
 ## Success Criteria
 
-- ✅ All review comments addressed
-- ✅ CI/CD checks passing
-- ✅ Reviewers satisfied with changes
-- ✅ PR approved and ready to merge
-- ✅ Code quality maintained or improved
+- All review comments addressed
+- CI/CD checks passing
+- Reviewers satisfied with changes
+- PR approved and ready to merge
+- Code quality maintained or improved
 
 ```bash
 
@@ -364,7 +372,7 @@ if [ -n "$TELEMETRY_SESSION_ID" ]; then
   TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
 fi
 
-echo "✅ PR review completed successfully!"
+echo "PR review completed successfully!"
 ```
 
 Remember: Reviews make code better. Embrace feedback as an opportunity to improve.

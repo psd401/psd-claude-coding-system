@@ -1,6 +1,13 @@
 ---
+name: compound_concepts
 description: Analyzes conversations for automation, systematization, and delegation opportunities using compound engineering principles
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
 extended-thinking: true
 ---
 
@@ -25,16 +32,16 @@ After completing the main task, provide 3-5 actionable suggestions using this fo
 **COMPOUND ENGINEERING OPPORTUNITIES:**
 
 **SUGGESTION:** [Specific recommendation]
-**→ COMPOUND BENEFIT:** [Long-term compounding value this creates]
-**→ IMPLEMENTATION:** [How to implement - complexity level and timing]
-**→ CONFIDENCE:** [High/Medium/Low] - [reasoning for confidence level]
+**-> COMPOUND BENEFIT:** [Long-term compounding value this creates]
+**-> IMPLEMENTATION:** [How to implement - complexity level and timing]
+**-> CONFIDENCE:** [High/Medium/Low] - [reasoning for confidence level]
 
 ---
 
 **SUGGESTION:** [Next recommendation]
-**→ COMPOUND BENEFIT:** [Long-term value]
-**→ IMPLEMENTATION:** [Implementation approach]
-**→ CONFIDENCE:** [Level] - [reasoning]
+**-> COMPOUND BENEFIT:** [Long-term value]
+**-> IMPLEMENTATION:** [Implementation approach]
+**-> CONFIDENCE:** [Level] - [reasoning]
 
 ### Focus Areas
 
@@ -55,5 +62,5 @@ After completing the main task, provide 3-5 actionable suggestions using this fo
 Transform today's development work into systems that accelerate tomorrow's progress.
 
 ```bash
-echo "✅ Compound analysis completed!"
+echo "Compound analysis completed!"
 ```

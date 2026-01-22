@@ -4,6 +4,7 @@ description: Backend development specialist for APIs, server logic, and system i
 tools: Read, Edit, Write
 model: claude-sonnet-4-5
 extended-thinking: true
+color: blue
 ---
 
 # Backend Specialist Agent

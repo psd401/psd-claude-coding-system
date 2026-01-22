@@ -1,6 +1,9 @@
 ---
+name: meta_health
 description: Generate system health dashboard with compound engineering metrics
 model: claude-opus-4-5-20251101
+context: fork
+agent: Explore
 extended-thinking: true
 allowed-tools: Bash, Read, Write
 argument-hint: [--publish] [--send-summary-email] [--output dashboard.md]
@@ -206,6 +209,7 @@ Create a comprehensive dashboard report:
 **Last Updated**: [timestamp]
 
 ---
+name: meta_health
 
 ## 📊 Compound Engineering Metrics
 
@@ -226,6 +230,7 @@ Success Rate:  [▁▂▃▄▅▆▇█] ↑ [percentage]%
 ```
 
 ---
+name: meta_health
 
 ## 🚀 Developer Velocity
 
@@ -255,6 +260,7 @@ Week 12: 2.3x ██████████████████
 3. [Suggestion/Feature]: [X] hours saved
 
 ---
+name: meta_health
 
 ## 🧠 System Intelligence
 
@@ -293,6 +299,7 @@ Week 12: 2.3x ██████████████████
 - **Templates Generated**: [N]
 
 ---
+name: meta_health
 
 ## ✅ Code Quality
 
@@ -317,6 +324,7 @@ Security Coverage:  [▁▂▃▄▅▆▇█] [start]% → [end]%
 - [✅/⚠️/🔴] Documentation drift: [description]
 
 ---
+name: meta_health
 
 ## 🧪 Active Experiments
 
@@ -347,6 +355,7 @@ Security Coverage:  [▁▂▃▄▅▆▇█] [start]% → [end]%
 2. [Experiment name] - [confidence]% confidence, [ROI estimate]
 
 ---
+name: meta_health
 
 ## 🎯 Predictions & Alerts
 
@@ -381,6 +390,7 @@ Security Coverage:  [▁▂▃▄▅▆▇█] [start]% → [end]%
 **Trend**: [Improving/Stable/Declining]
 
 ---
+name: meta_health
 
 ## 📈 ROI Summary
 
@@ -440,6 +450,7 @@ Month 6: 9.4x   (current)
 **Payback Period**: [N] weeks
 
 ---
+name: meta_health
 
 ## 📋 System Summary
 
@@ -476,6 +487,7 @@ Month 6: 9.4x   (current)
 2. [Strategic recommendation]
 
 ---
+name: meta_health
 
 ## 📊 Appendix: Detailed Metrics
 
@@ -499,6 +511,7 @@ Month 6: 9.4x   (current)
 - Update frequency: [frequency]
 
 ---
+name: meta_health
 
 **Dashboard Generated**: [timestamp]
 **Next Update**: [scheduled time]
@@ -740,5 +753,6 @@ Save dashboard and publish to docs.
 Full dashboard with email summary to stakeholders.
 
 ---
+name: meta_health
 
 **Remember**: The health dashboard demonstrates compound engineering value. Show concrete ROI, track trends over time, and provide actionable insights that drive continuous improvement.

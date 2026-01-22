@@ -1,8 +1,13 @@
 ---
-allowed-tools: Task
+name: security_audit
 description: Security audit for code review and vulnerability analysis
-argument-hint: [PR number]
+argument-hint: "[PR number]"
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Task
+  - Bash(*)
 extended-thinking: true
 ---
 
@@ -47,37 +52,37 @@ The agent will return structured findings. Format and post as a single consolida
 
 ```bash
 # Post the security review as a single comment
-gh pr comment $ARGUMENTS --body "## 🔍 Automated Security & Best Practices Review
+gh pr comment $ARGUMENTS --body "## Automated Security & Best Practices Review
 
 [Format the agent's structured findings here]
 
 ### Summary
-- 🔴 Critical Issues: [count from agent]
-- 🟡 High Priority: [count from agent]
-- 🟢 Suggestions: [count from agent]
+- Critical Issues: [count from agent]
+- High Priority: [count from agent]
+- Suggestions: [count from agent]
 
-### Critical Issues (🔴 Must Fix Before Merge)
+### Critical Issues (Must Fix Before Merge)
 [Critical findings from agent with file:line, problem, fix, reference]
 
-### High Priority (🟡 Should Fix Before Merge)
+### High Priority (Should Fix Before Merge)
 [High priority findings from agent]
 
-### Suggestions (🟢 Consider for Improvement)
+### Suggestions (Consider for Improvement)
 [Suggestions from agent]
 
 ### Positive Practices Observed
 [Good practices noted by agent]
 
 ### Required Actions
-1. Address all 🔴 critical issues before merge
-2. Consider 🟡 high priority fixes
+1. Address all critical issues before merge
+2. Consider high priority fixes
 3. Run security checks: \`npm audit\`, \`npm run lint\`, \`npm run typecheck\`
 4. Verify all tests pass after fixes
 
 ---
 *Automated security review by security-analyst-specialist agent*"
 
-echo "✅ Security audit completed and posted to PR #$ARGUMENTS"
+echo "Security audit completed and posted to PR #$ARGUMENTS"
 ```
 
 ## Key Features
@@ -85,7 +90,7 @@ echo "✅ Security audit completed and posted to PR #$ARGUMENTS"
 - **Comprehensive Analysis**: Covers security, architecture, and best practices
 - **Single Comment**: All findings consolidated into one easy-to-review comment
 - **Actionable Feedback**: Includes specific fixes and code examples
-- **Severity Levels**: Critical (🔴), High (🟡), Suggestions (🟢)
+- **Severity Levels**: Critical, High, Suggestions
 - **Educational**: References to OWASP and project documentation
 
 ## When to Use

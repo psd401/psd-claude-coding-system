@@ -1,6 +1,9 @@
 ---
+name: meta_predict
 description: Predict future issues using trend analysis and pattern matching
 model: claude-opus-4-5-20251101
+context: fork
+agent: Explore
 extended-thinking: true
 allowed-tools: Bash, Read
 argument-hint: [--horizon 3m] [--confidence-threshold 0.70] [--output predictions.md]
@@ -234,6 +237,7 @@ Create predictions with confidence levels:
 **Confidence Threshold**: [percentage]%
 
 ---
+name: meta_predict
 
 ### 🔴 HIGH CONFIDENCE PREDICTIONS (>80%)
 
@@ -284,6 +288,7 @@ Create predictions with confidence levels:
 **→ RECOMMENDATION**: Implement all preventive actions within 2 weeks
 
 ---
+name: meta_predict
 
 #### PREDICTION #2: Performance Crisis in Q1 2026
 
@@ -319,6 +324,7 @@ Create predictions with confidence levels:
 **→ ROI**: 3x + avoids user impact
 
 ---
+name: meta_predict
 
 ### 🟡 MEDIUM CONFIDENCE PREDICTIONS (60-79%)
 
@@ -344,6 +350,7 @@ Create predictions with confidence levels:
 **→ BENEFIT**: Spreads work over time, prevents crisis
 
 ---
+name: meta_predict
 
 ### 📊 TREND ANALYSIS
 
@@ -375,6 +382,7 @@ Create predictions with confidence levels:
 - Bug resolution time: -45% (better tools/patterns)
 
 ---
+name: meta_predict
 
 ### 🎯 PROACTIVE RECOMMENDATIONS
 
@@ -394,6 +402,7 @@ Create predictions with confidence levels:
 3. Performance monitoring enhancements
 
 ---
+name: meta_predict
 
 ### 📈 PREDICTION ACCURACY TRACKING
 
@@ -418,6 +427,7 @@ Create predictions with confidence levels:
 **Trend**: Improving 2-3% per month as model learns
 
 ---
+name: meta_predict
 
 **Analysis Generated**: [timestamp]
 **Next Prediction Update**: [date] (monthly)
@@ -540,5 +550,6 @@ echo "  • Track prediction accuracy"
 ```
 
 ---
+name: meta_predict
 
 **Remember**: The best prediction is one that prevents an incident from happening. Prediction without prevention is just fortune-telling. Track accuracy to improve the model over time.

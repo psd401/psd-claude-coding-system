@@ -1,7 +1,15 @@
 ---
-allowed-tools: Bash(*), View, Edit, Create, Task
+name: clean_branch
 description: Clean up merged branches, close issues, and extract compound learning insights
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Bash(*)
+  - Read
+  - Edit
+  - Write
+  - Task
 extended-thinking: true
 ---
 

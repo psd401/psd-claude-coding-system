@@ -1,6 +1,9 @@
 ---
+name: meta_experiment
 description: A/B testing framework for safe experimentation with statistical validation
 model: claude-opus-4-5-20251101
+context: fork
+agent: general-purpose
 extended-thinking: true
 allowed-tools: Bash, Read, Write, Edit
 argument-hint: [create|status|analyze|promote|rollback] [experiment-id] [--auto]
@@ -193,6 +196,7 @@ Trials: ███████░░░ 70% (7/10)
 **Action**: Continue (3 more trials needed)
 
 ---
+name: meta_experiment
 
 ### Experiment #2: exp-2025-10-15-003
 
@@ -208,6 +212,7 @@ Trials: ███████░░░ 70% (7/10)
 **Action**: None (experiment terminated)
 
 ---
+name: meta_experiment
 
 ## COMPLETED EXPERIMENTS
 
@@ -227,6 +232,7 @@ Trials: ███████░░░ 70% (7/10)
 **Deployed**: 2025-10-10 (running in production for 10 days)
 
 ---
+name: meta_experiment
 
 ## SUMMARY
 
@@ -611,5 +617,6 @@ monitor_experiments() {
 ```
 
 ---
+name: meta_experiment
 
 **Remember**: Experimentation is how the system safely tests improvements. Every experiment, successful or not, teaches the system what works. Statistical rigor prevents false positives. Auto-rollback prevents damage.

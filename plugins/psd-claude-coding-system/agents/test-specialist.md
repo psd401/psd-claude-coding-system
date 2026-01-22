@@ -4,6 +4,7 @@ description: Testing specialist for comprehensive test coverage, automation, and
 tools: Bash, Read, Edit, Write, WebSearch
 model: claude-sonnet-4-5
 extended-thinking: true
+color: green
 ---
 
 # Test Specialist Agent

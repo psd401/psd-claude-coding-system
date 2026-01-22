@@ -4,6 +4,7 @@ description: Database specialist for schema design, query optimization, and data
 tools: Read, Edit, Write
 model: claude-sonnet-4-5
 extended-thinking: true
+color: yellow
 ---
 
 # Database Specialist Agent

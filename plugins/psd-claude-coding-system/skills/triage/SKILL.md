@@ -1,8 +1,13 @@
 ---
-allowed-tools: Bash(*), SlashCommand
+name: triage
 description: Triage FreshService ticket and create GitHub issue
-argument-hint: [ticket-id]
+argument-hint: "[ticket-id]"
 model: claude-sonnet-4-5
+context: fork
+agent: general-purpose
+allowed-tools:
+  - Bash(*)
+  - Task
 extended-thinking: true
 ---
 
@@ -24,17 +29,17 @@ TICKET_ID="$ARGUMENTS"
 TICKET_ID="${TICKET_ID//[^0-9]/}"  # Remove all non-numeric characters
 
 if [ -z "$TICKET_ID" ] || ! [[ "$TICKET_ID" =~ ^[0-9]+$ ]]; then
-  echo "❌ Invalid ticket ID"
+  echo "Invalid ticket ID"
   echo "Usage: /triage <ticket-id>"
   exit 1
 fi
 
 # Check for environment configuration
 if [ -f ~/.claude/freshservice.env ]; then
-  echo "✓ Loading FreshService configuration..."
+  echo "Loading FreshService configuration..."
   source ~/.claude/freshservice.env
 else
-  echo "❌ FreshService configuration not found!"
+  echo "FreshService configuration not found!"
   echo ""
   echo "Please create ~/.claude/freshservice.env with:"
   echo ""
@@ -50,14 +55,14 @@ fi
 
 # Validate required variables
 if [ -z "$FRESHSERVICE_API_KEY" ] || [ -z "$FRESHSERVICE_DOMAIN" ]; then
-  echo "❌ Missing required environment variables!"
+  echo "Missing required environment variables!"
   echo "Required: FRESHSERVICE_API_KEY, FRESHSERVICE_DOMAIN"
   exit 1
 fi
 
 # Validate domain format (alphanumeric and hyphens only, prevents SSRF)
 if ! [[ "$FRESHSERVICE_DOMAIN" =~ ^[a-zA-Z0-9-]+$ ]]; then
-  echo "❌ Invalid FRESHSERVICE_DOMAIN format"
+  echo "Invalid FRESHSERVICE_DOMAIN format"
   echo "Domain must contain only alphanumeric characters and hyphens"
   echo "Example: 'psd401' (not 'psd401.freshservice.com')"
   exit 1
@@ -65,10 +70,10 @@ fi
 
 # Validate API key format (basic sanity check)
 if [ ${#FRESHSERVICE_API_KEY} -lt 20 ]; then
-  echo "⚠️  Warning: API key appears too short. Please verify your configuration."
+  echo "Warning: API key appears too short. Please verify your configuration."
 fi
 
-echo "✓ Configuration validated"
+echo "Configuration validated"
 echo "Domain: $FRESHSERVICE_DOMAIN"
 echo ""
 
@@ -107,7 +112,7 @@ api_request() {
 
     # Check for rate limiting (HTTP 429)
     if [ "$http_code" = "429" ]; then
-      echo "❌ Error: Rate limit exceeded. Please wait before retrying."
+      echo "Error: Rate limit exceeded. Please wait before retrying."
       echo "FreshService API has rate limits (typically 1000 requests/hour)."
       return 1
     fi
@@ -119,26 +124,26 @@ api_request() {
 
     # Unauthorized (HTTP 401)
     if [ "$http_code" = "401" ]; then
-      echo "❌ Error: Authentication failed. Please check your API key."
+      echo "Error: Authentication failed. Please check your API key."
       return 1
     fi
 
     # Not found (HTTP 404)
     if [ "$http_code" = "404" ]; then
-      echo "❌ Error: Ticket not found. Please verify the ticket ID."
+      echo "Error: Ticket not found. Please verify the ticket ID."
       return 1
     fi
 
     # Retry on server errors (5xx)
     if [ $attempt -lt $max_retries ]; then
-      echo "⚠️  Warning: API request failed with HTTP $http_code (attempt $attempt/$max_retries), retrying in ${retry_delay}s..."
+      echo "Warning: API request failed with HTTP $http_code (attempt $attempt/$max_retries), retrying in ${retry_delay}s..."
       sleep $retry_delay
       retry_delay=$((retry_delay * 2))  # Exponential backoff
     fi
     attempt=$((attempt + 1))
   done
 
-  echo "❌ Error: API request failed after $max_retries attempts (last HTTP code: $http_code)"
+  echo "Error: API request failed after $max_retries attempts (last HTTP code: $http_code)"
   return 1
 }
 
@@ -146,7 +151,7 @@ api_request() {
 echo "Fetching ticket #${TICKET_ID}..."
 if ! api_request "${TICKET_ENDPOINT}?include=requester,stats" "$TICKET_JSON"; then
   echo ""
-  echo "❌ Failed to retrieve ticket from FreshService"
+  echo "Failed to retrieve ticket from FreshService"
   echo "Please verify:"
   echo "  - Ticket ID $TICKET_ID exists"
   echo "  - API key is valid"
@@ -157,16 +162,16 @@ fi
 # Fetch conversations (comments)
 echo "Fetching ticket conversations..."
 if ! api_request "${TICKET_ENDPOINT}/conversations" "$CONVERSATIONS_JSON"; then
-  echo "⚠️  Warning: Failed to fetch conversations, continuing without them..."
+  echo "Warning: Failed to fetch conversations, continuing without them..."
   echo '{"conversations":[]}' > "$CONVERSATIONS_JSON"
 fi
 
-echo "✓ Ticket retrieved successfully"
+echo "Ticket retrieved successfully"
 echo ""
 
 # Check if jq is available for JSON parsing
 if ! command -v jq &> /dev/null; then
-  echo "⚠️  Warning: jq not found, using basic parsing"
+  echo "Warning: jq not found, using basic parsing"
   echo "Install jq for full functionality: brew install jq (macOS) or apt-get install jq (Linux)"
   JQ_AVAILABLE=false
 else
@@ -284,7 +289,7 @@ if [ "$CONVERSATION_COUNT" -gt 0 ] && [ "$JQ_AVAILABLE" = true ]; then
 
 ### Conversation History
 "
-  # ⚠️ SECURITY NOTE: This jq-based sanitization is LIMITED
+  # SECURITY NOTE: This jq-based sanitization is LIMITED
   # - For production: Use DOMPurify library (see @agents/document-validator.md)
   # - This approach: Strips HTML tags, encodes special chars
   # - Limitation: Cannot handle complex XSS vectors or encoding bypasses
@@ -331,7 +336,7 @@ echo ""
 
 Now invoke the `/issue` command with the extracted information:
 
-**IMPORTANT**: Use the SlashCommand tool to invoke `/psd-claude-coding-system:issue` with the ticket description.
+**IMPORTANT**: Use the Skill tool to invoke `/psd-claude-coding-system:issue` with the ticket description.
 
 Pass the `$ISSUE_DESCRIPTION` variable that contains the formatted bug report from FreshService.
 
@@ -360,9 +365,9 @@ REPLY_HTTP_CODE=$(echo "$REPLY_RESPONSE" | tail -n1)
 REPLY_JSON=$(echo "$REPLY_RESPONSE" | head -n-1)
 
 if [ "$REPLY_HTTP_CODE" = "201" ]; then
-  echo "✓ Reply added to ticket"
+  echo "Reply added to ticket"
 else
-  echo "⚠️  Warning: Failed to add reply (HTTP $REPLY_HTTP_CODE)"
+  echo "Warning: Failed to add reply (HTTP $REPLY_HTTP_CODE)"
   echo "   FreshService ticket NOT updated"
 fi
 
@@ -377,9 +382,9 @@ STATUS_RESPONSE=$(curl -s -w "\n%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
 STATUS_HTTP_CODE=$(echo "$STATUS_RESPONSE" | tail -n1)
 
 if [ "$STATUS_HTTP_CODE" = "200" ]; then
-  echo "✓ Ticket status updated to In Progress"
+  echo "Ticket status updated to In Progress"
 else
-  echo "⚠️  Warning: Failed to update status (HTTP $STATUS_HTTP_CODE)"
+  echo "Warning: Failed to update status (HTTP $STATUS_HTTP_CODE)"
   echo "   FreshService ticket status NOT updated"
 fi
 
@@ -392,7 +397,7 @@ After the issue is created, provide a summary:
 
 ```bash
 echo ""
-echo "✅ Triage completed successfully!"
+echo "Triage completed successfully!"
 echo ""
 echo "Summary:"
 echo "  - FreshService Ticket: #$TICKET_ID"
