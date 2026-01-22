@@ -1,0 +1,17 @@
+# Plugin-wide patterns directory
+# Universal patterns that apply across all projects using this plugin
+#
+# Structure:
+#   patterns/
+#     build-errors/
+#     test-failures/
+#     runtime-errors/
+#     performance/
+#     security/
+#     database/
+#     ui/
+#     integration/
+#     logic/
+#
+# Pattern files use the same frontmatter format as project learnings
+# but with `applicable_to: universal`

@@ -9,16 +9,44 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.13.2
+**Version**: 1.14.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
-### NEW in v1.13.0 - Skills Architecture Migration
+### NEW in v1.14.0 - Compound Engineering Integration
 
-This version migrates from `commands/` to `skills/` directory structure to align with Claude Code 2.1.x:
-- **Skills replace Commands**: All 20 commands migrated to `skills/<name>/SKILL.md` format
-- **New frontmatter fields**: `context: fork`, `agent` type specification
-- **Hot-reload support**: Skills auto-reload without session restart
-- **New skill**: `/claude_code_updates` - Analyzes Claude Code releases and recommends plugin improvements
+Major update integrating best practices from Every's Compound Engineering plugin:
+
+**New Agents (9 total):**
+- **Review Agents** (4 new): `deployment-verification-agent`, `data-migration-expert`, `agent-native-reviewer`, + 4 language reviewers (TypeScript, Python, Swift, SQL)
+- **Research Agents** (2 new): `spec-flow-analyzer`, `learnings-researcher`
+
+**New Skills (2 total):**
+- `/compound` - Capture learnings from sessions for knowledge compounding
+- `/contribute-pattern` - Share universal patterns to plugin repository
+
+**Enhanced Workflows:**
+- `/work` gains Phase 1.5 (Knowledge Lookup), Phase 4.3 (Language-Specific Review), Phase 4.4 (Deployment Verification)
+- `/review-pr` gains language-specific deep review and deployment verification
+- `/issue` gains spec-flow-analyzer for complex features
+
+**Agent Reorganization:**
+All 30 agents now organized into category subdirectories:
+- `agents/review/` - 10 code review specialists
+- `agents/domain/` - 7 domain specialists
+- `agents/quality/` - 3 quality assurance agents
+- `agents/research/` - 2 research agents
+- `agents/external/` - 2 external AI providers
+- `agents/meta/` - 3 meta-learning agents
+- `agents/validation/` - 5 validator agents
+
+**Knowledge Compounding System:**
+- Project learnings: `./docs/learnings/`
+- Plugin patterns: `plugins/.../docs/patterns/`
+- Adaptive high-signal detection for `/compound` suggestions
+
+**Simplified Telemetry:**
+- Removed complex transcript parsing (now handled by `/compound`)
+- High-signal session detection for learning capture suggestions
 
 ## Architecture
 
@@ -28,8 +56,8 @@ The plugin follows Claude Code 2.1.x architecture with skills-based organization
 ```
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
-  │   └── plugin.json           # Plugin metadata (v1.13.0)
-  ├── skills/                   # 21 user-invocable skills (NEW v1.13.0)
+  │   └── plugin.json           # Plugin metadata (v1.14.0)
+  ├── skills/                   # 24 user-invocable skills
   │   ├── work/SKILL.md         # Main implementation workflow
   │   ├── test/SKILL.md         # Testing and validation
   │   ├── review-pr/SKILL.md    # PR feedback handling
@@ -37,22 +65,59 @@ plugins/psd-claude-coding-system/
   │   ├── issue/SKILL.md        # Issue creation with research
   │   ├── product-manager/SKILL.md  # Product specs
   │   ├── security-audit/SKILL.md   # Security review
-  │   ├── claude-code-updates/SKILL.md  # Release monitoring (NEW)
-  │   ├── meta-*/SKILL.md       # 10 meta-learning skills
-  │   ├── git-workflow.md       # Reusable: branch/commit/PR patterns
-  │   ├── test-runner.md        # Reusable: universal test execution
-  │   ├── security-scan.md      # Reusable: security checks
-  │   ├── telemetry-report.md   # Reusable: telemetry utilities
-  │   └── parallel-dispatch.md  # Reusable: multi-agent coordination
-  ├── commands/                 # DEPRECATED - migrated to skills/
-  ├── agents/                   # 22 specialized AI agents (*.md)
+  │   ├── compound/SKILL.md     # Knowledge capture (NEW v1.14.0)
+  │   ├── contribute-pattern/SKILL.md  # Pattern sharing (NEW v1.14.0)
+  │   ├── claude-code-updates/SKILL.md  # Release monitoring
+  │   └── meta-*/SKILL.md       # 10 meta-learning skills
+  ├── agents/                   # 30 specialized AI agents (organized by category)
+  │   ├── review/               # 10 code review specialists
+  │   │   ├── security-analyst.md
+  │   │   ├── security-analyst-specialist.md
+  │   │   ├── deployment-verification-agent.md  (NEW)
+  │   │   ├── data-migration-expert.md  (NEW)
+  │   │   ├── agent-native-reviewer.md  (NEW)
+  │   │   ├── typescript-reviewer.md  (NEW)
+  │   │   ├── python-reviewer.md  (NEW)
+  │   │   ├── swift-reviewer.md  (NEW)
+  │   │   └── sql-reviewer.md  (NEW)
+  │   ├── domain/               # 7 domain specialists
+  │   │   ├── backend-specialist.md
+  │   │   ├── frontend-specialist.md
+  │   │   ├── database-specialist.md
+  │   │   ├── llm-specialist.md
+  │   │   ├── ux-specialist.md
+  │   │   ├── architect-specialist.md
+  │   │   └── shell-devops-specialist.md
+  │   ├── quality/              # 3 quality assurance
+  │   │   ├── test-specialist.md
+  │   │   ├── performance-optimizer.md
+  │   │   └── documentation-writer.md
+  │   ├── research/             # 2 research agents (NEW)
+  │   │   ├── learnings-researcher.md  (NEW)
+  │   │   └── spec-flow-analyzer.md  (NEW)
+  │   ├── external/             # 2 external AI providers
+  │   │   ├── gpt-5-codex.md
+  │   │   └── gemini-3-pro.md
+  │   ├── meta/                 # 3 meta-learning agents
+  │   │   ├── meta-orchestrator.md
+  │   │   ├── code-cleanup-specialist.md
+  │   │   └── pr-review-responder.md
+  │   └── validation/           # 5 validator agents
+  │       ├── plan-validator.md
+  │       ├── document-validator.md
+  │       ├── configuration-validator.md
+  │       ├── breaking-change-validator.md
+  │       └── telemetry-data-specialist.md
+  ├── docs/
+  │   └── patterns/             # Plugin-wide patterns (NEW v1.14.0)
   ├── hooks/
   │   └── hooks.json            # Automatic telemetry collection
   ├── scripts/
   │   ├── telemetry-init.sh     # SessionStart hook
   │   ├── telemetry-command.sh  # UserPromptSubmit hook
   │   ├── telemetry-agent.sh    # SubagentStop hook
-  │   └── telemetry-track.sh    # Stop hook
+  │   ├── telemetry-track.sh    # Stop hook (simplified v1.14.0)
+  │   └── language-detector.sh  # Language detection (NEW v1.14.0)
   ├── meta/                     # Telemetry data (git-ignored)
   └── README.md                 # Plugin documentation
 ```
@@ -75,8 +140,9 @@ plugins/psd-claude-coding-system/
 - Support hot-reload (changes apply without session restart)
 
 **Agents** are specialized AI assistants invoked by skills or other Claude Code instances:
-- Located in `agents/<name>.md`
+- Located in `agents/<category>/<name>.md` (reorganized v1.14.0)
 - Contain YAML frontmatter with name, description, tools, model, color
+- Organized into categories: review, domain, quality, research, external, meta, validation
 - Focused on specific domains (backend, frontend, security, testing, etc.)
 - Run autonomously with specific tool access
 
@@ -114,36 +180,54 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-5)
 - `/clean_branch` - Post-merge cleanup
 
-#### Workflow Agents (12 total)
-- **Domain specialists**: backend-specialist, frontend-specialist, database-specialist, llm-specialist
-- **Quality/security**: test-specialist, security-analyst, performance-optimizer
-- **UX/Design**: ux-specialist (68 usability heuristics, accessibility, cognitive load)
-- **Documentation/planning**: documentation-writer, plan-validator
-- **External AI**: gpt-5 (GPT-5.2-pro), gemini-3-pro (Gemini 3 Pro)
+#### Agents by Category (30 total, reorganized v1.14.0)
 
-#### Meta-Learning Agents (5 total)
-- meta-orchestrator
-- code-cleanup-specialist
-- pr-review-responder
-- document-validator
-- breaking-change-validator
+**Review Agents** (10 total) - `agents/review/`:
+- **Security**: security-analyst, security-analyst-specialist
+- **Deployment**: deployment-verification-agent (NEW), data-migration-expert (NEW)
+- **Architecture**: agent-native-reviewer (NEW)
+- **Language-Specific**: typescript-reviewer (NEW), python-reviewer (NEW), swift-reviewer (NEW), sql-reviewer (NEW)
+
+**Domain Specialists** (7 total) - `agents/domain/`:
+- backend-specialist, frontend-specialist, database-specialist, llm-specialist
+- ux-specialist (68 usability heuristics, accessibility, cognitive load)
+- architect-specialist, shell-devops-specialist
+
+**Quality Agents** (3 total) - `agents/quality/`:
+- test-specialist, performance-optimizer, documentation-writer
+
+**Research Agents** (2 total) - `agents/research/`:
+- learnings-researcher (NEW) - Searches knowledge base before implementation
+- spec-flow-analyzer (NEW) - Gap analysis for feature specs
+
+**External AI** (2 total) - `agents/external/`:
+- gpt-5-codex (GPT-5.2-pro), gemini-3-pro (Gemini 3 Pro)
+
+**Meta-Learning Agents** (3 total) - `agents/meta/`:
+- meta-orchestrator, code-cleanup-specialist, pr-review-responder
+
+**Validator Agents** (5 total) - `agents/validation/`:
+- plan-validator, document-validator, configuration-validator
+- breaking-change-validator, telemetry-data-specialist
 
 ### Skills Layer (Updated v1.13.0)
 
 Skills are now the primary user-facing interface. There are two types:
 
 **User-Invocable Skills** (in `skills/<name>/SKILL.md`):
-- `/work` - Main implementation workflow
+- `/work` - Main implementation workflow (enhanced v1.14.0: knowledge lookup, language review, deployment verification)
 - `/test` - Comprehensive testing
-- `/review_pr` - PR feedback handling
+- `/review_pr` - PR feedback handling (enhanced v1.14.0: language reviewers, deployment verification)
 - `/architect` - Architecture design
-- `/issue` - GitHub issue creation
+- `/issue` - GitHub issue creation (enhanced v1.14.0: spec-flow-analyzer)
 - `/product-manager` - Product specifications
 - `/security_audit` - Security review
+- `/compound` - **NEW v1.14.0** - Capture learnings for knowledge compounding
+- `/contribute-pattern` - **NEW v1.14.0** - Share patterns to plugin repository
 - `/compound_concepts` - Automation opportunities
 - `/clean_branch` - Post-merge cleanup
 - `/triage` - FreshService ticket triage
-- `/claude_code_updates` - **NEW** - Analyze Claude Code releases
+- `/claude_code_updates` - Analyze Claude Code releases
 - `/meta_*` - 10 meta-learning skills
 
 **Reusable Workflow Components** (helper skills):
@@ -304,9 +388,17 @@ psd-claude-coding-system/
   │   └── psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
-  │       ├── skills/         # 21 user-invocable skills (NEW v1.13.0)
-  │       ├── commands/       # DEPRECATED - migrated to skills/
-  │       ├── agents/         # 22 AI agents
+  │       ├── skills/         # 24 user-invocable skills (v1.14.0)
+  │       ├── agents/         # 30 AI agents (reorganized v1.14.0)
+  │       │   ├── review/     # 10 review agents
+  │       │   ├── domain/     # 7 domain specialists
+  │       │   ├── quality/    # 3 quality agents
+  │       │   ├── research/   # 2 research agents (NEW)
+  │       │   ├── external/   # 2 external AI
+  │       │   ├── meta/       # 3 meta-learning
+  │       │   └── validation/ # 5 validators
+  │       ├── docs/
+  │       │   └── patterns/   # Plugin-wide patterns (NEW v1.14.0)
   │       ├── hooks/          # Hook configurations
   │       └── scripts/        # Hook scripts
   ├── README.md              # User-facing documentation

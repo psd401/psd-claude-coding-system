@@ -90,6 +90,34 @@ Based on research, identify:
 - Security and performance implications
 - Related issues or documentation
 
+### Phase 1.5: Spec Flow Analysis (NEW - For Complex Features)
+
+**For features involving user flows**, invoke the spec-flow-analyzer to identify gaps and edge cases.
+
+```bash
+# Detect if feature involves user flows
+ISSUE_DESCRIPTION="$ARGUMENTS"
+INVOLVES_USER_FLOW=false
+
+if echo "$ISSUE_DESCRIPTION" | grep -iEq "form|wizard|multi-step|workflow|onboarding|checkout|registration|login|signup|authentication|modal|dialog|upload|editor|dashboard"; then
+  INVOLVES_USER_FLOW=true
+  echo "=== User Flow Feature Detected ==="
+  echo "Invoking spec-flow-analyzer for gap analysis..."
+fi
+```
+
+**If user flow feature detected**, invoke spec-flow-analyzer:
+
+- subagent_type: "psd-claude-coding-system:spec-flow-analyzer"
+- description: "Spec analysis for feature: $ISSUE_DESCRIPTION"
+- prompt: "Analyze feature specification for: $ISSUE_DESCRIPTION. Identify all user flows, map state transitions, find edge cases, and generate acceptance criteria. Include gap analysis for missing requirements."
+
+**Include spec-flow-analyzer output in issue body:**
+- User flow diagram/description
+- Edge cases identified
+- Gap analysis summary
+- Generated acceptance criteria
+
 ### Phase 2: Issue Creation
 
 Create a comprehensive issue using the appropriate template below. Include ALL research findings in the issue body.

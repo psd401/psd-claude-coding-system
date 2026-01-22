@@ -232,6 +232,62 @@ If UX feedback exists or UI files changed:
 - description: "Address UX/usability feedback for PR #$ARGUMENTS"
 - prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK"
 
+### Phase 2.5: Language-Specific Deep Review (NEW - Post-PR Full Review)
+
+**Detect languages from PR diff** and invoke language reviewers in FULL mode:
+
+```bash
+# Detect languages in changed files
+HAS_TYPESCRIPT=$(echo "$FILES_CHANGED" | grep -E '\.(ts|tsx|js|jsx)$' | head -1)
+HAS_PYTHON=$(echo "$FILES_CHANGED" | grep -E '\.py$' | head -1)
+HAS_SWIFT=$(echo "$FILES_CHANGED" | grep -E '\.swift$' | head -1)
+HAS_SQL=$(echo "$FILES_CHANGED" | grep -E '\.sql$' | head -1)
+HAS_MIGRATION=$(echo "$FILES_CHANGED" | grep -iE 'migration' | head -1)
+
+echo "=== Language-Specific Deep Review ==="
+[ -n "$HAS_TYPESCRIPT" ] && echo "  TypeScript/JavaScript: FULL review"
+[ -n "$HAS_PYTHON" ] && echo "  Python: FULL review"
+[ -n "$HAS_SWIFT" ] && echo "  Swift: FULL review"
+[ -n "$HAS_SQL" ] && echo "  SQL: FULL review"
+[ -n "$HAS_MIGRATION" ] && echo "  Migration files: Deployment verification required"
+```
+
+**Invoke language reviewers in parallel (FULL MODE):**
+
+If TypeScript/JavaScript detected:
+- subagent_type: "psd-claude-coding-system:typescript-reviewer"
+- description: "Full TS review for PR #$ARGUMENTS"
+- prompt: "FULL MODE review: Comprehensive TypeScript/JavaScript analysis including: type safety, error handling, null checks, async patterns, performance, security. Review full diff."
+
+If Python detected:
+- subagent_type: "psd-claude-coding-system:python-reviewer"
+- description: "Full Python review for PR #$ARGUMENTS"
+- prompt: "FULL MODE review: Comprehensive Python analysis including: type hints, error handling, async patterns, security, performance, PEP8 compliance. Review full diff."
+
+If Swift detected:
+- subagent_type: "psd-claude-coding-system:swift-reviewer"
+- description: "Full Swift review for PR #$ARGUMENTS"
+- prompt: "FULL MODE review: Comprehensive Swift analysis including: optionals, memory management, concurrency, SwiftUI patterns, security. Review full diff."
+
+If SQL detected:
+- subagent_type: "psd-claude-coding-system:sql-reviewer"
+- description: "Full SQL review for PR #$ARGUMENTS"
+- prompt: "FULL MODE review: Comprehensive SQL analysis including: injection prevention, performance, indexes, constraints, transactions. Review full diff."
+
+### Phase 2.6: Deployment Verification (NEW - For Migrations)
+
+**Only if migration files detected:**
+
+If migrations detected:
+- subagent_type: "psd-claude-coding-system:deployment-verification-agent"
+- description: "Deployment checklist for PR #$ARGUMENTS"
+- prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment. Add checklist to PR comment."
+
+If migrations detected:
+- subagent_type: "psd-claude-coding-system:data-migration-expert"
+- description: "Migration validation for PR #$ARGUMENTS"
+- prompt: "Validate data migration: Check foreign key integrity, ID mappings, data transformation logic. Provide pre/post deployment validation queries."
+
 **Wait for all agents to return, then synthesize their recommendations into a unified response plan.**
 
 ### Phase 3: Address Feedback

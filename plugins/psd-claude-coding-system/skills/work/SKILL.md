@@ -49,6 +49,42 @@ fi
 
 ```
 
+### Phase 1.5: Knowledge Lookup (NEW - Compound Engineering)
+
+**Search the knowledge base before implementing** to avoid repeating past mistakes.
+
+```bash
+# Check for project learnings
+echo "=== Searching Knowledge Base ==="
+LEARNINGS_DIR="./docs/learnings"
+PLUGIN_PATTERNS="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/docs/patterns"
+
+if [ -d "$LEARNINGS_DIR" ]; then
+  echo "Project learnings found at $LEARNINGS_DIR"
+  LEARNINGS_COUNT=$(find "$LEARNINGS_DIR" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+  echo "  Total learnings: $LEARNINGS_COUNT"
+else
+  echo "No project learnings directory found"
+fi
+
+if [ -d "$PLUGIN_PATTERNS" ]; then
+  echo "Plugin patterns found at $PLUGIN_PATTERNS"
+  PATTERNS_COUNT=$(find "$PLUGIN_PATTERNS" -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
+  echo "  Total patterns: $PATTERNS_COUNT"
+fi
+```
+
+**Invoke learnings-researcher agent** to search for relevant past learnings:
+
+- subagent_type: "psd-claude-coding-system:learnings-researcher"
+- description: "Knowledge lookup for #$ISSUE_NUMBER"
+- prompt: "Search knowledge base for learnings relevant to: $ISSUE_BODY. Check ./docs/learnings/ and plugin patterns. Report any relevant past mistakes, solutions, or patterns."
+
+**Apply learnings to implementation:**
+- Review any critical warnings from past issues
+- Follow recommended patterns from knowledge base
+- Note gaps in knowledge for potential `/compound` capture later
+
 ### Phase 2: Development Setup
 ```bash
 # Always branch from dev, not main
@@ -212,6 +248,78 @@ npm run build
 - **API documentation**: Invoke @agents/documentation-writer
 - **UI/UX evaluation**: Invoke @agents/ux-specialist for heuristic review
 
+#### Phase 4.3: Language-Specific Review (NEW - Pre-PR Light Review)
+
+**Detect languages from changed files** and invoke appropriate language reviewers in LIGHT mode:
+
+```bash
+# Get list of changed files
+CHANGED_FILES=$(git diff --name-only HEAD 2>/dev/null || echo "")
+
+# Detect languages
+HAS_TYPESCRIPT=$(echo "$CHANGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' | head -1)
+HAS_PYTHON=$(echo "$CHANGED_FILES" | grep -E '\.py$' | head -1)
+HAS_SWIFT=$(echo "$CHANGED_FILES" | grep -E '\.swift$' | head -1)
+HAS_SQL=$(echo "$CHANGED_FILES" | grep -E '\.sql$' | head -1)
+HAS_MIGRATION=$(echo "$CHANGED_FILES" | grep -iE 'migration' | head -1)
+
+echo "=== Language-Specific Pre-PR Review ==="
+[ -n "$HAS_TYPESCRIPT" ] && echo "  TypeScript/JavaScript detected"
+[ -n "$HAS_PYTHON" ] && echo "  Python detected"
+[ -n "$HAS_SWIFT" ] && echo "  Swift detected"
+[ -n "$HAS_SQL" ] && echo "  SQL detected"
+[ -n "$HAS_MIGRATION" ] && echo "  Migration files detected"
+```
+
+**Invoke language reviewers in parallel (LIGHT MODE):**
+
+If TypeScript/JavaScript detected:
+- subagent_type: "psd-claude-coding-system:typescript-reviewer"
+- description: "Light TS review for #$ISSUE_NUMBER"
+- prompt: "LIGHT MODE review: Quick check TypeScript/JavaScript changes for: type safety issues, obvious bugs, missing error handling. Files: $CHANGED_FILES"
+
+If Python detected:
+- subagent_type: "psd-claude-coding-system:python-reviewer"
+- description: "Light Python review for #$ISSUE_NUMBER"
+- prompt: "LIGHT MODE review: Quick check Python changes for: type hints, obvious bugs, PEP8 issues. Files: $CHANGED_FILES"
+
+If Swift detected:
+- subagent_type: "psd-claude-coding-system:swift-reviewer"
+- description: "Light Swift review for #$ISSUE_NUMBER"
+- prompt: "LIGHT MODE review: Quick check Swift changes for: optionals handling, memory issues, Swift conventions. Files: $CHANGED_FILES"
+
+If SQL detected:
+- subagent_type: "psd-claude-coding-system:sql-reviewer"
+- description: "Light SQL review for #$ISSUE_NUMBER"
+- prompt: "LIGHT MODE review: Quick check SQL changes for: injection risks, performance issues, missing indexes. Files: $CHANGED_FILES"
+
+**Fix any critical issues** identified by language reviewers before proceeding.
+
+#### Phase 4.4: Deployment Verification (NEW - Conditional)
+
+**Only if migration or schema files detected:**
+
+```bash
+# Check for high-risk deployment changes
+if echo "$CHANGED_FILES" | grep -iEq "migration|schema|\.sql"; then
+  echo "=== Migration/Schema Changes Detected ==="
+  echo "Invoking deployment verification agent..."
+  NEEDS_DEPLOYMENT_CHECKLIST=true
+fi
+```
+
+If migrations detected:
+- subagent_type: "psd-claude-coding-system:deployment-verification-agent"
+- description: "Deployment checklist for #$ISSUE_NUMBER"
+- prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment."
+
+If migrations detected:
+- subagent_type: "psd-claude-coding-system:data-migration-expert"
+- description: "Migration validation for #$ISSUE_NUMBER"
+- prompt: "Validate data migration: Check foreign key integrity, ID mappings, and data transformation logic. Provide pre/post deployment validation queries."
+
+**Include deployment checklist in PR body** if generated.
+
 ```bash
 ```
 
@@ -299,7 +407,10 @@ echo ""
 echo "Work completed successfully!"
 echo "PR #$PR_NUMBER created and ready for review"
 echo ""
-echo "Key improvements in v1.7.0:"
+echo "Key improvements in v1.14.0:"
+echo "  - Knowledge lookup searched past learnings (Phase 1.5)"
+echo "  - Language-specific pre-PR review caught issues early (Phase 4.3)"
+echo "  - Deployment verification for migrations (Phase 4.4)"
 echo "  - Security review happened PRE-implementation (fewer surprises)"
 echo "  - Parallel agent analysis provided comprehensive guidance"
 echo "  - Test strategy defined before coding"

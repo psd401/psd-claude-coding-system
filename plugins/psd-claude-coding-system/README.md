@@ -2,20 +2,21 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.13.2
-Status: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
+Version: 1.14.0
+Status: Production-Ready Workflows + Experimental Meta-Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
 ---
 
 ## What Is This?
 
-A unified Claude Code plugin combining **battle-tested development workflows** with **self-improving meta-learning**. Get immediate productivity gains from proven commands while the system learns your patterns and suggests improvements over time.
+A unified Claude Code plugin combining **battle-tested development workflows** with **self-improving meta-learning** and **knowledge compounding**. Get immediate productivity gains from proven commands while the system learns your patterns and compounds knowledge over time.
 
-**One plugin. Two superpowers.**
+**One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 9 commands + 10 workflow specialist agents
-2. **Meta-Learning** - 9 commands + 5 meta-learning agents that learn from your usage
+1. **Workflow Automation** - 11 commands + 30 specialized agents
+2. **Meta-Learning** - 10 commands that learn from your usage
+3. **Knowledge Compounding** - Capture and share learnings across projects
 
 ---
 
@@ -25,13 +26,14 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 # Install the marketplace
 /plugin marketplace add psd401/psd-claude-coding-system
 
-# Install this plugin (one command!)
+# Install this plugin
 /plugin install psd-claude-coding-system
 
 # Start using workflow commands immediately
 /work 347              # Implement an issue
 /test                  # Run comprehensive tests
 /review-pr 123         # Handle PR feedback
+/compound              # Capture session learnings
 
 # After 2-4 weeks, check what the system learned
 /meta-health           # System status
@@ -41,24 +43,26 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ---
 
-## Workflow Commands (Use Immediately)
+## Workflow Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `/work` | Implement solutions + **auto security review** | `/work 347` or `/work "add logging"` |
+| `/work` | Implement solutions with auto reviews | `/work 347` or `/work "add logging"` |
 | `/architect` | System architecture via architect-specialist | `/architect 347` |
 | `/test` | Comprehensive testing with coverage validation | `/test auth` |
 | `/review-pr` | Handle PR feedback systematically | `/review-pr 123` |
 | `/security-audit` | Manual security audit (auto in /work) | `/security-audit 123` |
-| `/issue` | **AI-validated** issues with latest docs | `/issue "add caching"` |
-| `/triage` | **NEW:** FreshService ticket → GitHub issue | `/triage 12345` |
-| `/product-manager` | **Validated** specs → auto sub-issues | `/product-manager "dashboard"` |
+| `/issue` | AI-validated issues with spec flow analysis | `/issue "add caching"` |
+| `/triage` | FreshService ticket to GitHub issue | `/triage 12345` |
+| `/product-manager` | Validated specs to auto sub-issues | `/product-manager "dashboard"` |
+| `/compound` | **NEW:** Capture session learnings | `/compound` |
+| `/contribute-pattern` | **NEW:** Share universal patterns | `/contribute-pattern` |
 | `/compound-concepts` | Find automation opportunities | `/compound-concepts` |
-| `/clean-branch` | Cleanup + **auto learning extraction** | `/clean-branch` |
+| `/clean-branch` | Cleanup + auto learning extraction | `/clean-branch` |
 
 ---
 
-## Meta-Learning Commands (After 2-4 Weeks)
+## Meta-Learning Commands
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
@@ -71,102 +75,258 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `/meta-predict` | Forecast future issues | Monthly |
 | `/meta-experiment` | A/B test ideas safely | Advanced |
 | `/meta-evolve` | Improve AI agents | Monthly |
+| `/meta-compound-analyze` | Analyze compound learnings | Monthly |
 
 ---
 
-## AI Agents
+## AI Agents (30 total)
 
-### Workflow Specialists
+### Review Specialists (`agents/review/`)
 
-**Domain Experts:**
-- `backend-specialist` - APIs, server logic, system integration
-- `frontend-specialist` - React, UI components, UX
-- `database-specialist` - Schema design, query optimization
-- `llm-specialist` - AI integration, prompt engineering
+| Agent | Purpose |
+|-------|---------|
+| `security-analyst` | Security vulnerability analysis |
+| `security-analyst-specialist` | Comprehensive security review |
+| `deployment-verification-agent` | Go/No-Go deployment checklists |
+| `data-migration-expert` | ID mappings, foreign key validation |
+| `agent-native-reviewer` | AI architecture parity checks |
+| `typescript-reviewer` | TypeScript/JavaScript code review |
+| `python-reviewer` | Python code review |
+| `swift-reviewer` | Swift code review |
+| `sql-reviewer` | SQL code review |
 
-**Quality & Security:**
-- `security-analyst-specialist` - **NEW:** Comprehensive security analysis (auto in /work)
-- `test-specialist` - Test coverage, automation, QA
-- `performance-optimizer` - Web vitals, API latency, system performance
+### Domain Specialists (`agents/domain/`)
 
-**Documentation & Planning:**
-- `architect-specialist` - **NEW:** Architecture design (shared by /architect & /issue)
-- `documentation-writer` - API docs, user guides, architecture docs
-- `plan-validator` - **Enhanced:** GPT-5 with high reasoning for validation
-- `gpt-5` - Second opinions for complex problem solving
+| Agent | Purpose |
+|-------|---------|
+| `backend-specialist` | APIs, server logic, system integration |
+| `frontend-specialist` | React, UI components, UX |
+| `database-specialist` | Schema design, query optimization |
+| `llm-specialist` | AI integration, prompt engineering |
+| `ux-specialist` | 68 usability heuristics, accessibility |
+| `architect-specialist` | Architecture design |
+| `shell-devops-specialist` | Shell scripting, DevOps |
 
-### Meta-Learning Specialists
+### Quality Assurance (`agents/quality/`)
 
-- `meta-orchestrator` - Coordinates other agents optimally
-- `code-cleanup-specialist` - Finds and removes dead code
-- `pr-review-responder` - Handles feedback from multiple reviewers
-- `document-validator` - Validates data at system boundaries
-- `breaking-change-validator` - Prevents accidental breakage
+| Agent | Purpose |
+|-------|---------|
+| `test-specialist` | Test coverage, automation, QA |
+| `performance-optimizer` | Web vitals, API latency |
+| `documentation-writer` | API docs, user guides |
+
+### Research (`agents/research/`)
+
+| Agent | Purpose |
+|-------|---------|
+| `spec-flow-analyzer` | Gap analysis, user flow mapping |
+| `learnings-researcher` | Knowledge base search |
+
+### External AI (`agents/external/`)
+
+| Agent | Purpose |
+|-------|---------|
+| `gpt-5-codex` | GPT-5.2-pro for second opinions |
+| `gemini-3-pro` | Gemini 3 Pro for multimodal analysis |
+
+### Meta-Learning (`agents/meta/`)
+
+| Agent | Purpose |
+|-------|---------|
+| `meta-orchestrator` | Coordinates agents optimally |
+| `code-cleanup-specialist` | Dead code removal |
+| `pr-review-responder` | Multi-reviewer synthesis |
+
+### Validators (`agents/validation/`)
+
+| Agent | Purpose |
+|-------|---------|
+| `plan-validator` | GPT-5 powered plan validation |
+| `document-validator` | Data validation at boundaries |
+| `configuration-validator` | Multi-file consistency |
+| `breaking-change-validator` | Dependency analysis |
+| `telemetry-data-specialist` | Data pipeline correctness |
 
 ---
 
-## Automatic Telemetry & Learning (v1.1.0+)
-
-**Zero configuration required!** The system automatically tracks your usage via hooks:
+## Knowledge Compounding System
 
 ### How It Works
 
-Every time you run a command:
-1. **UserPromptSubmit hook** detects slash command execution
-2. **SubagentStop hook** tracks which agents were invoked
-3. **Stop hook** records duration and success/failure
-4. **Data written** to `meta/telemetry.json` automatically
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    KNOWLEDGE CAPTURE SYSTEM                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  Session Event           AI Synthesis                           │
+│  ┌───────────────────┐  ┌───────────────────┐                  │
+│  │ Error detected    │  │ /compound skill   │                  │
+│  │ Rework observed   │  │ - Analyze session │                  │
+│  │ User frustration  │──▶ - Extract pattern │                  │
+│  │ Discovery made    │  │ - Generate doc    │                  │
+│  └───────────────────┘  └─────────┬─────────┘                  │
+│                                   │                             │
+│                                   ▼                             │
+│  ┌───────────────────────────────────────────────────────────┐ │
+│  │                    KNOWLEDGE STORES                        │ │
+│  ├───────────────────────────────────────────────────────────┤ │
+│  │  Project-Specific           Plugin-Wide (Shared)          │ │
+│  │  ./docs/learnings/          plugin/docs/patterns/         │ │
+│  │  - Project patterns         - Common anti-patterns        │ │
+│  │  - Domain knowledge         - Framework gotchas           │ │
+│  │  - Team conventions         - Security patterns           │ │
+│  └───────────────────────────────────────────────────────────┘ │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**NEW in v1.4.0:** `/clean-branch` also extracts compound learning insights from merged PRs and saves to telemetry
+### Capturing Learnings
+
+After a session where you discovered something useful:
+
+```bash
+/compound
+```
+
+The system will:
+1. Analyze the session for patterns
+2. Extract what went wrong/right
+3. Generate structured markdown with YAML frontmatter
+4. Save to `./docs/learnings/[category]/[date]-[topic].md`
+
+### Learning Document Format
+
+```yaml
+---
+title: Short descriptive title
+category: build-errors | test-failures | runtime-errors | performance | security | database | ui | integration | logic
+tags: [framework, feature, pattern]
+severity: critical | high | medium | low
+date: YYYY-MM-DD
+applicable_to: project | universal
+---
+
+## Summary
+Brief description of what was learned.
+
+## Problem
+What went wrong or what was discovered.
+
+## Solution
+How it was resolved or what the insight means.
+
+## Prevention
+How to avoid this in the future.
+```
+
+### Sharing Universal Patterns
+
+If a learning applies to all projects (not project-specific):
+
+```bash
+/contribute-pattern ./docs/learnings/build-errors/2026-01-22-vite-config-gotcha.md
+```
+
+This creates a PR to the plugin repository with the pattern.
+
+---
+
+## Language-Specific Reviews
+
+The plugin automatically detects languages and invokes appropriate reviewers.
+
+### Detection
+
+Using `scripts/language-detector.sh`:
+
+```bash
+./scripts/language-detector.sh
+# Output: typescript python sql migration
+```
+
+### Dual-Phase Review
+
+**Light Mode** (in `/work` before PR):
+- Quick critical checks only
+- Blocks on security issues
+- Fast turnaround
+
+**Full Mode** (in `/review-pr`):
+- Comprehensive deep analysis
+- Style and best practices
+- Performance considerations
+
+### Supported Languages
+
+| Language | Extensions | Focus Areas |
+|----------|------------|-------------|
+| TypeScript | `.ts`, `.tsx`, `.js`, `.jsx` | Types, null safety, async patterns, React |
+| Python | `.py` | Type hints, async, security, imports |
+| Swift | `.swift` | Optionals, memory, SwiftUI, concurrency |
+| SQL | `.sql`, `*migration*` | Injection, performance, constraints |
+
+---
+
+## Enhanced Workflow Phases
+
+### `/work` (v1.14.0)
+
+| Phase | Description |
+|-------|-------------|
+| 1 | Determine work type |
+| **1.5** | **NEW:** Knowledge lookup via learnings-researcher |
+| 2 | Development setup |
+| 3 | Implementation |
+| 4.1 | Automated testing |
+| 4.2 | Pre-commit validation |
+| **4.3** | **NEW:** Language-specific review (light mode) |
+| **4.4** | **NEW:** Deployment verification (if migrations) |
+| 5 | PR creation |
+
+### `/review-pr` (v1.14.0)
+
+| Phase | Description |
+|-------|-------------|
+| 1 | Fetch PR details |
+| 2 | Parallel agent analysis |
+| **2.5** | **NEW:** Language-specific deep review |
+| **2.6** | **NEW:** Deployment verification (if migrations) |
+| 3 | Synthesize feedback |
+| 4 | Apply changes |
+
+### `/issue` (v1.14.0)
+
+| Phase | Description |
+|-------|-------------|
+| 1 | Research and context |
+| **1.5** | **NEW:** Spec flow analysis (if complex feature) |
+| 2 | Issue creation |
+
+---
+
+## Automatic Telemetry
+
+**Zero configuration required!** The system automatically tracks usage via hooks.
 
 ### What Gets Tracked
 
-✅ **Collected** (privacy-safe):
-- Command names (`/work`, `/test`, etc.)
-- Duration (how long each took)
-- Success/failure status
-- Agents invoked
-- File counts (not names or content)
-- Test counts
+| Collected | NOT Collected |
+|-----------|---------------|
+| Command names | Your actual code |
+| Duration | File names or paths |
+| Success/failure | Issue descriptions |
+| Agents invoked | Personal information |
+| File counts | API keys or secrets |
 
-❌ **NOT Collected:**
-- Your actual code
-- File names or paths
-- Issue descriptions
-- Personal information
-- API keys or secrets
+### High-Signal Session Detection
 
-### Example Telemetry
+The telemetry system detects sessions worth capturing:
+- Tool errors (`is_error: true`)
+- User negative sentiment
+- Multiple edit retries (>3x same file)
+- Long duration (>2x average)
 
-```json
-{
-  "executions": [{
-    "command": "/work",
-    "duration_seconds": 720,
-    "success": true,
-    "agents_invoked": ["backend-specialist", "test-specialist", "security-analyst-specialist"],
-    "metadata": {
-      "files_changed": 8,
-      "tests_added": 12
-    }
-  }],
-  "compound_learnings": [{
-    "source": "pr_retrospective",
-    "pr_number": 123,
-    "patterns_observed": {
-      "review_iterations": 3,
-      "common_themes": {"type_safety": 5, "testing": 3}
-    },
-    "suggestions": [{
-      "type": "automation",
-      "suggestion": "Enable stricter TypeScript config",
-      "confidence": "high"
-    }]
-  }]
-}
-```
-
-**Privacy**: All data stays local in `meta/` folder (git-ignored).
+When detected, suggests running `/compound`.
 
 ---
 
@@ -175,265 +335,61 @@ Every time you run a command:
 ### Week 1-2: Learn the Commands
 
 ```bash
-# Work on features
-/work 347
+/work 347              # Implement feature
+/test                  # Run tests
+/review-pr 123         # Handle feedback
+/clean-branch          # Cleanup
 
-# Run tests
-/test
-
-# Handle reviews
-/review-pr 123
-
-# Clean up
-/clean-branch
+# If you learn something useful
+/compound              # Capture it
 ```
 
-**Behind the scenes**: System quietly observes via hooks (you do nothing).
-
-### Week 3: First Analysis
+### Week 3+: Meta-Learning
 
 ```bash
-# See what patterns emerged
-/meta-analyze
-
-# Output example:
-# - You ran /work 23 times (avg 18 min)
-# - You always run /test after /work (92%)
-# - Security bugs always involve auth/ directory
-```
-
-### Week 4: First Suggestions
-
-```bash
-# Get improvement ideas
-/meta-learn
-
-# Output example:
-# SUGGESTION #1: Combine /work and /test
-#   Confidence: 94%
-#   Time savings: 5 min per task = 115 min/month
-#   To apply: /meta-implement suggestion-1 --dry-run
-```
-
-### Month 2+: Weekly Improvements
-
-```bash
-# Monday morning routine (15 minutes)
+# Weekly routine
 /meta-improve
 
-# System automatically:
-# ✓ Analyzes patterns
-# ✓ Generates suggestions
-# ✓ Auto-implements high-confidence improvements
-# ✓ Creates PR for your review
-# ✓ Evolves agents to be smarter
-
-# You just review and merge the PR
-gh pr merge <number>
+# Or step by step
+/meta-analyze          # Find patterns
+/meta-learn            # Get suggestions
+/meta-implement        # Apply improvements
 ```
 
-**Result**: 15-40 hours saved monthly through compound improvements.
+### Monthly: Knowledge Contribution
 
----
+```bash
+# Review captured learnings
+ls ./docs/learnings/
 
-## Compound Engineering Principles
-
-This system embodies compound engineering:
-- Every bug → prevention system
-- Every manual process → automation candidate
-- Every solution → template for similar problems
-- Every workflow → data for meta-learning
-
-Use `/compound-concepts` to extract systematization opportunities.
+# Share universal patterns
+/contribute-pattern ./docs/learnings/security/2026-01-15-sql-injection-gotcha.md
+```
 
 ---
 
 ## Installation
 
-### From GitHub (Recommended)
+### From GitHub
 
 ```bash
 /plugin marketplace add psd401/psd-claude-coding-system
 /plugin install psd-claude-coding-system
 ```
 
-### From Local Directory
-
-```bash
-/plugin marketplace add ~/path/to/psd-claude-coding-system
-/plugin install psd-claude-coding-system
-```
-
-### Verify Installation
+### Verify
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.4.0)
-
-# Test a command
-/meta-health
+# Should show: psd-claude-coding-system (v1.14.0)
 ```
 
-### Configure FreshService Integration (Optional)
-
-If you want to use the `/triage` command to import tickets from FreshService:
+### Configure FreshService (Optional)
 
 ```bash
-# 1. Copy the example config
 cp ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/.freshservice.env.example ~/.claude/freshservice.env
-
-# 2. Edit the config file with your credentials
-# Use your favorite editor to add:
-# - FRESHSERVICE_API_KEY (from FreshService > Profile > API Settings)
-# - FRESHSERVICE_DOMAIN (your subdomain, e.g., "peninsula-sd")
-
-# 3. Test the integration
-/triage 12345  # Replace with a real ticket ID
-```
-
-**Security Note**: The config file is stored in `~/.claude/freshservice.env` (not in the repository) to keep your API key secure.
-
----
-
-## What's New
-
-### v1.5.0 (November 2025)
-
-**FreshService Integration:**
-- New `/triage` command to import tickets from FreshService
-- Automatically creates GitHub issues from bug reports
-- Secure API key storage in `~/.claude/freshservice.env`
-- Supports ticket metadata, attachments, and conversation history
-- Full error handling and retry logic with exponential backoff
-
-### v1.4.0 (October 2025)
-
-**Enhanced Issue & Architecture Workflow:**
-- `/issue` auto-detects complexity, invokes architecture design, validates with GPT-5
-- Always uses current docs (dynamic dates + MCP servers)
-- Only asks questions when critically needed
-- `/architect` refactored to use shared architect-specialist agent
-- `/product-manager` validates breakdown, uses `/issue` for sub-issues
-
-**Automatic Security Review:**
-- `/work` now auto-runs security analysis after PR creation
-- Single consolidated comment (no spam)
-- New security-analyst-specialist agent
-
-**Compound Learning Extraction:**
-- `/clean-branch` auto-analyzes merged PRs
-- Extracts patterns and generates suggestions
-- Saves to telemetry.json for meta-learning
-
-**New Agents:**
-- `architect-specialist` - Shared architecture logic
-- `security-analyst-specialist` - Comprehensive security analysis
-
-**Enhanced:**
-- `plan-validator` now uses GPT-5 with high reasoning effort
-- Removed obsolete manual telemetry code
-
-### v1.1.1 (Bug Fix)
-
-**CRITICAL FIX**: Telemetry hooks now work correctly!
-
-- Fixed UserPromptSubmit hook field name (`prompt` not `user_prompt`)
-- Commands are now properly tracked in telemetry.json
-- All users should update to this version
-
-### v1.1.0 (Major Release)
-
-### Hook-Based Telemetry
-
-Previously, commands had bash blocks trying to call telemetry functions. This was unreliable because Claude doesn't always execute bash blocks.
-
-**Now**: Hooks automatically track commands via `hooks/hooks.json`:
-- `SessionStart` - Initialize telemetry file
-- `UserPromptSubmit` - Detect slash command execution
-- `SubagentStop` - Track agent invocations
-- `Stop` - Finalize and write telemetry entry
-
-**Benefit**: 100% reliable telemetry collection without AI involvement.
-
-### Unified Plugin
-
-Previously: Two separate plugins (`psd-claude-workflow` + `psd-claude-meta-learning-system`)
-
-**Now**: One plugin with everything:
-- Simpler installation (one command)
-- Unified versioning
-- Tighter integration
-- Less confusion
-
----
-
-## Privacy & Security
-
-**Local Only**:
-- All data stays on your machine
-- No external network requests
-- Git-ignored by default
-
-**Opt-Out Options**:
-
-```bash
-# Option 1: Just use workflow commands, no telemetry
-# (Meta-learning won't work without data)
-
-# Option 2: Clear data periodically
-rm meta/telemetry.json
-```
-
-**View Your Data**:
-
-```bash
-# Check what's being collected
-cat meta/telemetry.json | jq .
-
-# Or use meta commands for readable reports
-/meta-health --dashboard
-```
-
----
-
-## Examples
-
-### Example 1: Implement a Feature
-
-```bash
-# Start work on issue #347
-/work 347
-
-# System automatically:
-# ✓ Fetches issue details
-# ✓ Creates feature branch from dev
-# ✓ Implements solution following project patterns
-# ✓ Invokes backend-specialist and test-specialist
-# ✓ Tracks telemetry: duration, agents used, files changed
-```
-
-### Example 2: Weekly Improvement
-
-```bash
-# After using the system for a month
-/meta-improve
-
-# Output:
-# [1/9] Analyzing 127 events...
-#   ✓ Found 12 patterns
-# [2/9] Generating suggestions...
-#   ✓ 3 high-confidence suggestions
-# [3/9] Auto-implementing improvements...
-#   ✓ Parallel PR review agents (saves 15 hr/month)
-#   ✓ Auto-cleanup after refactoring (saves 2 hr/month)
-# [4/9] Evolving agents...
-#   ✓ security-analyst v5: 95% success rate (+1%)
-# [5/9] Creating PR...
-#   ✓ PR #462 created
-
-# You review and merge
-gh pr view 462
-gh pr merge 462
+# Edit with your credentials
+/triage 12345
 ```
 
 ---
@@ -443,10 +399,6 @@ gh pr merge 462
 ### Commands Not Working
 
 ```bash
-# Check installation
-/plugin list
-
-# Reinstall if needed
 /plugin uninstall psd-claude-coding-system
 /plugin install psd-claude-coding-system
 ```
@@ -454,51 +406,43 @@ gh pr merge 462
 ### No Telemetry Data
 
 ```bash
-# Check system status
-/meta-health
-
-# If "Events: 0" after using commands:
-# 1. Check hooks are installed
+# Check hooks installed
 ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/
 
-# 2. Check if jq is installed (required for JSON manipulation)
+# Check jq installed
 which jq
-# If not: brew install jq (macOS) or apt install jq (Linux)
-
-# 3. Check meta directory exists
-ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/
+# If not: brew install jq (macOS)
 ```
 
-### No Patterns Detected
+### Plugin Not Found
 
-**Cause**: Not enough usage data yet.
-
-**Solution**: Use commands for 2-4 weeks (need 20-30 executions minimum).
-
-### Plugin Installation Issues
-
-**"Plugin not found in any marketplace"**
-
-This usually means Claude Code's plugin cache is stale or marketplace.json doesn't match the actual plugin structure.
-
-**Solution:**
 ```bash
-# 1. Force refresh the marketplace
 cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
 git pull origin main
-
-# 2. Retry installation
 /plugin install psd-claude-coding-system
 ```
 
-**If that doesn't work (Nuclear Option):**
-```bash
-# Exit Claude Code completely, then:
-mv ~/.claude/plugins ~/.claude/plugins.backup
-# Restart Claude Code, then:
-/plugin marketplace add psd401/psd-claude-coding-system
-/plugin install psd-claude-coding-system
-```
+---
+
+## Privacy & Security
+
+- All data stays local in `meta/` folder (git-ignored)
+- No external network requests
+- Only metadata collected, never code content
+- Opt-out by disabling hooks or removing plugin
+
+---
+
+## Compound Engineering Principles
+
+Every interaction creates improvement opportunities:
+
+- Every bug → prevention system
+- Every manual process → automation candidate
+- Every solution → template for similar problems
+- Every workflow → data for meta-learning
+
+Use `/compound` to capture learnings.
 
 ---
 
@@ -506,24 +450,9 @@ mv ~/.claude/plugins ~/.claude/plugins.backup
 
 - **Issues**: https://github.com/psd401/psd-claude-coding-system/issues
 - **Email**: hagelk@psd401.net
-- **Documentation**: This README + command-specific docs
 
 ---
 
 ## License
 
 MIT License - Peninsula School District
-
----
-
-## Summary
-
-The **PSD Claude Coding System** gives you immediate productivity gains through proven workflow commands while quietly learning your patterns and suggesting improvements over time. Install once, use immediately, see compound benefits within weeks.
-
-**Get Started**:
-1. Install: `/plugin install psd-claude-coding-system`
-2. Use: `/work`, `/test`, `/review-pr` (like normal)
-3. After 2-4 weeks: `/meta-improve` (weekly)
-4. Watch productivity compound over time
-
-Happy coding! 🚀

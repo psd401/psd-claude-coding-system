@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0] - 2026-01-22
+
+### Added
+- **Compound Engineering Integration** - Major update integrating best practices from Every's Compound Engineering plugin
+
+**New Agents (9 total):**
+- `deployment-verification-agent` - Go/No-Go checklists for risky deployments (migrations, schema changes)
+- `data-migration-expert` - Validates ID mappings, foreign key integrity, data transformation logic
+- `spec-flow-analyzer` - Gap analysis for feature specs, user flow permutations, edge case identification
+- `agent-native-reviewer` - Validates AI-agent architecture parity, prompt consistency
+- `learnings-researcher` - Searches knowledge base for relevant past learnings before implementation
+- `typescript-reviewer` - Language-specific reviewer for TypeScript/JavaScript (light and full modes)
+- `python-reviewer` - Language-specific reviewer for Python (type hints, async patterns, security)
+- `swift-reviewer` - Language-specific reviewer for Swift (optionals, memory management, SwiftUI)
+- `sql-reviewer` - Language-specific reviewer for SQL (injection prevention, performance, migrations)
+
+**New Skills (2 total):**
+- `/compound` - Capture learnings from current session for knowledge compounding
+- `/contribute-pattern` - Share universal patterns to the plugin repository
+
+**New Infrastructure:**
+- `docs/patterns/` directory for plugin-wide universal patterns
+- `scripts/language-detector.sh` for automatic language detection
+
+### Changed
+- **Agent Reorganization** - All 30 agents reorganized into category subdirectories:
+  - `agents/review/` - 10 code review specialists
+  - `agents/domain/` - 7 domain specialists
+  - `agents/quality/` - 3 quality assurance agents
+  - `agents/research/` - 2 research agents (NEW)
+  - `agents/external/` - 2 external AI providers
+  - `agents/meta/` - 3 meta-learning agents
+  - `agents/validation/` - 5 validator agents
+
+- **Enhanced `/work` skill** - Added three new phases:
+  - Phase 1.5: Knowledge Lookup - Searches `docs/learnings/` and plugin patterns via `learnings-researcher`
+  - Phase 4.3: Language-Specific Review - Light mode review before PR creation
+  - Phase 4.4: Deployment Verification - Conditional checklist for migrations/schema changes
+
+- **Enhanced `/review-pr` skill**:
+  - Phase 2.5: Language-Specific Deep Review with full mode analysis
+  - Phase 2.6: Deployment Verification for migration PRs
+  - Auto-triggers based on file extensions in PR diff
+
+- **Enhanced `/issue` skill**:
+  - Phase 1.5: Spec Flow Analysis for complex user-flow features
+
+- **Simplified telemetry-track.sh**:
+  - Removed complex transcript parsing for errors/corrections
+  - Added high-signal session detection
+  - The `/compound` skill now handles sophisticated analysis
+
+### Security
+- Language reviewers check for SQL injection, XSS, command injection, and other OWASP vulnerabilities
+
 ## [1.13.2] - 2026-01-21
 
 ### Changed

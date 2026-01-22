@@ -4,6 +4,9 @@
 # Stop hook - Record command execution when Claude finishes responding
 # Called automatically after each Claude response completes
 #
+# SIMPLIFIED in v1.14.0: Removed complex transcript parsing for errors/corrections
+# The /compound skill now handles sophisticated analysis when invoked
+#
 # Input: JSON via stdin with session_id, transcript_path, hook_event_name
 # Output: Silent success (exit 0) or error to stderr (exit 2)
 
@@ -49,16 +52,26 @@ END_TIME=$(date +%s)
 DURATION=$((END_TIME - COMMAND_START_TIME))
 
 # ==============================================================================
-# COMPREHENSIVE TELEMETRY EXTRACTION FROM TRANSCRIPT
+# SIMPLIFIED TELEMETRY EXTRACTION (v1.14.0)
+# Complex transcript parsing removed - /compound handles detailed analysis
 # ==============================================================================
+
+# Initialize defaults
+FILES_CHANGED="0"
+GIT_COMMITS="0"
+PR_CREATED="0"
+TESTS_RUN="0"
+ISSUE_NUMBER=""
+TOOL_USES_JSON="{}"
+HIGH_SIGNAL_SESSION="false"
 
 if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
 
   # ---------------------------------------------------------------------------
-  # 1. QUANTITATIVE METRICS
+  # SIMPLE METRICS (fast extraction)
   # ---------------------------------------------------------------------------
 
-  # Files changed (unique file paths)
+  # Files changed (unique file paths) - simplified extraction
   FILES_CHANGED=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -67,18 +80,7 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     .message.content[0].input.file_path
   ' "$TRANSCRIPT_PATH" 2>/dev/null | sort -u | wc -l | tr -d ' ')
 
-  # Tool usage counts - slurp all entries first
-  TOOL_USES_JSON=$(jq -s --arg sid "$SESSION_ID" '
-    map(select(.sessionId == $sid)) |
-    map(select((.message.content | type) == "array")) |
-    map(select(.message.content[0].type == "tool_use")) |
-    map(.message.content[0].name) |
-    group_by(.) |
-    map({key: .[0], value: length}) |
-    from_entries
-  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "{}")
-
-  # Git activity
+  # Git commit count (simple grep)
   GIT_COMMITS=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -88,6 +90,7 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "^git commit" 2>/dev/null || echo "0")
   GIT_COMMITS=$(echo "$GIT_COMMITS" | tr -d '\n ')
 
+  # PR created check
   PR_CREATED=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -97,7 +100,7 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "^gh pr create" 2>/dev/null || echo "0")
   PR_CREATED=$(echo "$PR_CREATED" | tr -d '\n ')
 
-  # Test execution
+  # Test run count
   TESTS_RUN=$(jq -r --arg sid "$SESSION_ID" '
     select(.sessionId == $sid) |
     select((.message.content | type) == "array") |
@@ -107,8 +110,7 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -cE "^(pytest|npm test|cargo test|npm run test)" 2>/dev/null || echo "0")
   TESTS_RUN=$(echo "$TESTS_RUN" | tr -d '\n ')
 
-  # Issue number extraction
-  ISSUE_NUMBER=""
+  # Issue number extraction (from arguments or branch name)
   if [[ "$COMMAND_ARGS" =~ ^[0-9]+$ ]]; then
     ISSUE_NUMBER="$COMMAND_ARGS"
   else
@@ -119,197 +121,39 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
   fi
 
   # ---------------------------------------------------------------------------
-  # 2. ERROR EXTRACTION (WITH FULL CONTEXT)
+  # HIGH SIGNAL DETECTION (simple check for /compound suggestion)
   # ---------------------------------------------------------------------------
 
-  ERRORS_JSON=$(jq -sc --arg sid "$SESSION_ID" '
-    map(select(.sessionId == $sid)) |
-    map(select((.message.content | type) == "array")) |
-    map(select(.message.content[0].type == "tool_result")) |
-    map(select(.message.content[0].is_error == true)) |
-    map({
-      tool: (.message.content[0].tool_use_id // "unknown"),
-      error_message: (.message.content[0].content // ""),
-      timestamp: .timestamp
-    }) |
-    if length > 0 then . else [] end
-  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "[]")
+  # Check for tool errors (is_error: true)
+  ERROR_COUNT=$(jq -r --arg sid "$SESSION_ID" '
+    select(.sessionId == $sid) |
+    select((.message.content | type) == "array") |
+    select(.message.content[0].type == "tool_result") |
+    select(.message.content[0].is_error == true)
+  ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -c "is_error" 2>/dev/null || echo "0")
 
-  # ---------------------------------------------------------------------------
-  # 3. USER FEEDBACK PARSING (COMPREHENSIVE KEYWORDS)
-  # ---------------------------------------------------------------------------
-
-  USER_CORRECTIONS_JSON=$(jq -sc --arg sid "$SESSION_ID" '
-    map(select(.sessionId == $sid)) |
-    map(select(.message.role == "user")) |
-    map(select((.message.content | type) == "string")) |
-    map(select(.message.content | test("(this|that|it).{0,20}(doesn'"'"'t work|didn'"'"'t work|broke|broken|failed|wrong|not what I wanted|incomplete)|(you|it) (broke|broken|failed)|\\b(terrible|awful|redo|revert|waste|frustrated|annoying)\\b"; "i"))) |
-    map({
-      feedback: (.message.content | .[0:200]),
-      sentiment: "negative",
-      timestamp: .timestamp
-    }) |
-    if length > 0 then . else [] end
-  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "[]")
-
-  # Count iterations (same file edited multiple times = rework)
-  EDIT_RETRIES=$(jq -sr --arg sid "$SESSION_ID" '
-    map(select(.sessionId == $sid)) |
-    map(select((.message.content | type) == "array")) |
-    map(select(.message.content[0].type == "tool_use")) |
-    map(select(.message.content[0].name == "Edit")) |
-    map(.message.content[0].input.file_path) |
-    group_by(.) |
-    map(length - 1) |
-    add // 0
-  ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-  # Detect success/failure
-  HAS_ERRORS=$(echo "$ERRORS_JSON" | jq 'length > 0')
-  USER_UNHAPPY=$(echo "$USER_CORRECTIONS_JSON" | jq 'length > 0')
-
-  # Command-specific success detection for known broken commands
-  if [[ "$COMMAND_NAME" =~ work$ ]]; then
-    # Check for /work command completion indicators
-    # Success = successful commits OR PR created OR files edited
-
-    # Count successful git commits (check both tool_use command AND tool_result success)
-    WORK_COMMITS=$(jq -r --arg sid "$SESSION_ID" '
-      [
-        # Get all tool_use entries with git commit
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_use") |
-         select(.message.content[0].name == "Bash") |
-         select(.message.content[0].input.command | test("^git commit")) |
-         .message.content[0].id),
-        # Get all successful tool_results (no error)
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_result") |
-         select(.message.content[0].is_error != true) |
-         .message.content[0].tool_use_id)
-      ] | group_by(.) | map(select(length == 2)) | length
-    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-    # Count successful PR creations
-    WORK_PR=$(jq -r --arg sid "$SESSION_ID" '
-      [
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_use") |
-         select(.message.content[0].name == "Bash") |
-         select(.message.content[0].input.command | test("^gh pr create")) |
-         .message.content[0].id),
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_result") |
-         select(.message.content[0].is_error != true) |
-         .message.content[0].tool_use_id)
-      ] | group_by(.) | map(select(length == 2)) | length
-    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-    # Count unique files successfully edited (fixed duplicate counting + verify success)
-    FILES_EDITED=$(jq -r --arg sid "$SESSION_ID" '
-      [
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_use") |
-         select(.message.content[0].name == "Edit" or .message.content[0].name == "Write") |
-         {id: .message.content[0].id, file: .message.content[0].input.file_path}),
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_result") |
-         select(.message.content[0].is_error != true) |
-         {id: .message.content[0].tool_use_id, success: true})
-      ] | group_by(.id) | map(select(length == 2 and any(.success == true)) | .[0].file) | unique | length
-    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-    if [ "$WORK_COMMITS" -gt 0 ] || [ "$WORK_PR" -gt 0 ] || [ "$FILES_EDITED" -gt 0 ]; then
-      SUCCESS="true"
-    else
-      SUCCESS="false"
-    fi
-  elif [[ "$COMMAND_NAME" =~ review_pr$ ]]; then
-    # Check for PR review completion - verify command executed AND succeeded
-    PR_REVIEW_SUCCESS=$(jq -r --arg sid "$SESSION_ID" '
-      [
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_use") |
-         select(.message.content[0].name == "Bash") |
-         select(.message.content[0].input.command | test("(gh pr comment|gh pr review)")) |
-         .message.content[0].id),
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_result") |
-         select(.message.content[0].is_error != true) |
-         .message.content[0].tool_use_id)
-      ] | group_by(.) | map(select(length == 2)) | length
-    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-    if [ "$PR_REVIEW_SUCCESS" -gt 0 ]; then
-      SUCCESS="true"
-    else
-      SUCCESS="false"
-    fi
-  elif [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
-    # Check for successful branch cleanup - verify command executed AND succeeded
-    BRANCH_CLEANED=$(jq -r --arg sid "$SESSION_ID" '
-      [
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_use") |
-         select(.message.content[0].name == "Bash") |
-         select(.message.content[0].input.command | test("(git branch -[dD]|git push.*--delete)")) |
-         .message.content[0].id),
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_result") |
-         select(.message.content[0].is_error != true) |
-         .message.content[0].tool_use_id)
-      ] | group_by(.) | map(select(length == 2)) | length
-    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-    ISSUE_CLOSED=$(jq -r --arg sid "$SESSION_ID" '
-      [
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_use") |
-         select(.message.content[0].name == "Bash") |
-         select(.message.content[0].input.command | test("gh issue close")) |
-         .message.content[0].id),
-        (select(.sessionId == $sid) |
-         select((.message.content | type) == "array") |
-         select(.message.content[0].type == "tool_result") |
-         select(.message.content[0].is_error != true) |
-         .message.content[0].tool_use_id)
-      ] | group_by(.) | map(select(length == 2)) | length
-    ' "$TRANSCRIPT_PATH" 2>/dev/null || echo "0")
-
-    if [ "$BRANCH_CLEANED" -gt 0 ] || [ "$ISSUE_CLOSED" -gt 0 ]; then
-      SUCCESS="true"
-    else
-      SUCCESS="false"
-    fi
-  elif [ "$HAS_ERRORS" = "true" ] || [ "$USER_UNHAPPY" = "true" ]; then
-    SUCCESS="false"
-  else
-    SUCCESS="true"
+  # Mark as high signal if 3+ errors
+  if [ "$ERROR_COUNT" -ge 3 ]; then
+    HIGH_SIGNAL_SESSION="true"
   fi
 
-else
-  # Transcript not available - use minimal defaults
-  FILES_CHANGED="0"
-  GIT_COMMITS="0"
-  PR_CREATED="0"
-  TESTS_RUN="0"
-  ISSUE_NUMBER=""
-  TOOL_USES_JSON="{}"
-  ERRORS_JSON="[]"
-  USER_CORRECTIONS_JSON="[]"
-  EDIT_RETRIES="0"
+  # ---------------------------------------------------------------------------
+  # SUCCESS DETECTION (simplified)
+  # ---------------------------------------------------------------------------
+
+  # Default to success unless we detect clear failure
   SUCCESS="true"
+
+  # Check for any tool errors in the session
+  if [ "$ERROR_COUNT" -gt 0 ]; then
+    # Has errors - check if we recovered
+    if [ "$GIT_COMMITS" -gt 0 ] || [ "$PR_CREATED" -gt 0 ] || [ "$FILES_CHANGED" -gt 0 ]; then
+      SUCCESS="true"  # Recovered despite errors
+    else
+      SUCCESS="false"  # Errors without recovery
+    fi
+  fi
+
 fi
 
 # Generate timestamp in ISO 8601 format
@@ -322,7 +166,6 @@ if [ -n "$COMMAND_AGENTS" ]; then
   AGENTS_JSON="[\"$(echo "$COMMAND_AGENTS" | sed 's/,/", "/g')\"]"
 else
   # FALLBACK: Extract agents from transcript if SubagentStop hook didn't capture them
-  # This handles cases where the hook failed or wasn't running yet
   if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     AGENTS_FROM_TRANSCRIPT=$(jq -sr --arg sid "$SESSION_ID" '
       map(select(.sessionId == $sid)) |
@@ -345,7 +188,6 @@ fi
 # PARALLEL EXECUTION TRACKING (v1.7.0+)
 # ==============================================================================
 
-# Check if session used parallel agent execution
 PARALLEL_EXECUTION="false"
 PARALLEL_AGENTS_JSON="null"
 PARALLEL_DURATION_MS="null"
@@ -353,13 +195,11 @@ PARALLEL_DURATION_MS="null"
 if grep -q "^PARALLEL=true" "$STATE_FILE" 2>/dev/null; then
   PARALLEL_EXECUTION="true"
 
-  # Extract parallel agents list
   PARALLEL_AGENTS=$(grep "^PARALLEL_AGENTS=" "$STATE_FILE" 2>/dev/null | cut -d= -f2)
   if [ -n "$PARALLEL_AGENTS" ]; then
     PARALLEL_AGENTS_JSON="[\"$(echo "$PARALLEL_AGENTS" | sed 's/ /", "/g')\"]"
   fi
 
-  # Extract parallel execution duration
   PARALLEL_DURATION=$(grep "^PARALLEL_DURATION_MS=" "$STATE_FILE" 2>/dev/null | cut -d= -f2)
   if [ -n "$PARALLEL_DURATION" ]; then
     PARALLEL_DURATION_MS="$PARALLEL_DURATION"
@@ -367,58 +207,42 @@ if grep -q "^PARALLEL=true" "$STATE_FILE" 2>/dev/null; then
 fi
 
 # ==============================================================================
-# BUILD COMPREHENSIVE METADATA JSON
+# BUILD SIMPLIFIED METADATA JSON
 # ==============================================================================
 
-# Use defaults and validate JSON
 FILES_CHANGED="${FILES_CHANGED:-0}"
 GIT_COMMITS="${GIT_COMMITS:-0}"
 TESTS_RUN="${TESTS_RUN:-0}"
-EDIT_RETRIES="${EDIT_RETRIES:-0}"
 PR_CREATED_BOOL=$([[ "${PR_CREATED:-0}" -gt 0 ]] && echo "true" || echo "false")
 ISSUE_NUMBER_JSON=$([ -n "$ISSUE_NUMBER" ] && echo "$ISSUE_NUMBER" || echo "null")
 
-# Validate and default JSON variables
-TOOL_USES_JSON=$(echo "${TOOL_USES_JSON:-\{\}}" | jq -c '.' 2>/dev/null || echo "{}")
-ERRORS_JSON=$(echo "${ERRORS_JSON:-[]}" | jq -c '.' 2>/dev/null || echo "[]")
-USER_CORRECTIONS_JSON=$(echo "${USER_CORRECTIONS_JSON:-[]}" | jq -c '.' 2>/dev/null || echo "[]")
-
-# Build the comprehensive metadata JSON
+# Build the simplified metadata JSON
 METADATA_JSON=$(jq -n \
   --argjson files_changed "$FILES_CHANGED" \
   --argjson git_commits "$GIT_COMMITS" \
   --argjson tests_run "$TESTS_RUN" \
-  --argjson edit_retries "$EDIT_RETRIES" \
   --argjson pr_created "$PR_CREATED_BOOL" \
   --argjson issue_number "$ISSUE_NUMBER_JSON" \
-  --argjson tool_uses "$TOOL_USES_JSON" \
-  --argjson errors "$ERRORS_JSON" \
-  --argjson user_corrections "$USER_CORRECTIONS_JSON" \
   --argjson parallel_exec "$PARALLEL_EXECUTION" \
   --argjson parallel_agents "$PARALLEL_AGENTS_JSON" \
   --argjson parallel_duration "$PARALLEL_DURATION_MS" \
+  --argjson high_signal "$HIGH_SIGNAL_SESSION" \
   '{
     metrics: {
       files_changed: $files_changed,
       git_commits: $git_commits,
       pr_created: $pr_created,
       tests_run: $tests_run,
-      issue_number: $issue_number,
-      tool_uses: $tool_uses,
-      edit_retries: $edit_retries
+      issue_number: $issue_number
     },
     parallelism: {
       enabled: $parallel_exec,
       agents: $parallel_agents,
       duration_ms: $parallel_duration
     },
-    insights: {
-      errors: $errors,
-      user_corrections: $user_corrections,
-      quality_indicators: {
-        required_rework: ($edit_retries > 0),
-        user_satisfaction: (if ($user_corrections | length) > 0 then "low" else "unknown" end)
-      }
+    signals: {
+      high_signal_session: $high_signal,
+      compound_suggested: $high_signal
     }
   }'
 )
@@ -440,7 +264,6 @@ EOF
 )
 
 # UPSERT to telemetry.json using jq
-# Remove any existing execution with this ID, then append new one
 TEMP_FILE="${TELEMETRY_FILE}.tmp.$$"
 
 jq --argjson new_exec "$EXECUTION_JSON" \
@@ -451,20 +274,16 @@ jq --argjson new_exec "$EXECUTION_JSON" \
 if [ $? -eq 0 ] && [ -s "$TEMP_FILE" ]; then
   mv "$TEMP_FILE" "$TELEMETRY_FILE"
 else
-  # jq failed, clean up temp file
   rm -f "$TEMP_FILE" 2>/dev/null
 fi
 
 # ==============================================================================
 # COMPOUND LEARNING: PR RETROSPECTIVE (only for /clean-branch command)
+# Kept from original - this is valuable compound engineering data
 # ==============================================================================
 
-# Match command name (handles /clean-branch, clean_branch, or with plugin prefix)
 if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
-  # Extract PR number and branch name from transcript if available
   if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
-    # Try to find PR number from gh pr view or gh issue close commands
-    # Look for patterns like "gh pr view 123" or "gh issue close 456"
     PR_NUMBER=$(jq -r --arg sid "$SESSION_ID" '
       select(.sessionId == $sid) |
       select((.message.content | type) == "array") |
@@ -473,8 +292,6 @@ if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
       .message.content[0].input.command
     ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -oE "gh (pr view|issue close) [0-9]+" | grep -oE "[0-9]+" | head -1)
 
-    # Try to find branch name from git branch -d or git push --delete commands
-    # Look for patterns like "git branch -d feature/123-name" or "git push origin --delete feature/123-name"
     BRANCH_NAME=$(jq -r --arg sid "$SESSION_ID" '
       select(.sessionId == $sid) |
       select((.message.content | type) == "array") |
@@ -483,117 +300,17 @@ if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
       .message.content[0].input.command
     ' "$TRANSCRIPT_PATH" 2>/dev/null | grep -oE "git (branch -d|push origin --delete) [^ ]+" | sed -E 's/.* ([^ ]+)$/\1/' | head -1)
 
-    # Only proceed if we found a PR number
     if [ -n "$PR_NUMBER" ] && command -v gh >/dev/null 2>&1; then
-      # Get PR data
       PR_DATA=$(gh pr view "$PR_NUMBER" --json number,title,body,state,commits,reviews,comments,files 2>/dev/null)
 
       if [ -n "$PR_DATA" ]; then
-        # Extract metrics
         COMMITS_COUNT=$(echo "$PR_DATA" | jq '.commits | length' 2>/dev/null || echo "0")
         REVIEWS_COUNT=$(echo "$PR_DATA" | jq '.reviews | length' 2>/dev/null || echo "0")
         COMMENTS_COUNT=$(echo "$PR_DATA" | jq '.comments | length' 2>/dev/null || echo "0")
         FILES_CHANGED_PR=$(echo "$PR_DATA" | jq '.files | length' 2>/dev/null || echo "0")
-
-        # Get PR comments for theme analysis
-        PR_COMMENTS=$(gh pr view "$PR_NUMBER" --comments 2>/dev/null || echo "")
-
-        # Count fix commits
         FIX_COMMITS=$(echo "$PR_DATA" | jq '[.commits[] | select(.messageHeadline | test("fix|Fix|FIX"))] | length' 2>/dev/null || echo "0")
-
-        # Detect themes in comments
-        THEME_TYPE_SAFETY=$(echo "$PR_COMMENTS" | grep -ioE '\b(type|types|typescript|any type|type error)\b' 2>/dev/null | wc -l | tr -d ' ')
-        THEME_TESTING=$(echo "$PR_COMMENTS" | grep -ioE '\b(test|tests|testing|coverage)\b' 2>/dev/null | wc -l | tr -d ' ')
-        THEME_ERROR_HANDLING=$(echo "$PR_COMMENTS" | grep -ioE '\b(error|errors|exception|catch|try-catch)\b' 2>/dev/null | wc -l | tr -d ' ')
-        THEME_SECURITY=$(echo "$PR_COMMENTS" | grep -ioE '\b(security|vulnerable|vulnerability|auth|authentication)\b' 2>/dev/null | wc -l | tr -d ' ')
-        THEME_PERFORMANCE=$(echo "$PR_COMMENTS" | grep -ioE '\b(performance|slow|optimize|cache)\b' 2>/dev/null | wc -l | tr -d ' ')
-
-        # Default to 0
-        THEME_TYPE_SAFETY="${THEME_TYPE_SAFETY:-0}"
-        THEME_TESTING="${THEME_TESTING:-0}"
-        THEME_ERROR_HANDLING="${THEME_ERROR_HANDLING:-0}"
-        THEME_SECURITY="${THEME_SECURITY:-0}"
-        THEME_PERFORMANCE="${THEME_PERFORMANCE:-0}"
-
-        # Extract issue number from PR body
         ISSUE_NUMBER_PR=$(echo "$PR_DATA" | jq -r '.body // "" | match("#([0-9]+)") | .captures[0].string // empty' 2>/dev/null)
 
-        # Build suggestions based on patterns
-        SUGGESTIONS_JSON="[]"
-
-        # Type Safety suggestion
-        if [ "$THEME_TYPE_SAFETY" -ge 3 ]; then
-          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_TYPE_SAFETY" '. + [{
-            type: "automation",
-            suggestion: "Enable stricter TypeScript configuration or add pre-commit type checking",
-            compound_benefit: "Catch type errors before PR submission, reducing review cycles by ~30%",
-            implementation: "Add tsconfig strict mode or pre-commit hook with tsc --noEmit",
-            confidence: "high",
-            evidence: ("Type safety mentioned " + $count + " times in PR discussion")
-          }]')
-        fi
-
-        # Testing suggestion
-        if [ "$THEME_TESTING" -ge 3 ]; then
-          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_TESTING" '. + [{
-            type: "systematization",
-            suggestion: "Document testing requirements and patterns in CONTRIBUTING.md",
-            compound_benefit: "Consistent test coverage, reduce \"where should I add tests?\" questions",
-            implementation: "Add testing section to CONTRIBUTING.md with examples",
-            confidence: "medium",
-            evidence: ("Testing discussed " + $count + " times, indicates unclear patterns")
-          }]')
-        fi
-
-        # Security suggestion
-        if [ "$THEME_SECURITY" -ge 2 ]; then
-          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_SECURITY" '. + [{
-            type: "delegation",
-            suggestion: "security-analyst-specialist agent now runs automatically in /work",
-            compound_benefit: "Catch security issues before PR creation, not during review",
-            implementation: "Already implemented in v1.4.0 - security analysis runs after PR creation",
-            confidence: "high",
-            evidence: ("Security concerns raised " + $count + " times in review")
-          }]')
-        fi
-
-        # Error handling suggestion
-        if [ "$THEME_ERROR_HANDLING" -ge 3 ]; then
-          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_ERROR_HANDLING" '. + [{
-            type: "systematization",
-            suggestion: "Document error handling patterns in project guidelines",
-            compound_benefit: "Consistent error handling reduces review discussions",
-            implementation: "Add error handling section to CLAUDE.md or CONTRIBUTING.md",
-            confidence: "medium",
-            evidence: ("Error handling discussed " + $count + " times in PR")
-          }]')
-        fi
-
-        # High iteration suggestion
-        if [ "$REVIEWS_COUNT" -ge 3 ] || [ "$FIX_COMMITS" -ge 5 ]; then
-          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg reviews "$REVIEWS_COUNT" --arg fixes "$FIX_COMMITS" '. + [{
-            type: "prevention",
-            suggestion: "Use /architect command before /work for complex issues",
-            compound_benefit: "Better upfront design reduces review iterations",
-            implementation: "Workflow: /issue → /architect → /work for complex features",
-            confidence: "medium",
-            evidence: ("PR required " + $reviews + " review rounds and " + $fixes + " fix commits")
-          }]')
-        fi
-
-        # Performance suggestion
-        if [ "$THEME_PERFORMANCE" -ge 2 ]; then
-          SUGGESTIONS_JSON=$(echo "$SUGGESTIONS_JSON" | jq --arg count "$THEME_PERFORMANCE" '. + [{
-            type: "delegation",
-            suggestion: "Invoke performance-optimizer agent for performance-critical code",
-            compound_benefit: "Catch performance issues early in development",
-            implementation: "Use Task tool with psd-claude-coding-system:performance-optimizer",
-            confidence: "medium",
-            evidence: ("Performance discussed " + $count + " times in PR")
-          }]')
-        fi
-
-        # Build compound learning entry
         LEARNING_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         LEARNING_ID="learning-pr-${PR_NUMBER}-$(date +%s)"
         BRANCH_NAME="${BRANCH_NAME:-unknown}"
@@ -608,12 +325,6 @@ if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
           --argjson commits "$COMMITS_COUNT" \
           --argjson fixes "$FIX_COMMITS" \
           --argjson comments "$COMMENTS_COUNT" \
-          --arg theme_type "$THEME_TYPE_SAFETY" \
-          --arg theme_test "$THEME_TESTING" \
-          --arg theme_err "$THEME_ERROR_HANDLING" \
-          --arg theme_sec "$THEME_SECURITY" \
-          --arg theme_perf "$THEME_PERFORMANCE" \
-          --argjson suggestions "$SUGGESTIONS_JSON" \
           '{
             id: $id,
             source: "pr_retrospective",
@@ -625,19 +336,10 @@ if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
               review_iterations: $reviews,
               commits_count: $commits,
               fix_commits: $fixes,
-              comments_count: $comments,
-              common_themes: {
-                type_safety: ($theme_type | tonumber),
-                testing: ($theme_test | tonumber),
-                error_handling: ($theme_err | tonumber),
-                security: ($theme_sec | tonumber),
-                performance: ($theme_perf | tonumber)
-              }
-            },
-            suggestions: $suggestions
+              comments_count: $comments
+            }
           }')
 
-        # Append to compound_learnings array
         COMPOUND_TEMP_FILE="${TELEMETRY_FILE}.compound.tmp.$$"
 
         jq --argjson learning "$COMPOUND_LEARNING" '
@@ -650,7 +352,6 @@ if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
           .compound_learnings += [$learning]
         ' "$TELEMETRY_FILE" > "$COMPOUND_TEMP_FILE" 2>/dev/null
 
-        # Verify and commit
         if [ $? -eq 0 ] && [ -s "$COMPOUND_TEMP_FILE" ] && jq empty "$COMPOUND_TEMP_FILE" 2>/dev/null; then
           mv "$COMPOUND_TEMP_FILE" "$TELEMETRY_FILE"
         else
