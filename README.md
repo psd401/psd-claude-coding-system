@@ -76,6 +76,19 @@ All 30 agents organized into 7 category subdirectories:
 
 ---
 
+## How It Works
+
+![PSD Claude Coding System - Complete Workflow](./images/psd-complete-workflow.png)
+
+The plugin provides a complete development lifecycle:
+
+1. **Planning** - Create issues (`/issue`) or break down big ideas into epics (`/product-manager`), design architecture (`/architect`)
+2. **Implementation** - Work on issues (`/work 347`) with automatic agent assistance
+3. **Validation** - Run tests (`/test`), handle PR feedback (`/review-pr`)
+4. **Completion** - Clean up (`/clean-branch`), capture learnings (`/compound`)
+
+---
+
 ## Workflow Commands (11 total)
 
 | Command | Description | Example |
@@ -132,7 +145,9 @@ All 30 agents organized into 7 category subdirectories:
 
 ## Knowledge Compounding System
 
-The plugin now includes a hybrid knowledge capture system:
+![Knowledge Compounding System](./images/psd-knowledge-compounding.png)
+
+The plugin includes a hybrid knowledge capture system:
 
 ### Project Learnings (`./docs/learnings/`)
 - Store project-specific patterns and solutions
@@ -143,18 +158,6 @@ The plugin now includes a hybrid knowledge capture system:
 - Universal patterns shared across all projects
 - Contributed via `/contribute-pattern`
 - Available to all plugin users after merge
-
-### Workflow
-
-```
-Session with issue/discovery
-        │
-        ▼
-  /compound  ──▶  ./docs/learnings/[category]/[date]-[topic].md
-        │
-        ▼  (if universal)
-/contribute-pattern  ──▶  PR to plugin repo  ──▶  docs/patterns/
-```
 
 ---
 
