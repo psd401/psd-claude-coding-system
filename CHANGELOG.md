@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.1] - 2026-01-21
+
+### Added
+- **New `/compound_plugin_analyzer` skill** - Analyzes the Every Compound Engineering plugin and compares it to our plugin, generating prioritized improvement suggestions
+  - Fetches remote plugin structure via WebFetch
+  - Compares agents, skills, patterns, and commands
+  - Outputs gap analysis with priorities and implementation roadmap
+  - Supports optional focus area filtering (agents, skills, patterns, commands, safety)
+
 ## [1.13.0] - 2026-01-21
 
 ### Added
