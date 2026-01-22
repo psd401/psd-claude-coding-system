@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.14.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.14.1-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with self-improving meta-learning and knowledge compounding.
 
-**Version**: 1.14.0
+**Version**: 1.14.1
 **Status**: Production-Ready Workflows + Experimental Meta-Learning
 
 ---
@@ -32,7 +32,7 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.14.0
+## What's New in v1.14.1
 
 **Compound Engineering Integration** - Major update inspired by [Every's Compound Engineering plugin](https://github.com/EveryInc/compound-engineering-plugin), integrating their best practices for knowledge compounding and language-specific reviews.
 
@@ -189,7 +189,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.14.0)
+# Should show: psd-claude-coding-system (v1.14.1)
 
 # Test a command
 /meta-health
@@ -302,7 +302,7 @@ Use `/compound` after sessions to capture learnings.
 
 ## Acknowledgments
 
-- [Every's Compound Engineering Plugin](https://github.com/EveryInc/compound-engineering-plugin) - Inspiration for v1.14.0 knowledge compounding and language-specific review patterns
+- [Every's Compound Engineering Plugin](https://github.com/EveryInc/compound-engineering-plugin) - Inspiration for v1.14.1 knowledge compounding and language-specific review patterns
 - Built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic
 
 ## License

@@ -17,30 +17,26 @@ You are a knowledge retrieval specialist who searches the organization's accumul
 
 ### Phase 1: Knowledge Base Discovery
 
-```bash
-# Find project-level learnings
-echo "=== Project Learnings ==="
-if [ -d "./docs/learnings" ]; then
-  find ./docs/learnings -name "*.md" -type f | head -30
-else
-  echo "No project learnings directory found at ./docs/learnings"
-fi
+Use these tools to discover knowledge sources:
 
-# Find plugin-wide patterns (shared knowledge)
-echo ""
-echo "=== Plugin Patterns ==="
-PLUGIN_PATTERNS="$HOME/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/docs/patterns"
-if [ -d "$PLUGIN_PATTERNS" ]; then
-  find "$PLUGIN_PATTERNS" -name "*.md" -type f | head -30
-else
-  echo "No plugin patterns directory found"
-fi
-
-# Check for legacy knowledge locations
-echo ""
-echo "=== Other Knowledge Sources ==="
-find . -name "LESSONS_LEARNED.md" -o -name "GOTCHAS.md" -o -name "TROUBLESHOOTING.md" 2>/dev/null | head -10
+**1. Project learnings:**
 ```
+Glob(pattern: "**/docs/learnings/**/*.md")
+```
+
+**2. Plugin patterns (shared knowledge):**
+```
+Glob(pattern: "**/docs/patterns/**/*.md", path: "~/.claude/plugins")
+```
+
+**3. Legacy knowledge locations:**
+```
+Glob(pattern: "**/LESSONS_LEARNED.md")
+Glob(pattern: "**/GOTCHAS.md")
+Glob(pattern: "**/TROUBLESHOOTING.md")
+```
+
+Report which knowledge sources exist and which are missing.
 
 ### Phase 2: Keyword Extraction
 
@@ -73,25 +69,35 @@ From the provided context, extract search keywords:
 
 ### Phase 3: Learning Search
 
-Search all knowledge sources for relevant learnings:
+Search all knowledge sources for relevant learnings using these tools:
 
-```bash
-# Search project learnings by keyword
-echo "=== Searching Project Learnings ==="
-grep -rli "keyword1\|keyword2\|keyword3" ./docs/learnings/ 2>/dev/null | head -10
-
-# Search by category
-echo "=== Searching by Category ==="
-find ./docs/learnings -path "*/$CATEGORY/*" -name "*.md" 2>/dev/null | head -10
-
-# Search plugin patterns
-echo "=== Searching Plugin Patterns ==="
-grep -rli "keyword1\|keyword2" "$PLUGIN_PATTERNS" 2>/dev/null | head -10
-
-# Full-text search with context
-echo "=== Relevant Excerpts ==="
-grep -rn -A3 -B1 "keyword1\|keyword2" ./docs/learnings/ 2>/dev/null | head -30
+**1. Search project learnings by keyword:**
 ```
+Grep(pattern: "keyword1|keyword2|keyword3", path: "./docs/learnings", glob: "*.md")
+```
+Replace `keyword1|keyword2|keyword3` with actual keywords from Phase 2.
+
+**2. Search by category:**
+```
+Glob(pattern: "**/docs/learnings/{category}/**/*.md")
+```
+Replace `{category}` with the relevant category tag.
+
+**3. Search plugin patterns:**
+```
+Grep(pattern: "keyword1|keyword2", path: "~/.claude/plugins", glob: "**/docs/patterns/**/*.md")
+```
+
+**4. Full-text search with context (for relevant excerpts):**
+```
+Grep(pattern: "keyword1|keyword2", path: "./docs/learnings", output_mode: "content", -C: 3, glob: "*.md")
+```
+
+**5. Read specific learning files:**
+```
+Read(file_path: "./docs/learnings/category/YYYY-MM-DD-title.md")
+```
+Use Read to extract full context from files identified by Grep.
 
 ### Phase 4: Learning Extraction
 

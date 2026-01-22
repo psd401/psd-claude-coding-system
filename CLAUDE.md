@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.14.0
+**Version**: 1.14.1
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ### NEW in v1.14.0 - Compound Engineering Integration
