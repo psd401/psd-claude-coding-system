@@ -1,5 +1,5 @@
 ---
-name: meta_predict
+name: meta-predict
 description: Predict future issues using trend analysis and pattern matching
 model: claude-opus-4-5-20251101
 context: fork
@@ -237,7 +237,7 @@ Create predictions with confidence levels:
 **Confidence Threshold**: [percentage]%
 
 ---
-name: meta_predict
+name: meta-predict
 
 ### 🔴 HIGH CONFIDENCE PREDICTIONS (>80%)
 
@@ -264,7 +264,7 @@ name: meta_predict
 
 **→ PREVENTIVE ACTIONS** (auto-prioritized):
 1. ✅ **[Auto-implemented]** Add security gate to auth code changes
-   - Status: Deployed via /meta_implement
+   - Status: Deployed via /meta-implement
    - Impact: Blocks PRs touching auth/* without security-analyst approval
 2. ⏳ **[Pending]** Schedule comprehensive security audit of auth module
    - Effort: 8 hours
@@ -288,7 +288,7 @@ name: meta_predict
 **→ RECOMMENDATION**: Implement all preventive actions within 2 weeks
 
 ---
-name: meta_predict
+name: meta-predict
 
 #### PREDICTION #2: Performance Crisis in Q1 2026
 
@@ -324,7 +324,7 @@ name: meta_predict
 **→ ROI**: 3x + avoids user impact
 
 ---
-name: meta_predict
+name: meta-predict
 
 ### 🟡 MEDIUM CONFIDENCE PREDICTIONS (60-79%)
 
@@ -343,14 +343,14 @@ name: meta_predict
 **→ PREVENTIVE ACTIONS**:
 1. Schedule incremental refactoring sprints
 2. Enforce complexity limits in PR review
-3. Run /meta_document to capture current patterns before they're forgotten
+3. Run /meta-document to capture current patterns before they're forgotten
 
 **→ ESTIMATED COST**: 40-80 hours refactoring
 **→ PREVENTION**: 20 hours incremental work
 **→ BENEFIT**: Spreads work over time, prevents crisis
 
 ---
-name: meta_predict
+name: meta-predict
 
 ### 📊 TREND ANALYSIS
 
@@ -382,7 +382,7 @@ name: meta_predict
 - Bug resolution time: -45% (better tools/patterns)
 
 ---
-name: meta_predict
+name: meta-predict
 
 ### 🎯 PROACTIVE RECOMMENDATIONS
 
@@ -402,7 +402,7 @@ name: meta_predict
 3. Performance monitoring enhancements
 
 ---
-name: meta_predict
+name: meta-predict
 
 ### 📈 PREDICTION ACCURACY TRACKING
 
@@ -427,7 +427,7 @@ name: meta_predict
 **Trend**: Improving 2-3% per month as model learns
 
 ---
-name: meta_predict
+name: meta-predict
 
 **Analysis Generated**: [timestamp]
 **Next Prediction Update**: [date] (monthly)
@@ -437,7 +437,7 @@ name: meta_predict
 - Review predictions with team
 - Prioritize high-confidence preventive actions
 - Track prediction accuracy for model improvement
-- Use `/meta_implement` for auto-implementable preventions
+- Use `/meta-implement` for auto-implementable preventions
 ```
 
 ### Phase 4: Update Prediction History
@@ -536,20 +536,20 @@ echo "  • Track prediction accuracy"
 
 ### Scenario 1: Monthly Prediction Review
 ```bash
-/meta_predict --horizon 3m --output meta/monthly-predictions.md
+/meta-predict --horizon 3m --output meta/monthly-predictions.md
 ```
 
 ### Scenario 2: High-Confidence Only
 ```bash
-/meta_predict --confidence-threshold 0.80
+/meta-predict --confidence-threshold 0.80
 ```
 
 ### Scenario 3: Long-Term Strategic Planning
 ```bash
-/meta_predict --horizon 12m --output meta/annual-forecast.md
+/meta-predict --horizon 12m --output meta/annual-forecast.md
 ```
 
 ---
-name: meta_predict
+name: meta-predict
 
 **Remember**: The best prediction is one that prevents an incident from happening. Prediction without prevention is just fortune-telling. Track accuracy to improve the model over time.

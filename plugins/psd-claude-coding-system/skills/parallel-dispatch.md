@@ -175,6 +175,6 @@ Always dispatch 2-3 agents in parallel for maximum insight (Every's philosophy: 
 ```
 ```
 
-### In /review_pr Command
+### In /review-pr Command
 
 Similar pattern - detect feedback types, dispatch categorization agents in parallel, synthesize responses.

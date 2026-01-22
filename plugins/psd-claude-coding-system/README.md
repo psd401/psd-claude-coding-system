@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.13.1
+Version: 1.13.2
 Status: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -31,12 +31,12 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 # Start using workflow commands immediately
 /work 347              # Implement an issue
 /test                  # Run comprehensive tests
-/review_pr 123         # Handle PR feedback
+/review-pr 123         # Handle PR feedback
 
 # After 2-4 weeks, check what the system learned
-/meta_health           # System status
-/meta_analyze          # Your patterns
-/meta_learn            # Improvement suggestions
+/meta-health           # System status
+/meta-analyze          # Your patterns
+/meta-learn            # Improvement suggestions
 ```
 
 ---
@@ -48,13 +48,13 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `/work` | Implement solutions + **auto security review** | `/work 347` or `/work "add logging"` |
 | `/architect` | System architecture via architect-specialist | `/architect 347` |
 | `/test` | Comprehensive testing with coverage validation | `/test auth` |
-| `/review_pr` | Handle PR feedback systematically | `/review_pr 123` |
-| `/security_audit` | Manual security audit (auto in /work) | `/security_audit 123` |
+| `/review-pr` | Handle PR feedback systematically | `/review-pr 123` |
+| `/security-audit` | Manual security audit (auto in /work) | `/security-audit 123` |
 | `/issue` | **AI-validated** issues with latest docs | `/issue "add caching"` |
 | `/triage` | **NEW:** FreshService ticket → GitHub issue | `/triage 12345` |
 | `/product-manager` | **Validated** specs → auto sub-issues | `/product-manager "dashboard"` |
-| `/compound_concepts` | Find automation opportunities | `/compound_concepts` |
-| `/clean_branch` | Cleanup + **auto learning extraction** | `/clean_branch` |
+| `/compound-concepts` | Find automation opportunities | `/compound-concepts` |
+| `/clean-branch` | Cleanup + **auto learning extraction** | `/clean-branch` |
 
 ---
 
@@ -62,15 +62,15 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/meta_health` | Check system status | Daily/Weekly |
-| `/meta_analyze` | Find patterns in your workflow | Weekly |
-| `/meta_learn` | Get improvement suggestions | Weekly |
-| `/meta_implement` | Apply improvements safely | As needed |
-| `/meta_improve` | Full weekly improvement pipeline | Weekly (automated) |
-| `/meta_document` | Auto-update documentation | As needed |
-| `/meta_predict` | Forecast future issues | Monthly |
-| `/meta_experiment` | A/B test ideas safely | Advanced |
-| `/meta_evolve` | Improve AI agents | Monthly |
+| `/meta-health` | Check system status | Daily/Weekly |
+| `/meta-analyze` | Find patterns in your workflow | Weekly |
+| `/meta-learn` | Get improvement suggestions | Weekly |
+| `/meta-implement` | Apply improvements safely | As needed |
+| `/meta-improve` | Full weekly improvement pipeline | Weekly (automated) |
+| `/meta-document` | Auto-update documentation | As needed |
+| `/meta-predict` | Forecast future issues | Monthly |
+| `/meta-experiment` | A/B test ideas safely | Advanced |
+| `/meta-evolve` | Improve AI agents | Monthly |
 
 ---
 
@@ -117,7 +117,7 @@ Every time you run a command:
 3. **Stop hook** records duration and success/failure
 4. **Data written** to `meta/telemetry.json` automatically
 
-**NEW in v1.4.0:** `/clean_branch` also extracts compound learning insights from merged PRs and saves to telemetry
+**NEW in v1.4.0:** `/clean-branch` also extracts compound learning insights from merged PRs and saves to telemetry
 
 ### What Gets Tracked
 
@@ -182,10 +182,10 @@ Every time you run a command:
 /test
 
 # Handle reviews
-/review_pr 123
+/review-pr 123
 
 # Clean up
-/clean_branch
+/clean-branch
 ```
 
 **Behind the scenes**: System quietly observes via hooks (you do nothing).
@@ -194,7 +194,7 @@ Every time you run a command:
 
 ```bash
 # See what patterns emerged
-/meta_analyze
+/meta-analyze
 
 # Output example:
 # - You ran /work 23 times (avg 18 min)
@@ -206,20 +206,20 @@ Every time you run a command:
 
 ```bash
 # Get improvement ideas
-/meta_learn
+/meta-learn
 
 # Output example:
 # SUGGESTION #1: Combine /work and /test
 #   Confidence: 94%
 #   Time savings: 5 min per task = 115 min/month
-#   To apply: /meta_implement suggestion-1 --dry-run
+#   To apply: /meta-implement suggestion-1 --dry-run
 ```
 
 ### Month 2+: Weekly Improvements
 
 ```bash
 # Monday morning routine (15 minutes)
-/meta_improve
+/meta-improve
 
 # System automatically:
 # ✓ Analyzes patterns
@@ -244,7 +244,7 @@ This system embodies compound engineering:
 - Every solution → template for similar problems
 - Every workflow → data for meta-learning
 
-Use `/compound_concepts` to extract systematization opportunities.
+Use `/compound-concepts` to extract systematization opportunities.
 
 ---
 
@@ -271,7 +271,7 @@ Use `/compound_concepts` to extract systematization opportunities.
 # Should show: psd-claude-coding-system (v1.4.0)
 
 # Test a command
-/meta_health
+/meta-health
 ```
 
 ### Configure FreshService Integration (Optional)
@@ -321,7 +321,7 @@ cp ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-co
 - New security-analyst-specialist agent
 
 **Compound Learning Extraction:**
-- `/clean_branch` auto-analyzes merged PRs
+- `/clean-branch` auto-analyzes merged PRs
 - Extracts patterns and generates suggestions
 - Saves to telemetry.json for meta-learning
 
@@ -391,7 +391,7 @@ rm meta/telemetry.json
 cat meta/telemetry.json | jq .
 
 # Or use meta commands for readable reports
-/meta_health --dashboard
+/meta-health --dashboard
 ```
 
 ---
@@ -416,7 +416,7 @@ cat meta/telemetry.json | jq .
 
 ```bash
 # After using the system for a month
-/meta_improve
+/meta-improve
 
 # Output:
 # [1/9] Analyzing 127 events...
@@ -455,7 +455,7 @@ gh pr merge 462
 
 ```bash
 # Check system status
-/meta_health
+/meta-health
 
 # If "Events: 0" after using commands:
 # 1. Check hooks are installed
@@ -522,8 +522,8 @@ The **PSD Claude Coding System** gives you immediate productivity gains through 
 
 **Get Started**:
 1. Install: `/plugin install psd-claude-coding-system`
-2. Use: `/work`, `/test`, `/review_pr` (like normal)
-3. After 2-4 weeks: `/meta_improve` (weekly)
+2. Use: `/work`, `/test`, `/review-pr` (like normal)
+3. After 2-4 weeks: `/meta-improve` (weekly)
 4. Watch productivity compound over time
 
 Happy coding! 🚀

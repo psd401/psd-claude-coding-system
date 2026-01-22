@@ -1,5 +1,5 @@
 ---
-name: review_pr
+name: review-pr
 description: Address feedback from pull request reviews systematically and efficiently
 argument-hint: "[PR number]"
 model: claude-sonnet-4-5

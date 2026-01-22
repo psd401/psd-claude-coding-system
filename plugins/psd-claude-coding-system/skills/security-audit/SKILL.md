@@ -1,5 +1,5 @@
 ---
-name: security_audit
+name: security-audit
 description: Security audit for code review and vulnerability analysis
 argument-hint: "[PR number]"
 model: claude-sonnet-4-5
@@ -17,7 +17,7 @@ You perform security reviews of pull requests by invoking the security-analyst-s
 
 **PR Number:** $ARGUMENTS
 
-**Note:** This command is automatically run by `/work` after PR creation. For manual security audits, use: `/psd-claude-coding-system:security_audit [pr_number]`
+**Note:** This command is automatically run by `/work` after PR creation. For manual security audits, use: `/psd-claude-coding-system:security-audit [pr_number]`
 
 ## Workflow
 
@@ -106,7 +106,7 @@ echo "Security audit completed and posted to PR #$ARGUMENTS"
 
 ```bash
 # Manual security audit of PR #123
-/psd-claude-coding-system:security_audit 123
+/psd-claude-coding-system:security-audit 123
 ```
 
 The agent will analyze all changes in the PR and post a consolidated security review comment.

@@ -1,5 +1,5 @@
 ---
-name: meta_learn
+name: meta-learn
 description: Generate improvement suggestions from patterns with historical context and ROI
 model: claude-opus-4-5-20251101
 context: fork
@@ -18,7 +18,7 @@ You are an elite compound engineering strategist specializing in transforming de
 ## Overview
 
 This command generates improvement suggestions based on:
-- Patterns identified by `/meta_analyze`
+- Patterns identified by `/meta-analyze`
 - Historical suggestion outcomes from `compound_history.json`
 - Telemetry data showing actual usage and time metrics
 - Success prediction based on past similar suggestions
@@ -167,7 +167,7 @@ Generated: [timestamp]
 Based on: [N] executions, [N] patterns, [N] historical suggestions
 
 ---
-name: meta_learn
+name: meta-learn
 
 ### QUICK WINS (High ROI, Low Effort, High Confidence)
 
@@ -243,19 +243,19 @@ rollback_plan:
   - [how to undo if it fails]
 ```
 
-**→ TO APPLY**: `/meta_implement meta-learn-[timestamp]-001 --dry-run`
+**→ TO APPLY**: `/meta-implement meta-learn-[timestamp]-001 --dry-run`
 
 **→ SIMILAR PROJECTS**: [If applicable, reference similar work in other systems]
 
 ---
-name: meta_learn
+name: meta-learn
 
 **SUGGESTION #2**: [Next suggestion...]
 
 [Repeat format for each suggestion]
 
 ---
-name: meta_learn
+name: meta-learn
 
 ### MEDIUM-TERM IMPROVEMENTS (High Impact, Moderate Effort)
 
@@ -265,7 +265,7 @@ name: meta_learn
 [Same format as above]
 
 ---
-name: meta_learn
+name: meta-learn
 
 ### EXPERIMENTAL IDEAS (Novel or Uncertain, Needs Testing)
 
@@ -282,7 +282,7 @@ name: meta_learn
    - Rollback triggers: [when to abort]
 
 ---
-name: meta_learn
+name: meta-learn
 
 ## SUMMARY
 
@@ -293,8 +293,8 @@ name: meta_learn
 
 **Recommended Next Steps**:
 1. Review quick wins - these have high confidence and low effort
-2. Use `/meta_implement` for auto-implementable suggestions
-3. Create experiments for medium-confidence ideas using `/meta_experiment`
+2. Use `/meta-implement` for auto-implementable suggestions
+3. Create experiments for medium-confidence ideas using `/meta-experiment`
 4. Update compound_history.json with implementation decisions
 
 **Implementation Priority**:
@@ -310,7 +310,7 @@ name: meta_learn
    - Suggestion #[N]: [title]
 
 ---
-name: meta_learn
+name: meta-learn
 
 **Analysis Metadata**:
 - Suggestions generated: [N]
@@ -325,10 +325,10 @@ name: meta_learn
 - Confidence ≥85%: [N] ([percentage]%)
 
 ---
-name: meta_learn
+name: meta-learn
 
 **To update history after implementation**:
-Review each suggestion and use `/meta_implement` to track outcomes, or manually update `compound_history.json` with implementation status and actual ROI.
+Review each suggestion and use `/meta-implement` to track outcomes, or manually update `compound_history.json` with implementation status and actual ROI.
 ```
 
 ### Phase 5: Save to Compound History
@@ -376,7 +376,7 @@ echo "✅ Generated [N] improvement suggestions!"
 echo ""
 echo "Next steps:"
 echo "  • Review quick wins (high confidence, low effort)"
-echo "  • Use /meta_implement [suggestion-id] --dry-run to test auto-implementable suggestions"
+echo "  • Use /meta-implement [suggestion-id] --dry-run to test auto-implementable suggestions"
 echo "  • Create experiments for medium-confidence ideas"
 echo "  • Track outcomes in compound_history.json"
 ```
@@ -472,8 +472,8 @@ The meta-learning system needs more data to generate reliable improvement sugges
 
 **Recommendation**:
 1. Continue using workflow commands for 1-2 weeks
-2. Run `/meta_analyze` to identify patterns
-3. Return to `/meta_learn` when sufficient patterns exist
+2. Run `/meta-analyze` to identify patterns
+3. Return to `/meta-learn` when sufficient patterns exist
 
 **What Makes Good Learning Data**:
 - Diverse command usage (not just one command type)
@@ -482,7 +482,7 @@ The meta-learning system needs more data to generate reliable improvement sugges
 - Time span of 1-2 weeks minimum
 
 ---
-name: meta_learn
+name: meta-learn
 
 **Preliminary Observations** (low confidence):
 [If any weak patterns exist, list them here as areas to watch]
@@ -502,23 +502,23 @@ name: meta_learn
 
 ### Scenario 1: Generate Suggestions from Recent Analysis
 ```bash
-/meta_analyze --since 7d --output meta/weekly-analysis.md
-/meta_learn --from-analysis meta/weekly-analysis.md --output meta/suggestions.md
+/meta-analyze --since 7d --output meta/weekly-analysis.md
+/meta-learn --from-analysis meta/weekly-analysis.md --output meta/suggestions.md
 ```
 
 ### Scenario 2: High-Confidence Suggestions Only
 ```bash
-/meta_learn --confidence-threshold 0.85
+/meta-learn --confidence-threshold 0.85
 ```
 
 ### Scenario 3: Full Learning Cycle
 ```bash
-/meta_learn --output meta/suggestions-$(date +%Y%m%d).md
+/meta-learn --output meta/suggestions-$(date +%Y%m%d).md
 # Review suggestions, then implement:
-/meta_implement meta-learn-2025-10-20-001 --dry-run
+/meta-implement meta-learn-2025-10-20-001 --dry-run
 ```
 
 ---
-name: meta_learn
+name: meta-learn
 
 **Remember**: Your goal is to transform telemetry patterns into concrete, high-ROI improvements that compound over time. Every suggestion should make the development system permanently better.

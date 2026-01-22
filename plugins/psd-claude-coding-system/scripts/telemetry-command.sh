@@ -25,7 +25,7 @@ PROMPT=$(echo "$HOOK_INPUT" | jq -r '.prompt // empty')
 
 # Check if this is a slash command from our plugin
 # Commands can be: /work OR /psd-claude-coding-system:work
-COMMAND_LIST="work|test|architect|issue|product-manager|review_pr|security_audit|compound_concepts|clean_branch|meta_analyze|meta_learn|meta_implement|meta_experiment|meta_evolve|meta_document|meta_predict|meta_health|meta_improve"
+COMMAND_LIST="work|test|architect|issue|product-manager|review-pr|security-audit|compound-concepts|clean-branch|triage|meta-analyze|meta-learn|meta-implement|meta-experiment|meta-evolve|meta-document|meta-predict|meta-health|meta-improve|meta-compound-analyze|compound-plugin-analyzer|claude-code-updates"
 if ! echo "$PROMPT" | grep -qE "^/(psd-claude-coding-system:)?($COMMAND_LIST)"; then
   # Not a tracked slash command
   exit 0

@@ -1,5 +1,5 @@
 ---
-name: compound_plugin_analyzer
+name: compound-plugin-analyzer
 description: Analyze Every Compound Engineering plugin and compare to our plugin for improvement suggestions
 argument-hint: "[optional: focus area e.g. 'agents', 'skills', 'patterns', 'commands']"
 model: claude-opus-4-5-20251101

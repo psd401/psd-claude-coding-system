@@ -1,5 +1,5 @@
 ---
-name: meta_experiment
+name: meta-experiment
 description: A/B testing framework for safe experimentation with statistical validation
 model: claude-opus-4-5-20251101
 context: fork
@@ -113,12 +113,12 @@ fi
   "changes": {
     "type": "command_modification",
     "files": {
-      "plugins/psd-claude-workflow/commands/review_pr.md": {
-        "backup": "plugins/psd-claude-workflow/commands/review_pr.md.backup",
-        "variant": "plugins/psd-claude-workflow/commands/review_pr.md.experiment"
+      "plugins/psd-claude-workflow/commands/review-pr.md": {
+        "backup": "plugins/psd-claude-workflow/commands/review-pr.md.backup",
+        "variant": "plugins/psd-claude-workflow/commands/review-pr.md.experiment"
       }
     },
-    "description": "Modified /review_pr to invoke security and cleanup agents in parallel"
+    "description": "Modified /review-pr to invoke security and cleanup agents in parallel"
   },
 
   "metrics": {
@@ -196,7 +196,7 @@ Trials: ███████░░░ 70% (7/10)
 **Action**: Continue (3 more trials needed)
 
 ---
-name: meta_experiment
+name: meta-experiment
 
 ### Experiment #2: exp-2025-10-15-003
 
@@ -212,7 +212,7 @@ name: meta_experiment
 **Action**: None (experiment terminated)
 
 ---
-name: meta_experiment
+name: meta-experiment
 
 ## COMPLETED EXPERIMENTS
 
@@ -232,7 +232,7 @@ name: meta_experiment
 **Deployed**: 2025-10-10 (running in production for 10 days)
 
 ---
-name: meta_experiment
+name: meta-experiment
 
 ## SUMMARY
 
@@ -388,7 +388,7 @@ Improvement: [X]% ([metric])
 Confidence: [Y]% (p = [p-value])
 Trials: [N]
 
-Auto-promoted by /meta_experiment"
+Auto-promoted by /meta-experiment"
 
   echo "✅ Experiment promoted to production"
 fi
@@ -418,7 +418,7 @@ Reason: [failure reason]
 Regression: [X]% worse
 Status: Rolled back to pre-experiment state
 
-Auto-rolled back by /meta_experiment"
+Auto-rolled back by /meta-experiment"
 
   echo "✅ Experiment rolled back"
 fi
@@ -467,7 +467,7 @@ fi
 When commands run, check if they're part of an active experiment:
 
 ```bash
-# In command execution (e.g., /review_pr)
+# In command execution (e.g., /review-pr)
 check_active_experiments() {
   # Is this command under experiment?
   if experiment_active_for_command($COMMAND_NAME); then
@@ -537,7 +537,7 @@ monitor_experiments() {
 - Agent prompt variations
 
 **DON'T Experiment** for:
-- High-confidence improvements (≥85%) - use `/meta_implement`
+- High-confidence improvements (≥85%) - use `/meta-implement`
 - Bug fixes
 - Documentation updates
 - Low-risk changes
@@ -591,7 +591,7 @@ monitor_experiments() {
 
 ### Scenario 1: Create Experiment
 ```bash
-/meta_experiment create \
+/meta-experiment create \
   --hypothesis "Parallel agents save 15min" \
   --primary-metric time_to_complete \
   --sample-size 10
@@ -599,17 +599,17 @@ monitor_experiments() {
 
 ### Scenario 2: Monitor All Experiments
 ```bash
-/meta_experiment status
+/meta-experiment status
 ```
 
 ### Scenario 3: Analyze Specific Experiment
 ```bash
-/meta_experiment analyze exp-2025-10-20-001
+/meta-experiment analyze exp-2025-10-20-001
 ```
 
 ### Scenario 4: Auto-Manage Experiments
 ```bash
-/meta_experiment --auto
+/meta-experiment --auto
 # Analyzes all experiments
 # Auto-promotes successful ones
 # Auto-rollsback failures
@@ -617,6 +617,6 @@ monitor_experiments() {
 ```
 
 ---
-name: meta_experiment
+name: meta-experiment
 
 **Remember**: Experimentation is how the system safely tests improvements. Every experiment, successful or not, teaches the system what works. Statistical rigor prevents false positives. Auto-rollback prevents damage.

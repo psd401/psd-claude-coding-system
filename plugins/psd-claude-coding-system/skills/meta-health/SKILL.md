@@ -1,5 +1,5 @@
 ---
-name: meta_health
+name: meta-health
 description: Generate system health dashboard with compound engineering metrics
 model: claude-opus-4-5-20251101
 context: fork
@@ -209,7 +209,7 @@ Create a comprehensive dashboard report:
 **Last Updated**: [timestamp]
 
 ---
-name: meta_health
+name: meta-health
 
 ## 📊 Compound Engineering Metrics
 
@@ -230,7 +230,7 @@ Success Rate:  [▁▂▃▄▅▆▇█] ↑ [percentage]%
 ```
 
 ---
-name: meta_health
+name: meta-health
 
 ## 🚀 Developer Velocity
 
@@ -260,7 +260,7 @@ Week 12: 2.3x ██████████████████
 3. [Suggestion/Feature]: [X] hours saved
 
 ---
-name: meta_health
+name: meta-health
 
 ## 🧠 System Intelligence
 
@@ -299,7 +299,7 @@ name: meta_health
 - **Templates Generated**: [N]
 
 ---
-name: meta_health
+name: meta-health
 
 ## ✅ Code Quality
 
@@ -324,7 +324,7 @@ Security Coverage:  [▁▂▃▄▅▆▇█] [start]% → [end]%
 - [✅/⚠️/🔴] Documentation drift: [description]
 
 ---
-name: meta_health
+name: meta-health
 
 ## 🧪 Active Experiments
 
@@ -355,7 +355,7 @@ name: meta_health
 2. [Experiment name] - [confidence]% confidence, [ROI estimate]
 
 ---
-name: meta_health
+name: meta-health
 
 ## 🎯 Predictions & Alerts
 
@@ -390,7 +390,7 @@ name: meta_health
 **Trend**: [Improving/Stable/Declining]
 
 ---
-name: meta_health
+name: meta-health
 
 ## 📈 ROI Summary
 
@@ -450,7 +450,7 @@ Month 6: 9.4x   (current)
 **Payback Period**: [N] weeks
 
 ---
-name: meta_health
+name: meta-health
 
 ## 📋 System Summary
 
@@ -487,7 +487,7 @@ name: meta_health
 2. [Strategic recommendation]
 
 ---
-name: meta_health
+name: meta-health
 
 ## 📊 Appendix: Detailed Metrics
 
@@ -511,17 +511,17 @@ name: meta_health
 - Update frequency: [frequency]
 
 ---
-name: meta_health
+name: meta-health
 
 **Dashboard Generated**: [timestamp]
 **Next Update**: [scheduled time]
 **Data Confidence**: [High/Medium/Low] (based on [N] data points)
 
 **Actions**:
-- Use `/meta_analyze` to deep dive into patterns
-- Use `/meta_learn` to generate new improvement suggestions
-- Use `/meta_implement` to deploy high-confidence improvements
-- Use `/meta_predict` to see future risk predictions
+- Use `/meta-analyze` to deep dive into patterns
+- Use `/meta-learn` to generate new improvement suggestions
+- Use `/meta-implement` to deploy high-confidence improvements
+- Use `/meta-predict` to see future risk predictions
 ```
 
 ### Phase 5: Publish Dashboard (if --publish flag set)
@@ -736,23 +736,23 @@ Month 6: █ 9.4x
 
 ### Scenario 1: Daily Health Check
 ```bash
-/meta_health
+/meta-health
 ```
 Quick health overview in terminal.
 
 ### Scenario 2: Weekly Dashboard Publication
 ```bash
-/meta_health --publish --output meta/health-$(date +%Y%m%d).md
+/meta-health --publish --output meta/health-$(date +%Y%m%d).md
 ```
 Save dashboard and publish to docs.
 
 ### Scenario 3: Monthly Stakeholder Report
 ```bash
-/meta_health --publish --send-summary-email
+/meta-health --publish --send-summary-email
 ```
 Full dashboard with email summary to stakeholders.
 
 ---
-name: meta_health
+name: meta-health
 
 **Remember**: The health dashboard demonstrates compound engineering value. Show concrete ROI, track trends over time, and provide actionable insights that drive continuous improvement.

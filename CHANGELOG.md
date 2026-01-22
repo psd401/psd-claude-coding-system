@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.2] - 2026-01-21
+
+### Changed
+- **Naming convention alignment** - All skill `name:` fields now use kebab-case to match directory names
+  - `review_pr` → `review-pr`, `clean_branch` → `clean-branch`, `security_audit` → `security-audit`
+  - `compound_concepts` → `compound-concepts`, `compound_plugin_analyzer` → `compound-plugin-analyzer`
+  - `claude_code_updates` → `claude-code-updates`
+  - All 10 `meta_*` skills → `meta-*` (meta-analyze, meta-learn, meta-implement, etc.)
+- **Documentation updated** - All user-facing command references now use kebab-case invocations
+  - README.md, all SKILL.md files, parallel-dispatch.md updated
+- **Telemetry scripts updated** - `telemetry-command.sh` COMMAND_LIST now tracks kebab-case commands
+  - Also added missing skills: triage, meta-compound-analyze, compound-plugin-analyzer, claude-code-updates
+
+### Fixed
+- Skill invocation commands now correctly match directory names per Claude Code 2.1.x conventions
+
 ## [1.13.1] - 2026-01-21
 
 ### Added

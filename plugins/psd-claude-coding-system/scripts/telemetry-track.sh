@@ -253,7 +253,7 @@ if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     else
       SUCCESS="false"
     fi
-  elif [[ "$COMMAND_NAME" =~ clean_branch$ ]]; then
+  elif [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
     # Check for successful branch cleanup - verify command executed AND succeeded
     BRANCH_CLEANED=$(jq -r --arg sid "$SESSION_ID" '
       [
@@ -456,11 +456,11 @@ else
 fi
 
 # ==============================================================================
-# COMPOUND LEARNING: PR RETROSPECTIVE (only for /clean_branch command)
+# COMPOUND LEARNING: PR RETROSPECTIVE (only for /clean-branch command)
 # ==============================================================================
 
-# Match command name (handles /clean_branch, clean_branch, or with plugin prefix)
-if [[ "$COMMAND_NAME" =~ clean_branch$ ]]; then
+# Match command name (handles /clean-branch, clean_branch, or with plugin prefix)
+if [[ "$COMMAND_NAME" =~ clean-branch$ ]]; then
   # Extract PR number and branch name from transcript if available
   if [ -f "$TRANSCRIPT_PATH" ] && [ -r "$TRANSCRIPT_PATH" ]; then
     # Try to find PR number from gh pr view or gh issue close commands

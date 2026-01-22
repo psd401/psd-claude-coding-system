@@ -387,7 +387,7 @@ function sanitizeWebContent(text: string): string {
 
 // ============================================================================
 // JSON Schema Validation Functions (CWE-20, CWE-94)
-// For compound_history.json validation in /meta_implement
+// For compound_history.json validation in /meta-implement
 // ============================================================================
 
 interface ValidationResult {

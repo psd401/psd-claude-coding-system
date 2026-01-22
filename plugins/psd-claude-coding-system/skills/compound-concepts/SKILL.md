@@ -1,5 +1,5 @@
 ---
-name: compound_concepts
+name: compound-concepts
 description: Analyzes conversations for automation, systematization, and delegation opportunities using compound engineering principles
 model: claude-sonnet-4-5
 context: fork

@@ -1,5 +1,5 @@
 ---
-name: meta_evolve
+name: meta-evolve
 description: Evolve agent prompts using genetic algorithms and historical performance data
 model: claude-opus-4-5-20251101
 context: fork
@@ -226,7 +226,7 @@ Generating 5 initial variants for [agent-name]...
 ```markdown
 **Variant 2**: Add explicit SQL injection checklist
 ---
-name: meta_evolve
+name: meta-evolve
 (Base prompt +)
 
 **SQL Injection Check Protocol**:
@@ -236,11 +236,11 @@ name: meta_evolve
 4. Test for blind SQL injection patterns
 5. Validate ORM usage correctness
 ---
-name: meta_evolve
+name: meta-evolve
 
 **Variant 3**: Add parallel analysis workflow
 ---
-name: meta_evolve
+name: meta-evolve
 (Base prompt +)
 
 **Analysis Strategy**:
@@ -251,11 +251,11 @@ Run these checks in parallel:
 
 Aggregate findings and report
 ---
-name: meta_evolve
+name: meta-evolve
 
 **Variant 4**: Add historical pattern matching
 ---
-name: meta_evolve
+name: meta-evolve
 (Base prompt +)
 
 **Known Vulnerability Patterns**:
@@ -264,7 +264,7 @@ Reference these past incidents:
 - Issue #58: SQL injection (scan for analogous code)
 - Issue #127: XSS vulnerability (validate input escaping)
 ---
-name: meta_evolve
+name: meta-evolve
 ```
 
 **Step 3: Evaluate Each Variant on Historical Data**
@@ -577,7 +577,7 @@ Update `agent_variants.json` with evolution results:
 Generated: [timestamp]
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 ## Summary
 
@@ -587,7 +587,7 @@ name: meta_evolve
 **Average Improvement**: +[percentage]%
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 ## Agent: [agent-name]
 
@@ -645,14 +645,14 @@ v4 (predictive): 0.94 ██████████ ← PROMOTED
 **Backup**: Baseline saved as `[agent-name].md.v[N-1].backup`
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 ## Agent: [next-agent]
 
 [Same format for each agent evolved]
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 ## Overall Statistics
 
@@ -679,7 +679,7 @@ name: meta_evolve
 - **Success rate**: [N]/[N] agents improved
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 ## Recommendations
 
@@ -704,7 +704,7 @@ name: meta_evolve
    - [Strategy idea based on results]
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 **Evolution completed**: [timestamp]
 **Next scheduled evolution**: [date] (6 months)
@@ -736,7 +736,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Test promoted agents on new issues"
 echo "  2. Monitor performance metrics"
-echo "  3. Run /meta_health to see updated agent stats"
+echo "  3. Run /meta-health to see updated agent stats"
 echo "  4. Schedule re-evolution in 6 months"
 ```
 
@@ -807,23 +807,23 @@ echo "  4. Schedule re-evolution in 6 months"
 
 ### Scenario 1: Evolve All Agents
 ```bash
-/meta_evolve --agents all --generations 10 --output meta/evolution-report.md
+/meta-evolve --agents all --generations 10 --output meta/evolution-report.md
 ```
 Evolves all workflow agents for 10 generations each.
 
 ### Scenario 2: Evolve Specific Agent
 ```bash
-/meta_evolve --agents security-analyst --generations 15
+/meta-evolve --agents security-analyst --generations 15
 ```
 Deep evolution of single agent with more generations.
 
 ### Scenario 3: Parallel Evolution (Fast)
 ```bash
-/meta_evolve --agents all --generations 5 --parallel
+/meta-evolve --agents all --generations 5 --parallel
 ```
 Evolves multiple agents simultaneously (faster but uses more resources).
 
 ---
-name: meta_evolve
+name: meta-evolve
 
 **Remember**: Agent evolution is compound learning in action. Each generation builds on previous improvements, creating agents that perform 30-40% better than human-written baselines after 6-12 months of evolution.

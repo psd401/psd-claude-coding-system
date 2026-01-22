@@ -1,5 +1,5 @@
 ---
-name: meta_improve
+name: meta-improve
 description: Master weekly improvement pipeline orchestrating all meta-learning commands
 model: claude-opus-4-5-20251101
 context: fork
@@ -46,15 +46,15 @@ if should_run "analyze"; then
   echo ""
 
   echo "[1/9] Analyzing last week's activity..."
-  echo "Command: /meta_analyze --since 7d --output meta/weekly-analysis.md"
+  echo "Command: /meta-analyze --since 7d --output meta/weekly-analysis.md"
   echo ""
 
   # Run analyze command
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_analyze"
+    echo "[DRY-RUN] Would run: /meta-analyze"
     ANALYZE_STATUS="skipped (dry-run)"
   else
-    /meta_analyze --since 7d --output meta/weekly-analysis-$SESSION_ID.md
+    /meta-analyze --since 7d --output meta/weekly-analysis-$SESSION_ID.md
     if [ $? -eq 0 ]; then
       ANALYZE_STATUS="✅ success"
       echo "✅ Analysis complete"
@@ -84,14 +84,14 @@ if should_run "learn"; then
   echo ""
 
   echo "[2/9] Generating improvement suggestions..."
-  echo "Command: /meta_learn --from-analysis meta/weekly-analysis-$SESSION_ID.md"
+  echo "Command: /meta-learn --from-analysis meta/weekly-analysis-$SESSION_ID.md"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_learn"
+    echo "[DRY-RUN] Would run: /meta-learn"
     LEARN_STATUS="skipped (dry-run)"
   else
-    /meta_learn \
+    /meta-learn \
       --from-analysis meta/weekly-analysis-$SESSION_ID.md \
       --confidence-threshold 0.70 \
       --output meta/suggestions-$SESSION_ID.md
@@ -133,14 +133,14 @@ if should_run "document"; then
   echo ""
 
   echo "[3/9] Updating documentation from recent changes..."
-  echo "Command: /meta_document --sync-from-code --validate-patterns"
+  echo "Command: /meta-document --sync-from-code --validate-patterns"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_document"
+    echo "[DRY-RUN] Would run: /meta-document"
     DOCUMENT_STATUS="skipped (dry-run)"
   else
-    /meta_document --sync-from-code --validate-patterns
+    /meta-document --sync-from-code --validate-patterns
 
     if [ $? -eq 0 ]; then
       DOCUMENT_STATUS="✅ success"
@@ -173,14 +173,14 @@ if should_run "predict"; then
   echo ""
 
   echo "[4/9] Predicting future issues..."
-  echo "Command: /meta_predict --horizon 3m --output meta/predictions-$SESSION_ID.md"
+  echo "Command: /meta-predict --horizon 3m --output meta/predictions-$SESSION_ID.md"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_predict"
+    echo "[DRY-RUN] Would run: /meta-predict"
     PREDICT_STATUS="skipped (dry-run)"
   else
-    /meta_predict \
+    /meta-predict \
       --horizon 3m \
       --confidence-threshold 0.70 \
       --output meta/predictions-$SESSION_ID.md
@@ -220,14 +220,14 @@ if should_run "experiment"; then
   echo ""
 
   echo "[5/9] Managing active experiments..."
-  echo "Command: /meta_experiment --auto"
+  echo "Command: /meta-experiment --auto"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_experiment --auto"
+    echo "[DRY-RUN] Would run: /meta-experiment --auto"
     EXPERIMENT_STATUS="skipped (dry-run)"
   else
-    /meta_experiment --auto
+    /meta-experiment --auto
 
     if [ $? -eq 0 ]; then
       EXPERIMENT_STATUS="✅ success"
@@ -263,16 +263,16 @@ if should_run "implement"; then
   echo ""
 
   echo "[6/9] Implementing high-confidence suggestions..."
-  echo "Command: /meta_implement --auto --dry-run (then real if safe)"
+  echo "Command: /meta-implement --auto --dry-run (then real if safe)"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_implement --auto"
+    echo "[DRY-RUN] Would run: /meta-implement --auto"
     IMPLEMENT_STATUS="skipped (dry-run)"
   else
     # First dry-run all suggestions
     echo "Testing implementations (dry-run)..."
-    /meta_implement --auto --dry-run > meta/implement-dry-run-$SESSION_ID.log
+    /meta-implement --auto --dry-run > meta/implement-dry-run-$SESSION_ID.log
 
     # Count safe implementations
     SAFE_IMPLS=$(grep -c "✅ Safe to implement" meta/implement-dry-run-$SESSION_ID.log || echo "0")
@@ -283,7 +283,7 @@ if should_run "implement"; then
       echo "Applying safe implementations..."
 
       # Apply implementations
-      /meta_implement --auto --confirm
+      /meta-implement --auto --confirm
 
       if [ $? -eq 0 ]; then
         IMPLEMENT_STATUS="✅ success ($SAFE_IMPLS implemented)"
@@ -316,14 +316,14 @@ if should_run "evolve"; then
   echo ""
 
   echo "[7/9] Evolving agents..."
-  echo "Command: /meta_evolve --agents all --generations 3"
+  echo "Command: /meta-evolve --agents all --generations 3"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_evolve"
+    echo "[DRY-RUN] Would run: /meta-evolve"
     EVOLVE_STATUS="skipped (dry-run)"
   else
-    /meta_evolve \
+    /meta-evolve \
       --agents all \
       --generations 3 \
       --output meta/evolution-$SESSION_ID.md
@@ -363,14 +363,14 @@ if should_run "health"; then
   echo ""
 
   echo "[8/9] Generating health dashboard..."
-  echo "Command: /meta_health --publish"
+  echo "Command: /meta-health --publish"
   echo ""
 
   if [ "$DRY_RUN" = true ]; then
-    echo "[DRY-RUN] Would run: /meta_health --publish"
+    echo "[DRY-RUN] Would run: /meta-health --publish"
     HEALTH_STATUS="skipped (dry-run)"
   else
-    /meta_health \
+    /meta-health \
       --publish \
       --output meta/health-$SESSION_ID.md
 
@@ -420,7 +420,7 @@ echo "Generating weekly improvement report..."
 **Completed**: [timestamp]
 
 ---
-name: meta_improve
+name: meta-improve
 
 ## EXECUTION SUMMARY
 
@@ -439,7 +439,7 @@ name: meta_improve
 **Total Duration**: [duration]
 
 ---
-name: meta_improve
+name: meta-improve
 
 ## KEY METRICS
 
@@ -458,7 +458,7 @@ name: meta_improve
 - **Health Score**: [N]/100
 
 ---
-name: meta_improve
+name: meta-improve
 
 ## HIGHLIGHTS
 
@@ -487,7 +487,7 @@ name: meta_improve
   - Prevention: [action items]
 
 ---
-name: meta_improve
+name: meta-improve
 
 ## DETAILED RESULTS
 
@@ -534,7 +534,7 @@ name: meta_improve
 **Top Performer**: [agent-name] (+[percentage]%)
 
 ---
-name: meta_improve
+name: meta-improve
 
 ## RECOMMENDATIONS
 
@@ -551,7 +551,7 @@ name: meta_improve
 2. [Strategic initiative]
 
 ---
-name: meta_improve
+name: meta-improve
 
 ## NEXT WEEK
 
@@ -565,7 +565,7 @@ name: meta_improve
 - [Item requiring human decision]
 
 ---
-name: meta_improve
+name: meta-improve
 
 **Report Generated**: [timestamp]
 **Full Logs**: meta/logs/$SESSION_ID.log
@@ -605,7 +605,7 @@ Summary:
 
 Details in meta/weekly-report-$SESSION_ID.md
 
-Auto-generated by /meta_improve"
+Auto-generated by /meta-improve"
 
   git commit -m "$COMMIT_MSG"
 
@@ -637,7 +637,7 @@ echo "Next run: [next scheduled date]"
 
 ```bash
 # Add to crontab for weekly Sunday 2am runs
-0 2 * * 0 /path/to/claude /meta_improve >> meta/logs/cron.log 2>&1
+0 2 * * 0 /path/to/claude /meta-improve >> meta/logs/cron.log 2>&1
 ```
 
 ### Error Handling
@@ -667,33 +667,33 @@ echo "Next run: [next scheduled date]"
 
 ### Scenario 1: Full Weekly Run
 ```bash
-/meta_improve
+/meta-improve
 # Runs all 9 phases
 # Generates comprehensive weekly report
 ```
 
 ### Scenario 2: Test Pipeline (Dry-Run)
 ```bash
-/meta_improve --dry-run
+/meta-improve --dry-run
 # Simulates pipeline without making changes
 # Useful for testing
 ```
 
 ### Scenario 3: Skip Expensive Phases
 ```bash
-/meta_improve --skip evolve --skip experiment
+/meta-improve --skip evolve --skip experiment
 # Runs faster pipeline
 # Useful for mid-week check-ins
 ```
 
 ### Scenario 4: Run Single Phase
 ```bash
-/meta_improve --only analyze
+/meta-improve --only analyze
 # Runs only pattern analysis
 # Useful for debugging specific phase
 ```
 
 ---
-name: meta_improve
+name: meta-improve
 
 **Remember**: This pipeline embodies compound engineering - every week the system gets permanently better. Each run builds on previous improvements, creating exponential growth in development velocity and code quality.

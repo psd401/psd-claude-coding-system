@@ -1,5 +1,5 @@
 ---
-name: meta_analyze
+name: meta-analyze
 description: Analyze telemetry data and extract development patterns
 model: claude-opus-4-5-20251101
 context: fork
@@ -103,9 +103,9 @@ Expected structure:
     }
   ],
   "patterns": {
-    "most_used_commands": {"/work": 45, "/review_pr": 38},
+    "most_used_commands": {"/work": 45, "/review-pr": 38},
     "most_invoked_agents": {"test-specialist": 62, "security-analyst": 41},
-    "avg_time_per_command": {"/work": 195, "/review_pr": 45},
+    "avg_time_per_command": {"/work": 195, "/review-pr": 45},
     "success_rates": {"/work": 0.94, "/architect": 0.89}
   },
   "compound_suggestions_outcomes": {
@@ -186,7 +186,7 @@ Examples:
    → IMPACT: Saves 5min per PR by eliminating manual step
 
 2. **PR reviews take 3x longer without code-cleanup first** (avg 45min vs 15min)
-   → OPPORTUNITY: Add cleanup step to /review_pr workflow
+   → OPPORTUNITY: Add cleanup step to /review-pr workflow
    → IMPACT: Saves 30min per PR review (15 hours/month at current volume)
 
 3. **UTF-8 bugs occurred 3 times in 2 months** (document processing)
@@ -197,7 +197,7 @@ Examples:
 
 [List specific, actionable optimizations with time estimates:]
 
-- **Chain /security_audit → /test**: Saves 5min per PR, eliminates context switch
+- **Chain /security-audit → /test**: Saves 5min per PR, eliminates context switch
 - **Add /breaking_changes before deletions**: Prevents rollbacks (saved ~8hr last month)
 - **Parallel agent invocation for independent tasks**: 20-30% time reduction in multi-agent workflows
 - **Auto-invoke [agent] when [condition]**: Reduces manual orchestration overhead
@@ -242,7 +242,7 @@ Examples:
    - [Suggestion]
 
 ---
-name: meta_analyze
+name: meta-analyze
 
 **Analysis completed**: [timestamp]
 **Data points analyzed**: [count]
@@ -251,8 +251,8 @@ name: meta_analyze
 
 **Next Steps**:
 - Review patterns and validate suggestions
-- Use `/meta_learn` to generate detailed improvement proposals
-- Use `/meta_implement` to apply high-confidence optimizations
+- Use `/meta-learn` to generate detailed improvement proposals
+- Use `/meta-implement` to apply high-confidence optimizations
 ```
 
 ### Phase 5: Output Report
@@ -275,8 +275,8 @@ echo "✅ Analysis complete!"
 echo ""
 echo "Next steps:"
 echo "  • Review patterns and validate suggestions"
-echo "  • Use /meta_learn to generate detailed improvement proposals"
-echo "  • Use /meta_implement to apply high-confidence optimizations"
+echo "  • Use /meta-learn to generate detailed improvement proposals"
+echo "  • Use /meta-implement to apply high-confidence optimizations"
 ```
 
 ## Analysis Guidelines
@@ -344,7 +344,7 @@ The meta-learning system has recorded [N] executions (minimum 10 required for me
 - Time elapsed: [duration]
 
 **Recommendation**:
-Continue using workflow commands (/work, /test, /review_pr, etc.) for at least 1-2 weeks to build sufficient telemetry data.
+Continue using workflow commands (/work, /test, /review-pr, etc.) for at least 1-2 weeks to build sufficient telemetry data.
 
 **What Gets Recorded**:
 - Command names and execution times
@@ -355,7 +355,7 @@ Continue using workflow commands (/work, /test, /review_pr, etc.) for at least 1
 **Privacy Note**: No code content, issue details, or personal data is recorded.
 
 ---
-name: meta_analyze
+name: meta-analyze
 
 Come back in [X] days for meaningful pattern analysis!
 ```
@@ -374,23 +374,23 @@ Come back in [X] days for meaningful pattern analysis!
 
 ### Scenario 1: Weekly Review
 ```bash
-/meta_analyze --since 7d --output meta/weekly-analysis.md
+/meta-analyze --since 7d --output meta/weekly-analysis.md
 ```
 Generates analysis of last week's activity, saved for review.
 
 ### Scenario 2: Command-Specific Deep Dive
 ```bash
-/meta_analyze --command work
+/meta-analyze --command work
 ```
 Analyzes only /work command executions to optimize that workflow.
 
 ### Scenario 3: Full Historical Analysis
 ```bash
-/meta_analyze
+/meta-analyze
 ```
 Analyzes all telemetry data since system started.
 
 ---
-name: meta_analyze
+name: meta-analyze
 
 **Remember**: Your goal is to transform raw telemetry into actionable compound engineering opportunities that make the development system continuously better.

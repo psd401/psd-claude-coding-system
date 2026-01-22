@@ -1,5 +1,5 @@
 ---
-name: clean_branch
+name: clean-branch
 description: Clean up merged branches, close issues, and extract compound learning insights
 model: claude-sonnet-4-5
 context: fork
