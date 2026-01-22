@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.12.2
+**Version**: 1.12.3
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ## Architecture
@@ -410,6 +410,38 @@ git pull origin main
    ```
 
 **Note**: Hooks load at Claude Code startup. Changes to hooks require restarting Claude Code.
+
+### hooks.json Format (CRITICAL)
+
+The `hooks.json` file structure is critical. Each event array must directly contain hook definition objects, NOT wrapped in another object.
+
+**Correct format:**
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "type": "command", "command": "...", "timeout": 5 }
+    ]
+  }
+}
+```
+
+**WRONG format (won't work):**
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "..." }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The extra `"hooks"` wrapper inside event arrays prevents Claude Code from parsing the hooks correctly.
 
 ## Compound Engineering Principles
 
