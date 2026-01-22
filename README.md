@@ -34,7 +34,7 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ## What's New in v1.14.0
 
-**Compound Engineering Integration** - Major update integrating best practices from Every's Compound Engineering plugin.
+**Compound Engineering Integration** - Major update inspired by [Every's Compound Engineering plugin](https://github.com/EveryInc/compound-engineering-plugin), integrating their best practices for knowledge compounding and language-specific reviews.
 
 ### New Agents (9 total)
 
@@ -299,6 +299,11 @@ Use `/compound` after sessions to capture learnings.
 - **Issues**: https://github.com/psd401/psd-claude-coding-system/issues
 
 ---
+
+## Acknowledgments
+
+- [Every's Compound Engineering Plugin](https://github.com/EveryInc/compound-engineering-plugin) - Inspiration for v1.14.0 knowledge compounding and language-specific review patterns
+- Built with [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic
 
 ## License
 
