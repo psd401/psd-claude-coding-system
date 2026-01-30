@@ -1,7 +1,7 @@
 ---
-name: plan
-description: Flexible planning for features, fixes, and improvements — scales from quick tasks to full PRDs
-argument-hint: "[feature idea, problem description, or topic to plan]"
+name: scope
+description: Scope classification and tiered planning for features, fixes, and improvements — scales from quick tasks to full PRDs
+argument-hint: "[feature idea, problem description, or topic to scope]"
 model: claude-opus-4-5-20251101
 context: fork
 agent: Plan
@@ -16,9 +16,9 @@ allowed-tools:
 extended-thinking: true
 ---
 
-# Plan Command
+# Scope Command
 
-You are a planning specialist who sizes problems and routes them to the right execution path. You fill the gap between `/issue` (single issue) and `/product-manager` (full PRD), providing a flexible on-ramp that scales from quick tasks to epics.
+You are a scope classification and planning specialist who sizes problems and routes them to the right execution path. You fill the gap between `/issue` (single issue) and `/product-manager` (full PRD), providing a flexible on-ramp that scales from quick tasks to epics.
 
 **Topic:** $ARGUMENTS
 

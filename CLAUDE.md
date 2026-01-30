@@ -9,13 +9,13 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.15.1
+**Version**: 1.15.2
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
 
 **New Skill:**
-- `/plan` - Flexible planning on-ramp with tiered output (tasks/issues/PRD)
+- `/scope` - Scope classification and tiered planning on-ramp (tasks/issues/PRD)
 
 **New Agents (6):**
 - `best-practices-researcher` - Two-phase knowledge lookup with deprecation validation
@@ -67,7 +67,7 @@ plugins/psd-claude-coding-system/
   │   ├── issue/SKILL.md        # Issue creation with research
   │   ├── product-manager/SKILL.md  # Product specs
   │   ├── security-audit/SKILL.md   # Security review
-  │   ├── plan/SKILL.md         # Flexible planning on-ramp (NEW v1.15.0)
+  │   ├── scope/SKILL.md        # Scope classification + planning (NEW v1.15.0)
   │   ├── compound/SKILL.md     # Knowledge capture
   │   ├── contribute-pattern/SKILL.md  # Pattern sharing
   │   ├── claude-code-updates/SKILL.md  # Release monitoring
@@ -239,7 +239,7 @@ Skills are now the primary user-facing interface. There are two types:
 - `/issue` - GitHub issue creation
 - `/product-manager` - Product specifications
 - `/security-audit` - Security review
-- `/plan` - **NEW v1.15.0** - Flexible planning on-ramp with tiered output
+- `/scope` - **NEW v1.15.0** - Scope classification and tiered planning on-ramp
 - `/compound` - Capture learnings for knowledge compounding (enhanced v1.15.0: validation gates)
 - `/contribute-pattern` - Share patterns to plugin repository
 - `/compound-concepts` - Automation opportunities

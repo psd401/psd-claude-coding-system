@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.15.1-green)]()
+[![Version](https://img.shields.io/badge/Version-1.15.2-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with self-improving meta-learning and knowledge compounding.
 
-**Version**: 1.15.1
+**Version**: 1.15.2
 **Status**: Production-Ready Workflows + Experimental Meta-Learning
 
 ---
