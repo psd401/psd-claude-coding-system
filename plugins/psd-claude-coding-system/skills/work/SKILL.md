@@ -85,6 +85,33 @@ fi
 - Follow recommended patterns from knowledge base
 - Note gaps in knowledge for potential `/compound` capture later
 
+### Phase 1.6: Risk-Based External Research
+
+Detect if the work involves high-risk topics that ALWAYS warrant external research:
+
+```bash
+HIGH_RISK_PATTERNS="security|authentication|authorization|oauth|jwt|encryption|payment|billing|stripe|privacy|gdpr|hipaa|pci|credential|secret|token"
+
+if [ "$WORK_TYPE" = "issue" ]; then
+  RISK_CHECK_TEXT="$ISSUE_BODY"
+else
+  RISK_CHECK_TEXT="$ARGUMENTS"
+fi
+
+if echo "$RISK_CHECK_TEXT" | grep -iEq "$HIGH_RISK_PATTERNS"; then
+  echo "=== High-Risk Topic Detected ==="
+  echo "Invoking best-practices-researcher for external validation..."
+  NEEDS_EXTERNAL_RESEARCH=true
+fi
+```
+
+If high-risk detected, invoke `best-practices-researcher` with external research enabled:
+- subagent_type: "psd-claude-coding-system:research:best-practices-researcher"
+- description: "External research for #$ISSUE_NUMBER"
+- prompt: "Research best practices and deprecation status for: $RISK_CHECK_TEXT. This is a HIGH-RISK topic — perform full external research including OWASP guidelines, framework security docs, and deprecation checks."
+
+**Integrate external research findings** into the implementation plan alongside local learnings.
+
 ### Phase 2: Development Setup
 ```bash
 # Always branch from dev, not main
@@ -200,6 +227,33 @@ Based on synthesized agent recommendations and issue requirements, implement the
 - Follow test strategy from test-specialist
 - Apply domain best practices from specialist agents
 - Maintain type safety (no `any` types)
+
+#### Commit Heuristic
+
+During implementation, commit incrementally using this test:
+**"Can I write a complete, meaningful commit message right now?"**
+
+If yes → commit. Don't wait until the end.
+
+Examples of good commit points:
+- Database schema created → commit
+- API endpoint scaffolded → commit
+- Core logic implemented → commit
+- Tests written → commit
+- UI component wired up → commit
+
+Each commit should be atomic: builds, passes lint, and could theoretically be deployed independently.
+
+```bash
+# After each meaningful unit of work:
+git add [specific files]
+git commit -m "feat(scope): [what this atomic change does]
+
+- [Detail 1]
+- [Detail 2]
+
+Part of #$ISSUE_NUMBER"
+```
 
 ```bash
 ```
@@ -407,8 +461,10 @@ echo ""
 echo "Work completed successfully!"
 echo "PR #$PR_NUMBER created and ready for review"
 echo ""
-echo "Key improvements in v1.14.0:"
+echo "Key improvements in v1.15.0:"
 echo "  - Knowledge lookup searched past learnings (Phase 1.5)"
+echo "  - Risk-based external research for security/payments/auth (Phase 1.6)"
+echo "  - Incremental commit heuristic during implementation (Phase 3)"
 echo "  - Language-specific pre-PR review caught issues early (Phase 4.3)"
 echo "  - Deployment verification for migrations (Phase 4.4)"
 echo "  - Security review happened PRE-implementation (fewer surprises)"

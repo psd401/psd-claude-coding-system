@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.15.0] - 2026-01-29
+
+### Added
+- **New `/plan` skill** - Flexible planning on-ramp with tiered output (tasks/issues/PRD), scope classification, parallel research, and execution routing
+- **New agents (6)**:
+  - `best-practices-researcher` - Two-phase knowledge lookup (local → online) with mandatory deprecation validation
+  - `framework-docs-researcher` - Framework/API deprecation checking with traffic-light status output
+  - `bug-reproduction-validator` - Documented bug reproduction with evidence collection and root cause verification
+  - `architecture-strategist` - SOLID compliance review and anti-pattern detection with structured checklists
+  - `code-simplicity-reviewer` - YAGNI enforcement, complexity scoring, and simplification recommendations
+  - `pattern-recognition-specialist` - Code duplication detection with threshold-based analysis (50+ tokens)
+- New `agents/workflow/` category directory for workflow-specific agents
+- `docs/learnings/` directory (was referenced by `/work` and `/compound` but missing)
+
+### Changed
+- **Enhanced `/review-pr`** - Massive parallelism with 3 new always-on review agents (architecture-strategist, code-simplicity-reviewer, pattern-recognition-specialist) + P1/P2/P3 severity classification output + conditional agent activation (data-migration-expert only for migrations, bug-reproduction-validator only for bug PRs)
+- **Enhanced `/work`** - Incremental commit heuristic in Phase 3 ("Can I write a complete commit message right now?") + risk-based external research routing in Phase 1.6 for security/payments/auth topics via best-practices-researcher
+- **Enhanced `/compound`** - YAML validation gates (Phase 4.5) block saving until frontmatter is complete and valid, with auto-fix for date/severity/title-length and re-prompting for missing required sections
+- Updated CLAUDE.md with accurate agent/skill counts (38 agents, 25 skills) and new components
+
 ## [1.14.1] - 2026-01-22
 
 ### Fixed

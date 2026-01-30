@@ -152,6 +152,69 @@ applicable_to: [project|universal]
 \`\`\`
 ```
 
+### Phase 4.5: Validation Gate (BLOCKING)
+
+Before saving, validate the learning document. **DO NOT proceed to Phase 5 until all checks pass.**
+
+```markdown
+### Required Fields Check
+
+- [ ] `title` present and ≤ 60 characters
+- [ ] `category` is one of: build-errors, test-failures, runtime-errors, performance, security, database, ui, integration, logic
+- [ ] `tags` is a non-empty array
+- [ ] `severity` is one of: critical, high, medium, low
+- [ ] `date` is valid YYYY-MM-DD format
+- [ ] `applicable_to` is one of: project, universal
+
+### Content Quality Check
+
+- [ ] Summary section present (2-3 sentences)
+- [ ] Problem section present
+- [ ] Solution section present
+- [ ] Prevention section present
+```
+
+**If validation fails:**
+
+```bash
+# Auto-fix what's possible
+DATE=${DATE:-$(date +"%Y-%m-%d")}
+SEVERITY=${SEVERITY:-"medium"}
+APPLICABLE_TO=${APPLICABLE_TO:-"project"}
+
+# Validate category
+VALID_CATEGORIES="build-errors test-failures runtime-errors performance security database ui integration logic"
+if ! echo "$VALID_CATEGORIES" | grep -qw "$CATEGORY"; then
+  echo "ERROR: Invalid category '$CATEGORY'"
+  echo "Valid categories: $VALID_CATEGORIES"
+  echo "Please specify a valid category."
+  # Re-prompt for category — DO NOT proceed
+fi
+
+# Validate title length
+TITLE_LENGTH=${#TITLE}
+if [ "$TITLE_LENGTH" -gt 60 ]; then
+  echo "WARNING: Title exceeds 60 characters ($TITLE_LENGTH chars)"
+  echo "Truncating to 60 characters..."
+  TITLE="${TITLE:0:60}"
+fi
+
+# Validate required content sections
+MISSING_SECTIONS=""
+[ -z "$SUMMARY" ] && MISSING_SECTIONS="$MISSING_SECTIONS Summary"
+[ -z "$PROBLEM" ] && MISSING_SECTIONS="$MISSING_SECTIONS Problem"
+[ -z "$SOLUTION" ] && MISSING_SECTIONS="$MISSING_SECTIONS Solution"
+[ -z "$PREVENTION" ] && MISSING_SECTIONS="$MISSING_SECTIONS Prevention"
+
+if [ -n "$MISSING_SECTIONS" ]; then
+  echo "ERROR: Missing required sections:$MISSING_SECTIONS"
+  echo "Please provide content for all required sections."
+  # Re-prompt for missing sections — DO NOT proceed
+fi
+
+echo "✅ Validation passed — proceeding to save"
+```
+
 ### Phase 5: Save Learning
 
 ```bash

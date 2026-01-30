@@ -131,7 +131,7 @@ if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$ARGUMENTS" "pr" 2>&1; then
 fi
 ```
 
-### Phase 2: Parallel Feedback Categorization (NEW - Aggressive Parallelism)
+### Phase 2: Parallel Feedback Categorization (Aggressive Parallelism)
 
 Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
 
@@ -177,6 +177,10 @@ if echo "$FILES_CHANGED" | grep -iEq "component|\.tsx|\.jsx|\.vue|\.svelte|modal
   UX_FEEDBACK="${UX_FEEDBACK:-Auto-triggered: PR contains UI component changes}"
 fi
 
+# Conditional agent activation (only when relevant)
+HAS_MIGRATION=$(echo "$FILES_CHANGED" | grep -iE 'migration' | head -1)
+HAS_BUG_LABEL=$(gh pr view $ARGUMENTS --json labels --jq '.labels[].name' 2>/dev/null | grep -iE "bug|fix" || echo "")
+
 echo "=== Feedback Categories Detected ==="
 [ -n "$SECURITY_FEEDBACK" ] && echo "  - Security issues"
 [ -n "$PERFORMANCE_FEEDBACK" ] && echo "  - Performance concerns"
@@ -186,51 +190,94 @@ echo "=== Feedback Categories Detected ==="
 [ -n "$SHELL_DEVOPS_FEEDBACK" ] && echo "  - Shell/DevOps issues"
 [ -n "$CONFIG_FEEDBACK" ] && echo "  - Configuration consistency issues"
 [ -n "$UX_FEEDBACK" ] && echo "  - UX/Usability issues"
+echo ""
+echo "=== Always-On Review Agents ==="
+echo "  - Architecture strategist (SOLID compliance)"
+echo "  - Code simplicity reviewer (YAGNI enforcement)"
+echo "  - Pattern recognition specialist (duplication detection)"
+[ -n "$HAS_MIGRATION" ] && echo "  - Data migration expert (conditional: migration files detected)"
+[ -n "$HAS_MIGRATION" ] && echo "  - Deployment verification agent (conditional: migration files detected)"
+[ -n "$HAS_BUG_LABEL" ] && echo "  - Bug reproduction validator (conditional: bug label detected)"
 ```
 
 **Invoke agents in parallel** based on detected categories:
 
 **CRITICAL: Use Task tool with multiple simultaneous invocations:**
 
+#### Always-On Review Agents (unconditional — run on every PR)
+
+Always invoke these 3 agents for structural code quality:
+
+- subagent_type: "psd-claude-coding-system:review:architecture-strategist"
+- description: "SOLID review for PR #$ARGUMENTS"
+- prompt: "Review PR diff for SOLID compliance and anti-pattern detection. Evaluate changed files against Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion. Report violations with file:line references."
+
+- subagent_type: "psd-claude-coding-system:review:code-simplicity-reviewer"
+- description: "Simplicity review for PR #$ARGUMENTS"
+- prompt: "Review PR diff for unnecessary complexity, YAGNI violations, premature abstractions, and over-engineering. Flag unused abstractions, speculative generality, and dead code. Every line is a liability."
+
+- subagent_type: "psd-claude-coding-system:review:pattern-recognition-specialist"
+- description: "Duplication detection for PR #$ARGUMENTS"
+- prompt: "Analyze PR diff for code duplication. Search the codebase for exact, near, and structural duplicates of significant code blocks (50+ tokens). Flag 3+ occurrences for refactoring. Respect 'three similar lines > premature abstraction' principle."
+
+#### Conditional Feedback-Based Agents
+
 If security feedback exists:
-- subagent_type: "psd-claude-coding-system:security-analyst-specialist"
+- subagent_type: "psd-claude-coding-system:review:security-analyst-specialist"
 - description: "Address security feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for security feedback: $SECURITY_FEEDBACK"
 
 If performance feedback exists:
-- subagent_type: "psd-claude-coding-system:performance-optimizer"
+- subagent_type: "psd-claude-coding-system:quality:performance-optimizer"
 - description: "Address performance feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for performance feedback: $PERFORMANCE_FEEDBACK"
 
 If test feedback exists:
-- subagent_type: "psd-claude-coding-system:test-specialist"
+- subagent_type: "psd-claude-coding-system:quality:test-specialist"
 - description: "Address testing feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for testing feedback: $TEST_FEEDBACK"
 
 If architecture feedback exists:
-- subagent_type: "psd-claude-coding-system:architect-specialist"
+- subagent_type: "psd-claude-coding-system:domain:architect-specialist"
 - description: "Address architecture feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for architecture feedback: $ARCHITECTURE_FEEDBACK"
 
 If telemetry/data feedback exists:
-- subagent_type: "psd-claude-coding-system:telemetry-data-specialist"
+- subagent_type: "psd-claude-coding-system:validation:telemetry-data-specialist"
 - description: "Address telemetry/data pipeline feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for telemetry/data feedback: $TELEMETRY_DATA_FEEDBACK. Validate jq queries, regex patterns, and aggregation logic."
 
 If shell/DevOps feedback exists:
-- subagent_type: "psd-claude-coding-system:shell-devops-specialist"
+- subagent_type: "psd-claude-coding-system:domain:shell-devops-specialist"
 - description: "Address shell/DevOps feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for shell/DevOps feedback: $SHELL_DEVOPS_FEEDBACK. Check exit codes, JSON parsing, hook integration."
 
 If configuration feedback exists:
-- subagent_type: "psd-claude-coding-system:configuration-validator"
+- subagent_type: "psd-claude-coding-system:validation:configuration-validator"
 - description: "Address configuration consistency feedback for PR #$ARGUMENTS"
 - prompt: "Analyze and provide solutions for configuration feedback: $CONFIG_FEEDBACK. Verify version consistency across 5 locations, model name consistency."
 
 If UX feedback exists or UI files changed:
-- subagent_type: "psd-claude-coding-system:ux-specialist"
+- subagent_type: "psd-claude-coding-system:domain:ux-specialist"
 - description: "Address UX/usability feedback for PR #$ARGUMENTS"
 - prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK"
+
+#### Conditional Context-Based Agents
+
+If migration files detected in diff:
+- subagent_type: "psd-claude-coding-system:review:data-migration-expert"
+- description: "Migration validation for PR #$ARGUMENTS"
+- prompt: "Validate data migration: Check foreign key integrity, ID mappings, data transformation logic. Provide pre/post deployment validation queries."
+
+If migration files detected in diff:
+- subagent_type: "psd-claude-coding-system:review:deployment-verification-agent"
+- description: "Deployment checklist for PR #$ARGUMENTS"
+- prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment."
+
+If PR is linked to a bug issue (bug label detected):
+- subagent_type: "psd-claude-coding-system:workflow:bug-reproduction-validator"
+- description: "Bug reproduction for PR #$ARGUMENTS"
+- prompt: "Validate the bug fix in this PR. Reproduce the original bug, collect evidence, verify the fix addresses the root cause. Provide structured reproduction report."
 
 ### Phase 2.5: Language-Specific Deep Review (NEW - Post-PR Full Review)
 
@@ -290,13 +337,47 @@ If migrations detected:
 
 **Wait for all agents to return, then synthesize their recommendations into a unified response plan.**
 
-### Phase 3: Address Feedback
+### Phase 3: Severity Classification + Address Feedback
 
-Using synthesized agent recommendations, systematically address each comment:
-1. Understand the concern (from agent analysis)
-2. Implement the fix (following agent guidance)
-3. Test the change
-4. Respond to the reviewer
+#### Step 1: Classify All Findings by Severity
+
+Before addressing feedback, classify all findings from ALL agents into priority tiers:
+
+```markdown
+### Severity Classification
+
+**P1 — Blocks Merge:**
+- Security vulnerabilities (XSS, injection, auth bypass)
+- Data loss risks (missing transactions, cascade deletes)
+- Authentication/authorization bypasses
+- Critical performance regressions (10x+ slowdown)
+- Breaking API changes without migration path
+
+**P2 — Must Fix Before Merge:**
+- SOLID violations (from architecture-strategist)
+- Missing error handling on critical paths
+- Missing tests for critical paths
+- Accessibility violations (WCAG AA)
+- Significant code duplication (from pattern-recognition-specialist)
+- Over-engineering / YAGNI violations (from code-simplicity-reviewer)
+
+**P3 — Suggestions (Non-Blocking):**
+- Code style improvements
+- Minor performance optimizations
+- Documentation suggestions
+- Naming improvements
+- Minor duplication (< 3 occurrences)
+- Simplification opportunities (non-critical)
+```
+
+#### Step 2: Address Feedback by Priority
+
+Using synthesized agent recommendations, systematically address each comment in priority order:
+1. **P1 first** — Fix all blocking issues before anything else
+2. **P2 next** — Address must-fix items
+3. **P3 last** — Apply non-blocking suggestions where reasonable
+4. Test each change
+5. Respond to the reviewer
 
 ### Phase 4: Update PR
 ```bash
@@ -310,15 +391,26 @@ git commit -m "fix: address PR feedback
 
 Addresses review comments in PR #$ARGUMENTS"
 
-# Post summary comment on PR
+# Post summary comment on PR with severity breakdown
 gh pr comment $ARGUMENTS --body "## Review Feedback Addressed
 
 I've addressed all the review comments:
+
+### Severity Summary
+- **P1 (Blocking):** [count] found → [count] resolved
+- **P2 (Must Fix):** [count] found → [count] resolved
+- **P3 (Suggestions):** [count] found → [count] applied
 
 ### Changes Made:
 - [Specific change 1]
 - [Specific change 2]
 - [Specific change 3]
+
+### Review Agents Used:
+- Architecture strategist (SOLID compliance)
+- Code simplicity reviewer (YAGNI enforcement)
+- Pattern recognition specialist (duplication detection)
+- [Additional conditional agents invoked]
 
 ### Testing:
 - All tests passing
