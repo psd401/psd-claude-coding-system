@@ -576,14 +576,18 @@ git pull origin main
 
 ### hooks.json Format (CRITICAL)
 
-The `hooks.json` file structure is critical. Each event array must directly contain hook definition objects, NOT wrapped in another object.
+The `hooks.json` file structure is critical. Each event array must contain objects with a nested `hooks` array.
 
 **Correct format:**
 ```json
 {
   "hooks": {
     "SessionStart": [
-      { "type": "command", "command": "...", "timeout": 5 }
+      {
+        "hooks": [
+          { "type": "command", "command": "...", "timeout": 5 }
+        ]
+      }
     ]
   }
 }
@@ -594,17 +598,13 @@ The `hooks.json` file structure is critical. Each event array must directly cont
 {
   "hooks": {
     "SessionStart": [
-      {
-        "hooks": [
-          { "type": "command", "command": "..." }
-        ]
-      }
+      { "type": "command", "command": "...", "timeout": 5 }
     ]
   }
 }
 ```
 
-The extra `"hooks"` wrapper inside event arrays prevents Claude Code from parsing the hooks correctly.
+Hook definitions must be wrapped in a `"hooks"` array inside each event entry. Placing them directly in the event array causes validation errors.
 
 ## Compound Engineering Principles
 

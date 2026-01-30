@@ -1,32 +1,47 @@
 {
-  "description": "Automatic telemetry collection for meta-learning system",
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-init.sh",
-        "timeout": 5
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-init.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-track.sh",
-        "timeout": 10
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-track.sh",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
       {
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-command.sh",
-        "timeout": 5
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-command.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SubagentStop": [
       {
-        "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-agent.sh",
-        "timeout": 5
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/telemetry-agent.sh",
+            "timeout": 5
+          }
+        ]
       }
     ]
   }
