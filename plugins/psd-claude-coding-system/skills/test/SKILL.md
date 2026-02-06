@@ -94,7 +94,7 @@ fi
 **If UI testing detected, invoke UX specialist BEFORE quality gates:**
 
 Use the Task tool:
-- `subagent_type`: "psd-claude-coding-system:ux-specialist"
+- `subagent_type`: "psd-claude-coding-system:domain:ux-specialist"
 - `description`: "UX testing validation for $ARGUMENTS"
 - `prompt`: "Validate UX testing coverage for: $ARGUMENTS
 

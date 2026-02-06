@@ -2,7 +2,7 @@
 name: architect
 description: System architecture design and technical decision making for complex features
 argument-hint: "[issue number or architecture topic]"
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: Plan
 allowed-tools:
@@ -85,7 +85,7 @@ fi
 **If UI architecture detected, invoke UX specialist BEFORE architect-specialist:**
 
 Use the Task tool:
-- `subagent_type`: "psd-claude-coding-system:ux-specialist"
+- `subagent_type`: "psd-claude-coding-system:domain:ux-specialist"
 - `description`: "UX architectural guidance for issue #$ISSUE_NUMBER"
 - `prompt`: "Provide UX architectural guidance for: $ARGUMENTS
 
@@ -106,7 +106,7 @@ Provide specific architectural patterns and anti-patterns."
 Now invoke the architect-specialist agent with all gathered context:
 
 **Use the Task tool with:**
-- `subagent_type`: "psd-claude-coding-system:architect-specialist"
+- `subagent_type`: "psd-claude-coding-system:domain:architect-specialist"
 - `description`: "Architecture design for issue #$ISSUE_NUMBER" or "Architecture design for: [topic]"
 - `prompt`: Include the full context gathered above plus the original $ARGUMENTS
 

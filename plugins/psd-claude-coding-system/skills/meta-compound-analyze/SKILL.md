@@ -1,7 +1,7 @@
 ---
 name: meta-compound-analyze
 description: Analyze compound_learnings from PR retrospectives and generate prioritized improvement roadmap
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: Explore
 extended-thinking: true

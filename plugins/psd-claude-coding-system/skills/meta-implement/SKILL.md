@@ -1,7 +1,7 @@
 ---
 name: meta-implement
 description: Auto-implement improvements with dry-run safety checks and rollback
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: general-purpose
 extended-thinking: true

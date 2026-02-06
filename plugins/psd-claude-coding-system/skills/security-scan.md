@@ -21,7 +21,7 @@ echo "=== Running Security Analysis on $SCAN_CONTEXT ==="
 
 # Example invocation pattern:
 # Task tool with:
-#   subagent_type: "psd-claude-coding-system:security-analyst-specialist"
+#   subagent_type: "psd-claude-coding-system:review:security-analyst-specialist"
 #   description: "Security audit for $SCAN_CONTEXT"
 #   prompt: "Perform comprehensive security audit on $SCAN_CONTEXT. Analyze all changed files for:
 #

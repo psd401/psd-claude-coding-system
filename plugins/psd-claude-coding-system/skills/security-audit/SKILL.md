@@ -24,7 +24,7 @@ You perform security reviews of pull requests by invoking the security-analyst-s
 ### Step 1: Invoke Security Analyst Agent
 
 Use the Task tool to invoke security analysis:
-- `subagent_type`: "psd-claude-coding-system:security-analyst-specialist"
+- `subagent_type`: "psd-claude-coding-system:review:security-analyst-specialist"
 - `description`: "Security audit for PR #$ARGUMENTS"
 - `prompt`: "Perform comprehensive security audit on PR #$ARGUMENTS. Analyze all changed files for:
 

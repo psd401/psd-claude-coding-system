@@ -54,7 +54,7 @@ Commands cannot directly execute Task tool invocations - they should describe th
 Based on detected context, invoke agents IN PARALLEL using multiple Task tool calls:
 
 **Agent 1: test-specialist**
-- subagent_type: "psd-claude-coding-system:test-specialist"
+- subagent_type: "psd-claude-coding-system:quality:test-specialist"
 - description: "Test strategy for issue #$ISSUE_NUMBER"
 - prompt: "Design comprehensive test strategy for: $ISSUE_DESCRIPTION
 
@@ -65,7 +65,7 @@ Based on detected context, invoke agents IN PARALLEL using multiple Task tool ca
   4. Mock/stub requirements"
 
 **Agent 2: security-analyst-specialist** (if security-sensitive)
-- subagent_type: "psd-claude-coding-system:security-analyst-specialist"
+- subagent_type: "psd-claude-coding-system:review:security-analyst-specialist"
 - description: "Security guidance for issue #$ISSUE_NUMBER"
 - prompt: "Provide PRE-IMPLEMENTATION security guidance for: $ISSUE_DESCRIPTION
 
@@ -76,7 +76,7 @@ Based on detected context, invoke agents IN PARALLEL using multiple Task tool ca
   4. Testing security aspects"
 
 **Agent 3: [domain]-specialist** (if detected)
-- subagent_type: "psd-claude-coding-system:[backend/frontend/database/llm]-specialist"
+- subagent_type: "psd-claude-coding-system:domain:[backend/frontend/database/llm]-specialist"
 - description: "[Domain] implementation for issue #$ISSUE_NUMBER"
 - prompt: "Provide implementation guidance for: $ISSUE_DESCRIPTION
 

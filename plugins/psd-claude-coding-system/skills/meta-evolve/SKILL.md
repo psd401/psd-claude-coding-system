@@ -1,7 +1,7 @@
 ---
 name: meta-evolve
 description: Evolve agent prompts using genetic algorithms and historical performance data
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: general-purpose
 extended-thinking: true

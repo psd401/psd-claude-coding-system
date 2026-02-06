@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.15.2
+**Version**: 1.16.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -161,7 +161,7 @@ plugins/psd-claude-coding-system/
 
 ### Workflow Commands (9 commands)
 
-Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) with extended-thinking enabled.
+Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) with extended-thinking enabled.
 
 #### NEW in v1.11.2
 - **UX Specialist Agent** - Evaluates UI against 68 usability heuristics from 7 HCI frameworks
@@ -169,7 +169,7 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 - **GPT-5.2-pro upgrade** - Updated `gpt-5-codex` and `plan-validator` agents to use gpt-5.2-pro model
 
 #### In v1.7.0
-- **Opus 4.5** used for architecture/planning (80.9% SWE-bench, 66% cost reduction vs opus-4-1)
+- **Opus 4.6** used for architecture/planning (upgraded from Opus 4.5 in v1.16.0)
 - **Aggressive parallelism** - 2-3 agents dispatched simultaneously (Every's philosophy: speed > cost)
 - **Pre-implementation security** - Security review before coding, not after PR
 - **Skills layer** - Reusable workflow components for common patterns
@@ -182,13 +182,13 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-5) wit
 
 **Key Commands**:
 - `/work [issue-number|description]` - Main implementation workflow with parallel agent analysis (v1.7.0: always 2-3 agents)
-- `/architect [issue-number|topic]` - Architecture design using opus-4-5 with parallel context gathering
+- `/architect [issue-number|topic]` - Architecture design using opus-4-6 with parallel context gathering
 - `/test [scope]` - Comprehensive testing with coverage validation
 - `/review_pr [number]` - PR feedback handling with parallel categorization (v1.7.0)
 - `/compound_concepts` - Finds automation/systematization opportunities
 - `/security_audit` - Security review and vulnerability analysis
-- `/issue [description]` - Research and create GitHub issues (opus-4-5)
-- `/product-manager [idea]` - Transform ideas into product specs (opus-4-5)
+- `/issue [description]` - Research and create GitHub issues (opus-4-6)
+- `/product-manager [idea]` - Transform ideas into product specs (opus-4-6)
 - `/clean_branch` - Post-merge cleanup
 
 #### Agents by Category (38 total)
@@ -711,7 +711,7 @@ git push origin vX.Y.Z
 
 ### Model Selection Strategy
 - **sonnet-4-5**: Default for commands, agents, and coding tasks (fast + capable)
-- **opus-4-1**: Architecture and product-manager commands only (deep reasoning)
+- **opus-4-6**: Architecture, planning, and product-manager commands (deep reasoning)
 - **extended-thinking: true**: Enabled on all commands/agents for thorough analysis
 
 ## Future Development

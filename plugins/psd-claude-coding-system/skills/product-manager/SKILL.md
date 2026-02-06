@@ -2,7 +2,7 @@
 name: product-manager
 description: Transform ideas into comprehensive product specifications and user stories
 argument-hint: "[product idea, feature request, or user need]"
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: Plan
 allowed-tools:
@@ -171,7 +171,7 @@ Map out which issues must complete before others:
 **For features with user-facing components, invoke UX specialist to validate UX completeness:**
 
 Use the Task tool:
-- `subagent_type`: "psd-claude-coding-system:ux-specialist"
+- `subagent_type`: "psd-claude-coding-system:domain:ux-specialist"
 - `description`: "Validate UX requirements for PRD"
 - `prompt`: "Review this PRD for UX completeness:
 
@@ -194,7 +194,7 @@ Provide specific recommendations for missing UX requirements."
 #### Step 2: Plan Validation
 
 **Use the Task tool to invoke plan validation:**
-- `subagent_type`: "psd-claude-coding-system:plan-validator"
+- `subagent_type`: "psd-claude-coding-system:validation:plan-validator"
 - `description`: "Validate product breakdown for: [feature name]"
 - `prompt`: "Validate this product implementation breakdown before creating GitHub issues:
 
@@ -380,13 +380,13 @@ gh issue create --title "Task: $TASK" --body "Part of #$EPIC"
 ## Command & Agent Workflow
 
 **Phase 3.5 - Breakdown Validation:**
-- Invoke `psd-claude-coding-system:ux-specialist` to validate UX requirements (for user-facing features)
-- Invoke `psd-claude-coding-system:plan-validator` to validate issue structure
+- Invoke `psd-claude-coding-system:domain:ux-specialist` to validate UX requirements (for user-facing features)
+- Invoke `psd-claude-coding-system:validation:plan-validator` to validate issue structure
 
 **Phase 4 - Issue Creation:**
 - Use Skill tool with `/psd-claude-coding-system:issue` for each sub-issue
-  - Automatically invokes `psd-claude-coding-system:architect-specialist` for complex issues
-  - Automatically invokes `psd-claude-coding-system:plan-validator` for complex issues
+  - Automatically invokes `psd-claude-coding-system:domain:architect-specialist` for complex issues
+  - Automatically invokes `psd-claude-coding-system:validation:plan-validator` for complex issues
   - Conducts current documentation research
   - Uses MCP documentation servers
 

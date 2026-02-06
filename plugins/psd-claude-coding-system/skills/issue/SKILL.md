@@ -2,7 +2,7 @@
 name: issue
 description: Research and create well-structured GitHub issues for feature requests, bug reports, or improvements
 argument-hint: "[feature description, bug report, or improvement idea]"
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: Explore
 allowed-tools:
@@ -108,7 +108,7 @@ fi
 
 **If user flow feature detected**, invoke spec-flow-analyzer:
 
-- subagent_type: "psd-claude-coding-system:spec-flow-analyzer"
+- subagent_type: "psd-claude-coding-system:research:spec-flow-analyzer"
 - description: "Spec analysis for feature: $ISSUE_DESCRIPTION"
 - prompt: "Analyze feature specification for: $ISSUE_DESCRIPTION. Identify all user flows, map state transitions, find edge cases, and generate acceptance criteria. Include gap analysis for missing requirements."
 
@@ -330,7 +330,7 @@ ISSUE_NUMBER="[the number from gh issue create]"
 
 # Optional: Invoke architect to ADD architecture comment
 # Use Task tool with:
-# - subagent_type: "psd-claude-coding-system:architect-specialist"
+# - subagent_type: "psd-claude-coding-system:domain:architect-specialist"
 # - description: "Add architecture design for issue #$ISSUE_NUMBER"
 # - prompt: "Create architectural design for: $ARGUMENTS
 #           Issue: #$ISSUE_NUMBER
@@ -338,7 +338,7 @@ ISSUE_NUMBER="[the number from gh issue create]"
 
 # Optional: Invoke plan-validator for quality assurance
 # Use Task tool with:
-# - subagent_type: "psd-claude-coding-system:plan-validator"
+# - subagent_type: "psd-claude-coding-system:validation:plan-validator"
 # - description: "Validate issue #$ISSUE_NUMBER"
 # - prompt: "Review issue #$ISSUE_NUMBER and add validation feedback as a comment."
 ```
@@ -386,10 +386,10 @@ gh issue close <number>
 
 When features require additional expertise, agents can be invoked AFTER issue creation to add comments:
 
-- **Architecture Design**: Use `psd-claude-coding-system:architect-specialist` for complex architectural guidance
-- **Plan Validation**: Use `psd-claude-coding-system:plan-validator` for quality assurance with GPT-5
-- **Security Review**: Use `psd-claude-coding-system:security-analyst` for security considerations
-- **Documentation**: Use `psd-claude-coding-system:documentation-writer` for documentation planning
+- **Architecture Design**: Use `psd-claude-coding-system:domain:architect-specialist` for complex architectural guidance
+- **Plan Validation**: Use `psd-claude-coding-system:validation:plan-validator` for quality assurance with GPT-5
+- **Security Review**: Use `psd-claude-coding-system:review:security-analyst` for security considerations
+- **Documentation**: Use `psd-claude-coding-system:quality:documentation-writer` for documentation planning
 
 These add value but are not required - the issue you create should be comprehensive on its own.
 

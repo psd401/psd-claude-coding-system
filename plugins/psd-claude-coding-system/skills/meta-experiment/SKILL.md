@@ -1,7 +1,7 @@
 ---
 name: meta-experiment
 description: A/B testing framework for safe experimentation with statistical validation
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: general-purpose
 extended-thinking: true

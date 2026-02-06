@@ -1,7 +1,7 @@
 ---
 name: meta-improve
 description: Master weekly improvement pipeline orchestrating all meta-learning commands
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: general-purpose
 extended-thinking: true

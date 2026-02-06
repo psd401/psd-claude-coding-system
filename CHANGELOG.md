@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.16.0] - 2026-02-05
+
+### Fixed
+- **Critical: Agent subagent_type path resolution** - All subagent_type references in skill files now include category subdirectory prefixes (e.g., `psd-claude-coding-system:security-analyst-specialist` → `psd-claude-coding-system:review:security-analyst-specialist`). The v1.14.0 agent reorganization into category subdirectories broke agent invocation from skills that still used flat paths. Affected skills: `/security-audit`, `/work`, `/test`, `/issue`, `/architect`, `/product-manager`, `/review-pr`, plus `parallel-dispatch.md` and `security-scan.md` helper skills.
+
+### Changed
+- **Upgraded all Opus model references from 4.5 to 4.6** - Updated `claude-opus-4-5-20251101` → `claude-opus-4-6` across 16 skill frontmatter files, 3 agent files (plan-validator, architect-specialist, meta-orchestrator), and 2 agent documentation references (configuration-validator, agent-native-reviewer). Opus 4.6 is the latest frontier model available in Claude Code 2.1.32+.
+
 ## [1.15.2] - 2026-01-29
 
 ### Changed

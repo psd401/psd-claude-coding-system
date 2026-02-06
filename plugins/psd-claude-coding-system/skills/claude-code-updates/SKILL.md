@@ -2,7 +2,7 @@
 name: claude-code-updates
 description: Analyze Claude Code releases and recommend plugin improvements
 argument-hint: "[optional: version-range e.g. \"2.1.0-2.1.15\"]"
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: Explore
 allowed-tools:

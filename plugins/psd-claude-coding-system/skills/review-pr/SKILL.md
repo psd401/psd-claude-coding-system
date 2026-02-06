@@ -302,22 +302,22 @@ echo "=== Language-Specific Deep Review ==="
 **Invoke language reviewers in parallel (FULL MODE):**
 
 If TypeScript/JavaScript detected:
-- subagent_type: "psd-claude-coding-system:typescript-reviewer"
+- subagent_type: "psd-claude-coding-system:review:typescript-reviewer"
 - description: "Full TS review for PR #$ARGUMENTS"
 - prompt: "FULL MODE review: Comprehensive TypeScript/JavaScript analysis including: type safety, error handling, null checks, async patterns, performance, security. Review full diff."
 
 If Python detected:
-- subagent_type: "psd-claude-coding-system:python-reviewer"
+- subagent_type: "psd-claude-coding-system:review:python-reviewer"
 - description: "Full Python review for PR #$ARGUMENTS"
 - prompt: "FULL MODE review: Comprehensive Python analysis including: type hints, error handling, async patterns, security, performance, PEP8 compliance. Review full diff."
 
 If Swift detected:
-- subagent_type: "psd-claude-coding-system:swift-reviewer"
+- subagent_type: "psd-claude-coding-system:review:swift-reviewer"
 - description: "Full Swift review for PR #$ARGUMENTS"
 - prompt: "FULL MODE review: Comprehensive Swift analysis including: optionals, memory management, concurrency, SwiftUI patterns, security. Review full diff."
 
 If SQL detected:
-- subagent_type: "psd-claude-coding-system:sql-reviewer"
+- subagent_type: "psd-claude-coding-system:review:sql-reviewer"
 - description: "Full SQL review for PR #$ARGUMENTS"
 - prompt: "FULL MODE review: Comprehensive SQL analysis including: injection prevention, performance, indexes, constraints, transactions. Review full diff."
 
@@ -326,12 +326,12 @@ If SQL detected:
 **Only if migration files detected:**
 
 If migrations detected:
-- subagent_type: "psd-claude-coding-system:deployment-verification-agent"
+- subagent_type: "psd-claude-coding-system:review:deployment-verification-agent"
 - description: "Deployment checklist for PR #$ARGUMENTS"
 - prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment. Add checklist to PR comment."
 
 If migrations detected:
-- subagent_type: "psd-claude-coding-system:data-migration-expert"
+- subagent_type: "psd-claude-coding-system:review:data-migration-expert"
 - description: "Migration validation for PR #$ARGUMENTS"
 - prompt: "Validate data migration: Check foreign key integrity, ID mappings, data transformation logic. Provide pre/post deployment validation queries."
 

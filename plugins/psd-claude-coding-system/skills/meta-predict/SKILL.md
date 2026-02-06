@@ -1,7 +1,7 @@
 ---
 name: meta-predict
 description: Predict future issues using trend analysis and pattern matching
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: Explore
 extended-thinking: true

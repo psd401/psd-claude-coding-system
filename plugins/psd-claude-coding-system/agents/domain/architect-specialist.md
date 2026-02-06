@@ -1,7 +1,7 @@
 ---
 name: architect-specialist
 description: System architecture design and technical decision making for complex features
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 extended-thinking: true
 color: purple
 ---

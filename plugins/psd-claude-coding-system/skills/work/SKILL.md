@@ -2,7 +2,7 @@
 name: work
 description: Implement solutions for GitHub issues or quick fixes
 argument-hint: "[issue number OR description of quick fix]"
-model: claude-opus-4-5-20251101
+model: claude-opus-4-6
 context: fork
 agent: general-purpose
 allowed-tools:
@@ -76,7 +76,7 @@ fi
 
 **Invoke learnings-researcher agent** to search for relevant past learnings:
 
-- subagent_type: "psd-claude-coding-system:learnings-researcher"
+- subagent_type: "psd-claude-coding-system:research:learnings-researcher"
 - description: "Knowledge lookup for #$ISSUE_NUMBER"
 - prompt: "Search knowledge base for learnings relevant to: $ISSUE_BODY. Check ./docs/learnings/ and plugin patterns. Report any relevant past mistakes, solutions, or patterns."
 
@@ -191,22 +191,22 @@ echo "=== Agents to invoke in parallel: $AGENTS_TO_INVOKE ==="
 For each agent in $AGENTS_TO_INVOKE:
 
 **test-specialist** (always):
-- subagent_type: "psd-claude-coding-system:test-specialist"
+- subagent_type: "psd-claude-coding-system:quality:test-specialist"
 - description: "Test strategy for issue #$ISSUE_NUMBER"
 - prompt: "Design comprehensive test strategy for: $ISSUE_BODY. Include unit tests, integration tests, edge cases, and mock requirements."
 
 **security-analyst-specialist** (if security-sensitive):
-- subagent_type: "psd-claude-coding-system:security-analyst-specialist"
+- subagent_type: "psd-claude-coding-system:review:security-analyst-specialist"
 - description: "PRE-IMPLEMENTATION security guidance for #$ISSUE_NUMBER"
 - prompt: "Provide security guidance BEFORE implementation for: $ISSUE_BODY. Focus on requirements to follow, pitfalls to avoid, secure patterns, and security testing."
 
 **[domain]-specialist** (if detected):
-- subagent_type: "psd-claude-coding-system:[backend/frontend/database/llm]-specialist"
+- subagent_type: "psd-claude-coding-system:domain:[backend/frontend/database/llm]-specialist"
 - description: "[Domain] implementation guidance for #$ISSUE_NUMBER"
 - prompt: "Provide implementation guidance for: $ISSUE_BODY. Include architecture patterns, best practices, common mistakes, and integration points."
 
 **ux-specialist** (if UI work detected):
-- subagent_type: "psd-claude-coding-system:ux-specialist"
+- subagent_type: "psd-claude-coding-system:domain:ux-specialist"
 - description: "UX heuristic review for #$ISSUE_NUMBER"
 - prompt: "Evaluate UX considerations for: $ISSUE_BODY. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Provide specific recommendations."
 
@@ -328,22 +328,22 @@ echo "=== Language-Specific Pre-PR Review ==="
 **Invoke language reviewers in parallel (LIGHT MODE):**
 
 If TypeScript/JavaScript detected:
-- subagent_type: "psd-claude-coding-system:typescript-reviewer"
+- subagent_type: "psd-claude-coding-system:review:typescript-reviewer"
 - description: "Light TS review for #$ISSUE_NUMBER"
 - prompt: "LIGHT MODE review: Quick check TypeScript/JavaScript changes for: type safety issues, obvious bugs, missing error handling. Files: $CHANGED_FILES"
 
 If Python detected:
-- subagent_type: "psd-claude-coding-system:python-reviewer"
+- subagent_type: "psd-claude-coding-system:review:python-reviewer"
 - description: "Light Python review for #$ISSUE_NUMBER"
 - prompt: "LIGHT MODE review: Quick check Python changes for: type hints, obvious bugs, PEP8 issues. Files: $CHANGED_FILES"
 
 If Swift detected:
-- subagent_type: "psd-claude-coding-system:swift-reviewer"
+- subagent_type: "psd-claude-coding-system:review:swift-reviewer"
 - description: "Light Swift review for #$ISSUE_NUMBER"
 - prompt: "LIGHT MODE review: Quick check Swift changes for: optionals handling, memory issues, Swift conventions. Files: $CHANGED_FILES"
 
 If SQL detected:
-- subagent_type: "psd-claude-coding-system:sql-reviewer"
+- subagent_type: "psd-claude-coding-system:review:sql-reviewer"
 - description: "Light SQL review for #$ISSUE_NUMBER"
 - prompt: "LIGHT MODE review: Quick check SQL changes for: injection risks, performance issues, missing indexes. Files: $CHANGED_FILES"
 
@@ -363,12 +363,12 @@ fi
 ```
 
 If migrations detected:
-- subagent_type: "psd-claude-coding-system:deployment-verification-agent"
+- subagent_type: "psd-claude-coding-system:review:deployment-verification-agent"
 - description: "Deployment checklist for #$ISSUE_NUMBER"
 - prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment."
 
 If migrations detected:
-- subagent_type: "psd-claude-coding-system:data-migration-expert"
+- subagent_type: "psd-claude-coding-system:review:data-migration-expert"
 - description: "Migration validation for #$ISSUE_NUMBER"
 - prompt: "Validate data migration: Check foreign key integrity, ID mappings, and data transformation logic. Provide pre/post deployment validation queries."
 
