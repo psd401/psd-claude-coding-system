@@ -179,6 +179,8 @@ fi
 
 # Conditional agent activation (only when relevant)
 HAS_MIGRATION=$(echo "$FILES_CHANGED" | grep -iE 'migration' | head -1)
+HAS_SCHEMA_CHANGE=$(echo "$FILES_CHANGED" | grep -iEq "migration|\.prisma|models\.py|schema\.|CreateTable|ALTER TABLE" && echo "yes" || echo "")
+HAS_PII_FILES=$(echo "$FILES_CHANGED" | grep -iEq "user|student|email|password|personal|ssn|address" && echo "yes" || echo "")
 HAS_BUG_LABEL=$(gh pr view $ARGUMENTS --json labels --jq '.labels[].name' 2>/dev/null | grep -iE "bug|fix" || echo "")
 
 echo "=== Feedback Categories Detected ==="
@@ -197,6 +199,8 @@ echo "  - Code simplicity reviewer (YAGNI enforcement)"
 echo "  - Pattern recognition specialist (duplication detection)"
 [ -n "$HAS_MIGRATION" ] && echo "  - Data migration expert (conditional: migration files detected)"
 [ -n "$HAS_MIGRATION" ] && echo "  - Deployment verification agent (conditional: migration files detected)"
+[ -n "$HAS_SCHEMA_CHANGE" ] && echo "  - Schema drift detector (conditional: schema/migration changes detected)"
+[ -n "$HAS_PII_FILES" ] && echo "  - Data integrity guardian (conditional: PII-related files detected)"
 [ -n "$HAS_BUG_LABEL" ] && echo "  - Bug reproduction validator (conditional: bug label detected)"
 ```
 
@@ -278,6 +282,16 @@ If PR is linked to a bug issue (bug label detected):
 - subagent_type: "psd-claude-coding-system:workflow:bug-reproduction-validator"
 - description: "Bug reproduction for PR #$ARGUMENTS"
 - prompt: "Validate the bug fix in this PR. Reproduce the original bug, collect evidence, verify the fix addresses the root cause. Provide structured reproduction report."
+
+If PR diff contains migration files, schema changes, or ORM model modifications (detect via grep for `migration`, `.prisma`, `models.py`, `schema.`, `CreateTable`, `ALTER TABLE`):
+- subagent_type: "psd-claude-coding-system:review:schema-drift-detector"
+- description: "Schema drift check for PR #$ARGUMENTS"
+- prompt: "Detect schema drift in this PR. Compare ORM model definitions against migration files and raw SQL schemas. Flag missing migrations, orphaned columns, index drift, and type mismatches. Provide drift report with severity levels."
+
+If PR touches database models, user-facing data handling, or files with PII-related naming (detect via grep for `user`, `student`, `email`, `password`, `personal`, `ssn`, `address`):
+- subagent_type: "psd-claude-coding-system:review:data-integrity-guardian"
+- description: "PII/compliance scan for PR #$ARGUMENTS"
+- prompt: "Scan PR changes for PII patterns, unencrypted sensitive data, access control gaps, and FERPA/GDPR compliance issues. Focus on student records, personal data handling, and encryption status. Provide compliance report with remediation steps."
 
 ### Phase 2.5: Language-Specific Deep Review (NEW - Post-PR Full Review)
 

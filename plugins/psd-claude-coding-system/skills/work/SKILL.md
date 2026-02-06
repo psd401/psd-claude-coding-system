@@ -85,6 +85,35 @@ fi
 - Follow recommended patterns from knowledge base
 - Note gaps in knowledge for potential `/compound` capture later
 
+### Phase 1.55: Codebase Research (Conditional — Unfamiliar Repos)
+
+**Invoke repo-research-analyst when the codebase is unfamiliar or scope is large.**
+
+```bash
+echo "=== Codebase Familiarity Check ==="
+HAS_LEARNINGS=$(test -d "./docs/learnings" && echo "yes" || echo "no")
+ISSUE_FILE_COUNT=0
+if [ "$WORK_TYPE" = "issue" ] && [ -n "$ISSUE_BODY" ]; then
+  ISSUE_FILE_COUNT=$(echo "$ISSUE_BODY" | grep -oE '[a-zA-Z0-9_/.-]+\.(ts|tsx|js|jsx|py|go|rs|sql|vue|svelte)' | wc -l | tr -d ' ')
+fi
+
+# Trigger heuristic: no learnings directory OR issue touches >5 files
+if [ "$HAS_LEARNINGS" = "no" ] || [ "$ISSUE_FILE_COUNT" -gt 5 ]; then
+  echo "Unfamiliar repo or large scope detected — invoking codebase research"
+  NEEDS_CODEBASE_RESEARCH=true
+else
+  echo "Codebase appears familiar — skipping deep research"
+  NEEDS_CODEBASE_RESEARCH=false
+fi
+```
+
+If codebase research needed, invoke repo-research-analyst:
+- subagent_type: "psd-claude-coding-system:research:repo-research-analyst"
+- description: "Codebase research for #$ISSUE_NUMBER"
+- prompt: "Analyze this repository's structure, tech stack, architecture patterns, and conventions. Produce a structured overview to inform implementation of: $ISSUE_BODY. Focus on entry points, data flow, and naming conventions relevant to the task."
+
+**Feed codebase research output into Phase 3 implementation context.**
+
 ### Phase 1.6: Risk-Based External Research
 
 Detect if the work involves high-risk topics that ALWAYS warrant external research:
@@ -131,7 +160,38 @@ echo "Created feature branch from dev"
 
 ```
 
-### Phase 2.5: Parallel Agent Analysis (NEW - Aggressive Parallelism)
+### Phase 2.5: Git History Analysis (Conditional)
+
+**When working on existing files**, analyze git history to inform implementation strategy.
+
+```bash
+# Check if we're modifying existing files (not greenfield)
+if [ "$WORK_TYPE" = "issue" ] && [ -n "$ISSUE_BODY" ]; then
+  # Extract file/directory references from issue body
+  TARGET_FILES=$(echo "$ISSUE_BODY" | grep -oE '[a-zA-Z0-9_/.-]+\.(ts|tsx|js|jsx|py|go|rs|sql|vue|svelte)' | sort -u | head -10)
+  TARGET_DIRS=$(echo "$ISSUE_BODY" | grep -oE 'src/[a-zA-Z0-9_/-]+|app/[a-zA-Z0-9_/-]+|lib/[a-zA-Z0-9_/-]+' | sort -u | head -5)
+
+  if [ -n "$TARGET_FILES" ] || [ -n "$TARGET_DIRS" ]; then
+    echo "=== Git History Analysis ==="
+    echo "Target files: $TARGET_FILES"
+    echo "Target dirs: $TARGET_DIRS"
+    NEEDS_GIT_HISTORY=true
+  fi
+fi
+```
+
+If existing files/directories are referenced, invoke git-history-analyzer:
+- subagent_type: "psd-claude-coding-system:research:git-history-analyzer"
+- description: "Git history for #$ISSUE_NUMBER"
+- prompt: "Analyze git history for files and directories related to: $ISSUE_BODY. Target files: $TARGET_FILES. Target dirs: $TARGET_DIRS. Identify hot files, fix-on-fix patterns, ownership, and co-change clusters. Provide recommendations for safe implementation."
+
+**Apply git history insights:**
+- Avoid unnecessary changes to hot files with fix-on-fix patterns
+- Respect file ownership — coordinate with primary contributors
+- Be extra careful with files in high-churn clusters
+- Use co-change analysis to anticipate which files need updating together
+
+### Phase 2.6: Parallel Agent Analysis (Aggressive Parallelism)
 
 **Always dispatch 2-3 agents in parallel** for maximum insight (Every's philosophy: speed > cost).
 
@@ -372,7 +432,12 @@ If migrations detected:
 - description: "Migration validation for #$ISSUE_NUMBER"
 - prompt: "Validate data migration: Check foreign key integrity, ID mappings, and data transformation logic. Provide pre/post deployment validation queries."
 
-**Include deployment checklist in PR body** if generated.
+If migrations detected:
+- subagent_type: "psd-claude-coding-system:review:schema-drift-detector"
+- description: "Schema drift check for #$ISSUE_NUMBER"
+- prompt: "Detect schema drift between ORM models and migration files. Flag missing migrations, orphaned columns, index drift, and type mismatches. Provide drift report with severity levels."
+
+**Include deployment checklist and drift report in PR body** if generated.
 
 ```bash
 ```

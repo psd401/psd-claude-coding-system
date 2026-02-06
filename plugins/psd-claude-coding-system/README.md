@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.16.0
+Version: 1.17.0
 Status: Production-Ready Workflows + Experimental Meta-Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -14,7 +14,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 11 commands + 30 specialized agents
+1. **Workflow Automation** - 11 commands + 41 specialized agents
 2. **Meta-Learning** - 10 commands that learn from your usage
 3. **Knowledge Compounding** - Capture and share learnings across projects
 
@@ -79,7 +79,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ---
 
-## AI Agents (30 total)
+## AI Agents (41 total)
 
 ### Review Specialists (`agents/review/`)
 
@@ -90,6 +90,11 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `deployment-verification-agent` | Go/No-Go deployment checklists |
 | `data-migration-expert` | ID mappings, foreign key validation |
 | `agent-native-reviewer` | AI architecture parity checks |
+| `architecture-strategist` | SOLID compliance, anti-pattern detection |
+| `code-simplicity-reviewer` | YAGNI enforcement, complexity scoring |
+| `pattern-recognition-specialist` | Code duplication detection |
+| `schema-drift-detector` | ORM vs migration schema drift detection |
+| `data-integrity-guardian` | PII/FERPA/GDPR compliance scanning |
 | `typescript-reviewer` | TypeScript/JavaScript code review |
 | `python-reviewer` | Python code review |
 | `swift-reviewer` | Swift code review |
@@ -112,7 +117,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | Agent | Purpose |
 |-------|---------|
 | `test-specialist` | Test coverage, automation, QA |
-| `performance-optimizer` | Web vitals, API latency |
+| `performance-optimizer` | Web vitals, API latency, Big O analysis, N+1 detection |
 | `documentation-writer` | API docs, user guides |
 
 ### Research (`agents/research/`)
@@ -121,6 +126,16 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 |-------|---------|
 | `spec-flow-analyzer` | Gap analysis, user flow mapping |
 | `learnings-researcher` | Knowledge base search |
+| `best-practices-researcher` | Two-phase knowledge lookup with deprecation validation |
+| `framework-docs-researcher` | Framework/API deprecation checking |
+| `git-history-analyzer` | Git archaeology, hot files, churn patterns |
+| `repo-research-analyst` | Codebase onboarding and deep research |
+
+### Workflow (`agents/workflow/`)
+
+| Agent | Purpose |
+|-------|---------|
+| `bug-reproduction-validator` | Documented bug reproduction with evidence |
 
 ### External AI (`agents/external/`)
 

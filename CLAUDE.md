@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.16.0
+**Version**: 1.17.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -31,11 +31,11 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 - `/compound` gains YAML validation gates blocking save until frontmatter is complete and valid
 
 **Agent Organization:**
-All 38 agents organized into category subdirectories:
-- `agents/review/` - 13 code review specialists
+All 41 agents organized into category subdirectories:
+- `agents/review/` - 14 code review specialists
 - `agents/domain/` - 7 domain specialists
 - `agents/quality/` - 3 quality assurance agents
-- `agents/research/` - 4 research agents
+- `agents/research/` - 6 research agents
 - `agents/workflow/` - 1 workflow agent
 - `agents/external/` - 2 external AI providers
 - `agents/meta/` - 3 meta-learning agents
@@ -72,8 +72,8 @@ plugins/psd-claude-coding-system/
   │   ├── contribute-pattern/SKILL.md  # Pattern sharing
   │   ├── claude-code-updates/SKILL.md  # Release monitoring
   │   └── meta-*/SKILL.md       # 10 meta-learning skills
-  ├── agents/                   # 38 specialized AI agents (organized by category)
-  │   ├── review/               # 13 code review specialists
+  ├── agents/                   # 41 specialized AI agents (organized by category)
+  │   ├── review/               # 14 code review specialists
   │   │   ├── security-analyst.md
   │   │   ├── security-analyst-specialist.md
   │   │   ├── deployment-verification-agent.md
@@ -85,7 +85,9 @@ plugins/psd-claude-coding-system/
   │   │   ├── typescript-reviewer.md
   │   │   ├── python-reviewer.md
   │   │   ├── swift-reviewer.md
-  │   │   └── sql-reviewer.md
+  │   │   ├── sql-reviewer.md
+  │   │   ├── schema-drift-detector.md  (NEW v1.17.0)
+  │   │   └── data-integrity-guardian.md  (NEW v1.17.0)
   │   ├── domain/               # 7 domain specialists
   │   │   ├── backend-specialist.md
   │   │   ├── frontend-specialist.md
@@ -98,11 +100,13 @@ plugins/psd-claude-coding-system/
   │   │   ├── test-specialist.md
   │   │   ├── performance-optimizer.md
   │   │   └── documentation-writer.md
-  │   ├── research/             # 4 research agents
+  │   ├── research/             # 6 research agents
   │   │   ├── learnings-researcher.md
   │   │   ├── spec-flow-analyzer.md
   │   │   ├── best-practices-researcher.md  (NEW v1.15.0)
-  │   │   └── framework-docs-researcher.md  (NEW v1.15.0)
+  │   │   ├── framework-docs-researcher.md  (NEW v1.15.0)
+  │   │   ├── git-history-analyzer.md  (NEW v1.17.0)
+  │   │   └── repo-research-analyst.md  (NEW v1.17.0)
   │   ├── workflow/             # 1 workflow agent (NEW v1.15.0)
   │   │   └── bug-reproduction-validator.md  (NEW v1.15.0)
   │   ├── external/             # 2 external AI providers
@@ -191,13 +195,14 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-6)
 - `/clean_branch` - Post-merge cleanup
 
-#### Agents by Category (38 total)
+#### Agents by Category (41 total)
 
-**Review Agents** (13 total) - `agents/review/`:
+**Review Agents** (14 total) - `agents/review/`:
 - **Security**: security-analyst, security-analyst-specialist
 - **Deployment**: deployment-verification-agent, data-migration-expert
 - **Architecture**: agent-native-reviewer, architecture-strategist (NEW v1.15.0)
 - **Code Quality**: code-simplicity-reviewer (NEW v1.15.0), pattern-recognition-specialist (NEW v1.15.0)
+- **Schema & Data**: schema-drift-detector (NEW v1.17.0), data-integrity-guardian (NEW v1.17.0)
 - **Language-Specific**: typescript-reviewer, python-reviewer, swift-reviewer, sql-reviewer
 
 **Domain Specialists** (7 total) - `agents/domain/`:
@@ -208,11 +213,13 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 **Quality Agents** (3 total) - `agents/quality/`:
 - test-specialist, performance-optimizer, documentation-writer
 
-**Research Agents** (4 total) - `agents/research/`:
+**Research Agents** (6 total) - `agents/research/`:
 - learnings-researcher - Searches knowledge base before implementation
 - spec-flow-analyzer - Gap analysis for feature specs
 - best-practices-researcher (NEW v1.15.0) - Two-phase knowledge lookup with deprecation validation
 - framework-docs-researcher (NEW v1.15.0) - Framework/API deprecation checking
+- git-history-analyzer (NEW v1.17.0) - Git archaeology for blame, churn, hot file detection
+- repo-research-analyst (NEW v1.17.0) - Codebase onboarding and deep research
 
 **Workflow Agents** (1 total) - `agents/workflow/` (NEW v1.15.0):
 - bug-reproduction-validator (NEW v1.15.0) - Documented bug reproduction with evidence
@@ -407,11 +414,11 @@ psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
   │       ├── skills/         # 25 user-invocable skills (v1.15.0)
-  │       ├── agents/         # 38 AI agents (v1.15.0)
-  │       │   ├── review/     # 13 review agents
+  │       ├── agents/         # 41 AI agents (v1.17.0)
+  │       │   ├── review/     # 14 review agents
   │       │   ├── domain/     # 7 domain specialists
   │       │   ├── quality/    # 3 quality agents
-  │       │   ├── research/   # 4 research agents
+  │       │   ├── research/   # 6 research agents
   │       │   ├── workflow/   # 1 workflow agent (NEW v1.15.0)
   │       │   ├── external/   # 2 external AI
   │       │   ├── meta/       # 3 meta-learning

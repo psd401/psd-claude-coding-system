@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.16.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.17.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with self-improving meta-learning and knowledge compounding.
 
-**Version**: 1.16.0
+**Version**: 1.17.0
 **Status**: Production-Ready Workflows + Experimental Meta-Learning
 
 ---
@@ -124,16 +124,22 @@ The plugin provides a complete development lifecycle:
 
 ---
 
-## AI Agents (30 total)
+## AI Agents (41 total)
 
-### Review Specialists (10 agents)
-`security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
+### Review Specialists (14 agents)
+`security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
 
 ### Domain Specialists (7 agents)
 `backend-specialist` · `frontend-specialist` · `database-specialist` · `llm-specialist` · `ux-specialist` · `architect-specialist` · `shell-devops-specialist`
 
-### Quality & Research (5 agents)
-`test-specialist` · `performance-optimizer` · `documentation-writer` · `spec-flow-analyzer` · `learnings-researcher`
+### Quality (3 agents)
+`test-specialist` · `performance-optimizer` · `documentation-writer`
+
+### Research (6 agents)
+`learnings-researcher` · `spec-flow-analyzer` · `best-practices-researcher` · `framework-docs-researcher` · `git-history-analyzer` · `repo-research-analyst`
+
+### Workflow (1 agent)
+`bug-reproduction-validator`
 
 ### Meta-Learning & Validation (8 agents)
 `meta-orchestrator` · `code-cleanup-specialist` · `pr-review-responder` · `plan-validator` · `document-validator` · `configuration-validator` · `breaking-change-validator` · `telemetry-data-specialist`
@@ -254,7 +260,7 @@ plugins/psd-claude-coding-system/
 │   ├── compound/SKILL.md      # Knowledge capture
 │   ├── contribute-pattern/SKILL.md
 │   └── meta-*/SKILL.md        # Meta-learning skills
-├── agents/                    # 30 specialized agents
+├── agents/                    # 41 specialized agents
 │   ├── review/                # Code review specialists
 │   ├── domain/                # Domain experts
 │   ├── quality/               # Quality assurance

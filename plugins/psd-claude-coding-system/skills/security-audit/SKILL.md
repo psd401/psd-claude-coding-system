@@ -46,6 +46,40 @@ Use the Task tool to invoke security analysis:
 
 Return structured findings in the specified format."
 
+### Step 1.5: Data Integrity Scan
+
+Always invoke the data-integrity-guardian for PII and compliance scanning during security audits:
+
+Use the Task tool:
+- `subagent_type`: "psd-claude-coding-system:review:data-integrity-guardian"
+- `description`: "Data integrity scan for PR #$ARGUMENTS"
+- `prompt`: "Perform comprehensive PII and compliance scan on PR #$ARGUMENTS. Check for:
+
+1. **PII Exposure:**
+   - Unencrypted sensitive data (SSN, email, phone, credit card)
+   - Sensitive data in logs, URLs, or error messages
+   - Plaintext password storage
+
+2. **FERPA Compliance (Education):**
+   - Student record protection (grades, IEP, attendance, disciplinary)
+   - Parent/guardian data handling
+   - Directory information opt-out support
+
+3. **GDPR Compliance:**
+   - Right to erasure support
+   - Data portability capabilities
+   - Consent management
+   - Data retention policies
+
+4. **Access Control:**
+   - Role-based access on sensitive endpoints
+   - Data scoping (users only see their own data)
+   - Authentication on protected routes
+
+Return structured compliance findings."
+
+**Merge data integrity findings with security analysis** in the consolidated comment.
+
 ### Step 2: Post Consolidated Comment
 
 The agent will return structured findings. Format and post as a single consolidated PR comment:

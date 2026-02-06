@@ -68,6 +68,17 @@ This provides (in parallel):
 - Existing architecture patterns and documentation
 - Related PRs for additional context
 
+#### Codebase Structure Research (Parallel)
+
+Invoke repo-research-analyst in parallel with context gathering to provide codebase structure context before architecture design:
+
+Use the Task tool:
+- `subagent_type`: "psd-claude-coding-system:research:repo-research-analyst"
+- `description`: "Codebase research for architecture #$ISSUE_NUMBER"
+- `prompt`: "Analyze this repository's structure, tech stack, architecture patterns, and conventions. Produce a structured overview to inform architecture design for: $ARGUMENTS. Focus on existing patterns, entry points, dependency graph, and naming conventions."
+
+Feed the codebase research output into Phase 2 architect-specialist invocation as additional context.
+
 ### Phase 1.5: UX Architecture Guidance (if UI-related)
 
 Check if architecture involves user-facing components and invoke UX specialist for heuristic-based guidance:

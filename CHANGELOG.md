@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.0] - 2026-02-05
+
+### Added
+- **New agents (4):**
+  - `git-history-analyzer` (research) - Git archaeology agent for blame analysis, change velocity, hot file detection, fix-on-fix patterns, and ownership mapping
+  - `repo-research-analyst` (research) - Codebase onboarding and deep research for architecture mapping, tech stack identification, and convention discovery
+  - `schema-drift-detector` (review) - ORM-agnostic schema drift detection comparing model definitions, migrations, and raw SQL schemas across Prisma, Django, SQLAlchemy, TypeORM, Drizzle, and ActiveRecord
+  - `data-integrity-guardian` (review) - PII and compliance scanning for GDPR, FERPA (K-12 education), sensitive data handling, and access control validation
+
+### Changed
+- **Enhanced `performance-optimizer` agent** - Added Big O complexity analysis (flag O(n^2)+ in hot paths), scalability projections (10x/100x load estimates), sub-200ms response time targets, memory leak pattern detection (unbounded caches, event listener leaks, closure captures), and database N+1 query detection with ORM-specific fix patterns
+- **Enhanced `/work` skill** - Added Phase 1.55 (codebase research for unfamiliar repos via repo-research-analyst), Phase 2.5 (git history analysis for existing files via git-history-analyzer), Phase 4.4 schema-drift-detector alongside deployment-verification
+- **Enhanced `/architect` skill** - Added repo-research-analyst invocation in parallel during Phase 1 context gathering for codebase structure context
+- **Enhanced `/review-pr` skill** - Added conditional schema-drift-detector (triggers on migration/schema/ORM changes) and data-integrity-guardian (triggers on PII-related file changes) in Phase 2 parallel agent dispatch
+- **Enhanced `/security-audit` skill** - Added Step 1.5 data-integrity-guardian invocation for PII/FERPA/GDPR compliance scanning on every security audit
+- **Corrected agent counts** - Fixed total from 38 to 41, review from 13 to 14, research from 4 to 6 (previous counts were inaccurate)
+
 ## [1.16.0] - 2026-02-05
 
 ### Fixed

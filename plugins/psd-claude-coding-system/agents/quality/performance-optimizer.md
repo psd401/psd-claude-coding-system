@@ -469,4 +469,143 @@ export class PerformanceMonitor {
 - **Database Query Time**: 70-90% improvement
 - **Cache Hit Rate**: 200-300% improvement
 
+## Phase 7: Big O Complexity Analysis
+
+Identify algorithmic complexity issues in hot paths.
+
+```bash
+echo "=== Algorithmic Complexity Scan ==="
+
+# Nested loops (potential O(n^2) or worse)
+echo "--- Nested Loops (O(n^2)+ risk) ---"
+grep -rn "for.*{" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" --include="*.go" . 2>/dev/null | grep -v node_modules | grep -v test | head -20
+
+# Array.includes/indexOf inside loops (O(n^2) when array is large)
+echo "--- Linear Search Inside Loops ---"
+grep -rn "\.includes\|\.indexOf\|\.find(" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -15
+
+# Repeated array/object creation in loops
+echo "--- Allocation in Hot Paths ---"
+grep -rnE "for.*\{|\.forEach|\.map|\.reduce" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -15
+```
+
+### Complexity Pattern Detection
+
+Flag these patterns in hot paths (API handlers, render loops, data processing):
+
+| Pattern | Complexity | Fix |
+|---------|-----------|-----|
+| Nested `.filter().map()` on same array | O(2n) → O(n) | Single `.reduce()` pass |
+| `.includes()` inside `.filter()` | O(n*m) → O(n+m) | Convert to `Set` lookup |
+| Nested `for` loops with array search | O(n^2) → O(n) | Use `Map`/`Set` for lookups |
+| Recursive without memoization | O(2^n) → O(n) | Add memoization cache |
+| Sorting then searching | O(n log n + log n) → O(n) | Linear scan if single search |
+| String concatenation in loop | O(n^2) → O(n) | Use array `.join()` or `StringBuilder` |
+
+### Scalability Projections
+
+For identified hot paths, estimate behavior at scale:
+
+```markdown
+### Scalability Analysis
+
+| Endpoint/Function | Current Load | 10x Load | 100x Load | Risk |
+|-------------------|-------------|----------|-----------|------|
+| [function] | [current ms] | [projected] | [projected] | [Low/Medium/High] |
+
+**Projection Method:**
+- O(n): Linear scaling — 10x data = 10x time
+- O(n log n): Near-linear — 10x data ≈ 13x time
+- O(n^2): Quadratic — 10x data = 100x time (DANGER)
+- O(2^n): Exponential — avoid at all costs
+```
+
+## Phase 8: Response Time Targets
+
+Flag endpoints and functions exceeding performance budgets.
+
+```bash
+echo "=== Response Time Analysis ==="
+
+# API endpoint discovery
+echo "--- API Endpoints ---"
+grep -rnE "app\.(get|post|put|delete|patch)|router\.(get|post|put|delete)|export.*async.*function.*(GET|POST|PUT|DELETE)" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" . 2>/dev/null | grep -v node_modules | head -20
+
+# Database query count per endpoint (N+1 detection)
+echo "--- Potential N+1 Queries ---"
+grep -rnE "await.*prisma\.|await.*db\.|await.*query\(|\.execute\(" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" . 2>/dev/null | grep -v node_modules | grep -v test | head -20
+```
+
+### Performance Budgets
+
+| Target | Budget | Action if Exceeded |
+|--------|--------|-------------------|
+| API endpoint response | < 200ms (p95) | Investigate query count, add caching |
+| Database query | < 50ms | Add index, optimize query |
+| Page load (LCP) | < 2500ms | Code split, lazy load, optimize images |
+| First Byte (TTFB) | < 800ms | Edge caching, precompute |
+| Client-side render | < 16ms/frame | Virtualize lists, memo components |
+
+## Phase 9: Memory Leak Detection
+
+Identify common memory leak patterns.
+
+```bash
+echo "=== Memory Leak Pattern Scan ==="
+
+# Unbounded caches (Map/Object that grows without cleanup)
+echo "--- Unbounded Caches ---"
+grep -rnE "new Map\(\)|new Set\(\)|= \{\}|cache\[" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -10
+
+# Event listener leaks (addEventListener without removeEventListener)
+echo "--- Event Listener Leaks ---"
+grep -rn "addEventListener" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -10
+
+# Closure captures in long-lived callbacks
+echo "--- Long-Lived Closures ---"
+grep -rnE "setInterval|setTimeout.*[0-9]{4,}" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -10
+
+# Subscription leaks (observables without unsubscribe)
+echo "--- Subscription Leaks ---"
+grep -rnE "\.subscribe\(|\.on\(" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -10
+```
+
+### Memory Leak Checklist
+
+- [ ] All `setInterval` have corresponding `clearInterval` on cleanup
+- [ ] All `addEventListener` have corresponding `removeEventListener`
+- [ ] React `useEffect` returns cleanup functions for subscriptions
+- [ ] Caches have TTL or max-size eviction
+- [ ] WebSocket connections are closed on component unmount
+- [ ] Event emitter listeners are removed when no longer needed
+- [ ] Large arrays/objects are nulled after use in long-running processes
+
+## Phase 10: Database N+1 Detection
+
+```bash
+echo "=== N+1 Query Detection ==="
+
+# forEach/map with await (sequential queries in a loop)
+echo "--- Sequential Async in Loops ---"
+grep -rnE "forEach.*await|for.*of.*await|\.map\(async" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" . 2>/dev/null | grep -v node_modules | grep -v test | head -15
+
+# Prisma/ORM patterns that cause N+1
+echo "--- ORM N+1 Patterns ---"
+grep -rnE "\.findUnique\(|\.findFirst\(|\.findOne\(" --include="*.ts" --include="*.tsx" --include="*.js" . 2>/dev/null | grep -v node_modules | grep -v test | head -10
+
+# Missing includes/joins (eager loading not used)
+echo "--- Missing Eager Loading ---"
+grep -rnE "findMany|findAll|\.all\(\)|\.objects\.filter" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" . 2>/dev/null | grep -v "include" | grep -v node_modules | grep -v test | head -10
+```
+
+### N+1 Fix Patterns
+
+| ORM | N+1 Pattern | Fix |
+|-----|-------------|-----|
+| Prisma | `findMany` then loop `findUnique` | Use `include: {}` for relations |
+| Django | `Model.objects.all()` then access FK | Use `select_related()` / `prefetch_related()` |
+| SQLAlchemy | Loop over `query.all()` accessing lazy relations | Use `joinedload()` / `subqueryload()` |
+| TypeORM | `find()` then loop accessing relations | Use `relations: []` option or QueryBuilder `.leftJoinAndSelect()` |
+| ActiveRecord | `.all` then loop accessing associations | Use `.includes()` / `.eager_load()` |
+
 Remember: Always measure before optimizing, focus on user-perceived performance, and monitor real user metrics continuously.
