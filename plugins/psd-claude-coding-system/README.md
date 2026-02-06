@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.17.0
+Version: 1.18.0
 Status: Production-Ready Workflows + Experimental Meta-Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -14,7 +14,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 11 commands + 41 specialized agents
+1. **Workflow Automation** - 11 commands + 43 specialized agents
 2. **Meta-Learning** - 10 commands that learn from your usage
 3. **Knowledge Compounding** - Capture and share learnings across projects
 
@@ -79,7 +79,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ---
 
-## AI Agents (41 total)
+## AI Agents (43 total)
 
 ### Review Specialists (`agents/review/`)
 
@@ -136,6 +136,8 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | Agent | Purpose |
 |-------|---------|
 | `bug-reproduction-validator` | Documented bug reproduction with evidence |
+| `work-researcher` | Pre-implementation research orchestrator |
+| `work-validator` | Post-implementation validation orchestrator |
 
 ### External AI (`agents/external/`)
 
@@ -284,19 +286,16 @@ Using `scripts/language-detector.sh`:
 
 ## Enhanced Workflow Phases
 
-### `/work` (v1.14.0)
+### `/work` (v1.18.0 — Slim Orchestrator)
 
 | Phase | Description |
 |-------|-------------|
 | 1 | Determine work type |
-| **1.5** | **NEW:** Knowledge lookup via learnings-researcher |
-| 2 | Development setup |
-| 3 | Implementation |
-| 4.1 | Automated testing |
-| 4.2 | Pre-commit validation |
-| **4.3** | **NEW:** Language-specific review (light mode) |
-| **4.4** | **NEW:** Deployment verification (if migrations) |
-| 5 | PR creation |
+| **2** | **Create branch [REQUIRED]** (auto-detects default branch) |
+| 3 | Research via work-researcher agent |
+| 4 | Implementation + incremental commits + testing |
+| 5 | Validation via work-validator agent |
+| **6** | **Commit & Create PR [REQUIRED]** |
 
 ### `/review-pr` (v1.14.0)
 

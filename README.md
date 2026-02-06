@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.17.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.18.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with self-improving meta-learning and knowledge compounding.
 
-**Version**: 1.17.0
+**Version**: 1.18.0
 **Status**: Production-Ready Workflows + Experimental Meta-Learning
 
 ---
@@ -32,47 +32,18 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.15.1
+## What's New in v1.18.0
 
-**Compound Engineering Integration** - Major update inspired by [Every's Compound Engineering plugin](https://github.com/EveryInc/compound-engineering-plugin), integrating their best practices for knowledge compounding and language-specific reviews.
+**`/work` Refactored** - Decomposed from 594 lines into a slim ~192-line orchestrator backed by two new workflow agents.
 
-### New Agents (9 total)
+### Key Changes
 
-| Agent | Purpose |
-|-------|---------|
-| `deployment-verification-agent` | Go/No-Go checklists for risky deployments |
-| `data-migration-expert` | Validates ID mappings, foreign key integrity |
-| `spec-flow-analyzer` | Gap analysis for feature specs, user flow permutations |
-| `agent-native-reviewer` | Validates AI-agent architecture parity |
-| `learnings-researcher` | Searches knowledge base before implementation |
-| `typescript-reviewer` | TypeScript/JavaScript code review (light + full modes) |
-| `python-reviewer` | Python code review (type hints, async, security) |
-| `swift-reviewer` | Swift code review (optionals, memory, SwiftUI) |
-| `sql-reviewer` | SQL code review (injection, performance, migrations) |
-
-### New Skills (2 total)
-
-| Skill | Purpose |
-|-------|---------|
-| `/compound` | Capture learnings from current session for knowledge compounding |
-| `/contribute-pattern` | Share universal patterns to the plugin repository |
-
-### Enhanced Skills
-
-- **`/work`** - Added knowledge lookup (phase 1.5), language review (phase 4.3), deployment verification (phase 4.4)
-- **`/review-pr`** - Added language-specific deep review, deployment verification for migrations
-- **`/issue`** - Added spec flow analysis for complex features
-
-### Agent Reorganization
-
-All 30 agents organized into 7 category subdirectories:
-- `agents/review/` - 10 code review specialists
-- `agents/domain/` - 7 domain specialists
-- `agents/quality/` - 3 quality assurance agents
-- `agents/research/` - 2 research agents
-- `agents/external/` - 2 external AI providers
-- `agents/meta/` - 3 meta-learning agents
-- `agents/validation/` - 5 validator agents
+- **`/work` slim orchestrator** - 6 clear phases with `[REQUIRED]` headers on branch creation and PR creation to prevent skipping
+- **`work-researcher` agent** - Pre-implementation research dispatching 5+ sub-agents in parallel (learnings, codebase research, external validation, git history, test strategy, domain/security/UX)
+- **`work-validator` agent** - Post-implementation validation dispatching language reviewers (LIGHT mode) and deployment/migration validators
+- **`/test` self-healing** - New Phase 4.5 "Fix & Retry Loop" automatically fixes FIXABLE test failures (max 3 iterations)
+- **Post-edit validation hook** - PostToolUse hook validates `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq) after every Edit/Write
+- **Auto-detect default branch** - `/work` now uses `gh repo view` instead of hardcoding `dev`
 
 ---
 
@@ -124,7 +95,7 @@ The plugin provides a complete development lifecycle:
 
 ---
 
-## AI Agents (41 total)
+## AI Agents (43 total)
 
 ### Review Specialists (14 agents)
 `security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
@@ -138,8 +109,8 @@ The plugin provides a complete development lifecycle:
 ### Research (6 agents)
 `learnings-researcher` · `spec-flow-analyzer` · `best-practices-researcher` · `framework-docs-researcher` · `git-history-analyzer` · `repo-research-analyst`
 
-### Workflow (1 agent)
-`bug-reproduction-validator`
+### Workflow (3 agents)
+`bug-reproduction-validator` · `work-researcher` · `work-validator`
 
 ### Meta-Learning & Validation (8 agents)
 `meta-orchestrator` · `code-cleanup-specialist` · `pr-review-responder` · `plan-validator` · `document-validator` · `configuration-validator` · `breaking-change-validator` · `telemetry-data-specialist`
@@ -260,7 +231,7 @@ plugins/psd-claude-coding-system/
 │   ├── compound/SKILL.md      # Knowledge capture
 │   ├── contribute-pattern/SKILL.md
 │   └── meta-*/SKILL.md        # Meta-learning skills
-├── agents/                    # 41 specialized agents
+├── agents/                    # 43 specialized agents
 │   ├── review/                # Code review specialists
 │   ├── domain/                # Domain experts
 │   ├── quality/               # Quality assurance

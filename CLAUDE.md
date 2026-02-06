@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
 2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
 
-**Version**: 1.17.0
+**Version**: 1.18.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -31,12 +31,12 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 - `/compound` gains YAML validation gates blocking save until frontmatter is complete and valid
 
 **Agent Organization:**
-All 41 agents organized into category subdirectories:
+All 43 agents organized into category subdirectories:
 - `agents/review/` - 14 code review specialists
 - `agents/domain/` - 7 domain specialists
 - `agents/quality/` - 3 quality assurance agents
 - `agents/research/` - 6 research agents
-- `agents/workflow/` - 1 workflow agent
+- `agents/workflow/` - 3 workflow agents
 - `agents/external/` - 2 external AI providers
 - `agents/meta/` - 3 meta-learning agents
 - `agents/validation/` - 5 validator agents
@@ -72,7 +72,7 @@ plugins/psd-claude-coding-system/
   │   ├── contribute-pattern/SKILL.md  # Pattern sharing
   │   ├── claude-code-updates/SKILL.md  # Release monitoring
   │   └── meta-*/SKILL.md       # 10 meta-learning skills
-  ├── agents/                   # 41 specialized AI agents (organized by category)
+  ├── agents/                   # 43 specialized AI agents (organized by category)
   │   ├── review/               # 14 code review specialists
   │   │   ├── security-analyst.md
   │   │   ├── security-analyst-specialist.md
@@ -107,8 +107,10 @@ plugins/psd-claude-coding-system/
   │   │   ├── framework-docs-researcher.md  (NEW v1.15.0)
   │   │   ├── git-history-analyzer.md  (NEW v1.17.0)
   │   │   └── repo-research-analyst.md  (NEW v1.17.0)
-  │   ├── workflow/             # 1 workflow agent (NEW v1.15.0)
-  │   │   └── bug-reproduction-validator.md  (NEW v1.15.0)
+  │   ├── workflow/             # 3 workflow agents
+  │   │   ├── bug-reproduction-validator.md
+  │   │   ├── work-researcher.md  (NEW v1.18.0)
+  │   │   └── work-validator.md  (NEW v1.18.0)
   │   ├── external/             # 2 external AI providers
   │   │   ├── gpt-5-codex.md
   │   │   └── gemini-3-pro.md
@@ -132,7 +134,8 @@ plugins/psd-claude-coding-system/
   │   ├── telemetry-command.sh  # UserPromptSubmit hook
   │   ├── telemetry-agent.sh    # SubagentStop hook
   │   ├── telemetry-track.sh    # Stop hook (simplified v1.14.0)
-  │   └── language-detector.sh  # Language detection (NEW v1.14.0)
+  │   ├── language-detector.sh  # Language detection (NEW v1.14.0)
+  │   └── post-edit-validate.sh # PostToolUse hook (NEW v1.18.0)
   ├── meta/                     # Telemetry data (git-ignored)
   └── README.md                 # Plugin documentation
 ```
@@ -185,7 +188,7 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 4. **Phase 4**: Validation (tests, commits, PRs)
 
 **Key Commands**:
-- `/work [issue-number|description]` - Main implementation workflow with parallel agent analysis (v1.7.0: always 2-3 agents)
+- `/work [issue-number|description]` - Slim orchestrator (~192 lines) backed by work-researcher + work-validator agents
 - `/architect [issue-number|topic]` - Architecture design using opus-4-6 with parallel context gathering
 - `/test [scope]` - Comprehensive testing with coverage validation
 - `/review_pr [number]` - PR feedback handling with parallel categorization (v1.7.0)
@@ -195,7 +198,7 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-6)
 - `/clean_branch` - Post-merge cleanup
 
-#### Agents by Category (41 total)
+#### Agents by Category (43 total)
 
 **Review Agents** (14 total) - `agents/review/`:
 - **Security**: security-analyst, security-analyst-specialist
@@ -221,8 +224,10 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 - git-history-analyzer (NEW v1.17.0) - Git archaeology for blame, churn, hot file detection
 - repo-research-analyst (NEW v1.17.0) - Codebase onboarding and deep research
 
-**Workflow Agents** (1 total) - `agents/workflow/` (NEW v1.15.0):
-- bug-reproduction-validator (NEW v1.15.0) - Documented bug reproduction with evidence
+**Workflow Agents** (3 total) - `agents/workflow/`:
+- bug-reproduction-validator - Documented bug reproduction with evidence
+- work-researcher (NEW v1.18.0) - Pre-implementation research orchestrator dispatching 5+ sub-agents
+- work-validator (NEW v1.18.0) - Post-implementation validation orchestrator for language reviews and deployment checks
 
 **External AI** (2 total) - `agents/external/`:
 - gpt-5-codex (GPT-5.2-pro), gemini-3-pro (Gemini 3 Pro)
@@ -239,7 +244,7 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 Skills are now the primary user-facing interface. There are two types:
 
 **User-Invocable Skills** (in `skills/<name>/SKILL.md`):
-- `/work` - Main implementation workflow (enhanced v1.15.0: incremental commits, risk-based research)
+- `/work` - Slim orchestrator with work-researcher and work-validator agents (refactored v1.18.0)
 - `/test` - Comprehensive testing
 - `/review-pr` - PR feedback handling (enhanced v1.15.0: 3 always-on review agents, P1/P2/P3 severity)
 - `/architect` - Architecture design
@@ -324,7 +329,12 @@ Experimental self-improving system with telemetry-based learning.
    - Appends agent name to session state file
    - Tracks which agents were invoked during command execution
 
-4. **Stop Hook** (`scripts/telemetry-track.sh`):
+4. **PostToolUse Hook** (`scripts/post-edit-validate.sh`) (NEW v1.18.0):
+   - Runs after Edit or Write tool calls (matcher: `Edit|Write`)
+   - Validates file syntax by extension: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
+   - Non-blocking, 10s timeout, exits cleanly for unknown file types
+
+5. **Stop Hook** (`scripts/telemetry-track.sh`):
    - Runs when Claude finishes responding
    - Reads session state file
    - Calculates duration

@@ -147,6 +147,66 @@ npm run lint
 npm audit --audit-level=moderate
 ```
 
+### Phase 4.5: Fix & Retry Loop (Self-Healing)
+
+When Phase 4 quality gates fail, attempt automatic recovery before giving up.
+
+**Rules:**
+- Max **3 iterations** — stop after 3 failed attempts
+- Only fix **code under test** — never modify test infrastructure, CI config, or test framework setup
+- Categorize each failure as **FIXABLE** or **NOT_FIXABLE** before attempting repair
+
+**NOT_FIXABLE (break immediately, report to user):**
+- Environment/config issues (missing env vars, wrong Node version, missing Docker)
+- Infrastructure failures (database down, network timeout, CI runner issues)
+- Dependency conflicts (incompatible package versions)
+- Flaky tests with no deterministic root cause
+
+**FIXABLE (attempt repair):**
+- Type errors in implementation code
+- Missing imports or exports
+- Incorrect return types or function signatures
+- Off-by-one errors or wrong variable references
+- Missing null/undefined checks
+- Test assertion mismatches caused by implementation bugs
+
+**Loop:**
+
+```bash
+MAX_RETRIES=3
+RETRY=0
+
+while [ $RETRY -lt $MAX_RETRIES ]; do
+  # Run only the failing test(s), not the full suite
+  npm test -- --testPathPattern="[failing test file]" 2>&1
+  EXIT_CODE=$?
+
+  if [ $EXIT_CODE -eq 0 ]; then
+    echo "=== Tests passing after $RETRY fix(es) ==="
+    break
+  fi
+
+  RETRY=$((RETRY + 1))
+  echo "=== Retry $RETRY/$MAX_RETRIES ==="
+
+  # Analyze the error output
+  # Categorize as FIXABLE or NOT_FIXABLE
+  # If NOT_FIXABLE: break and report to user
+  # If FIXABLE: apply targeted fix to implementation code, log what changed
+done
+
+if [ $RETRY -eq $MAX_RETRIES ]; then
+  echo "=== FAILED after $MAX_RETRIES retries — reporting to user ==="
+  # List what was attempted and what failed
+fi
+```
+
+**Each iteration must log:**
+1. Which test(s) failed and why
+2. Classification: FIXABLE or NOT_FIXABLE
+3. What fix was applied (file:line, before/after)
+4. Result of re-run
+
 ### Phase 5: Test Documentation
 
 Update test documentation:

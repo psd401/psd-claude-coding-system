@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.0] - 2026-02-05
+
+### Added
+- **New agents (2):**
+  - `work-researcher` (workflow) - Pre-implementation research orchestrator that dispatches learnings-researcher, repo-research-analyst, best-practices-researcher, git-history-analyzer, test-specialist, domain specialists, security-analyst, and ux-specialist in parallel
+  - `work-validator` (workflow) - Post-implementation validation orchestrator that dispatches language reviewers in LIGHT mode and deployment/migration validators based on changed files
+- **`/test` self-healing loop** - Phase 4.5 "Fix & Retry Loop" automatically categorizes test failures as FIXABLE or NOT_FIXABLE, applies targeted fixes, and retries (max 3 iterations)
+- **Post-edit validation hook** - PostToolUse hook (`scripts/post-edit-validate.sh`) validates syntax after Edit/Write operations: `.ts/.tsx` via tsc, `.py` via py_compile, `.json` via jq. Non-blocking with 10s timeout
+
+### Changed
+- **Refactored `/work` skill** from 594 lines to ~192 lines — decomposed into slim 6-phase orchestrator backed by work-researcher and work-validator agents. Research phases (1.5, 1.55, 1.6, 2.5, 2.6) collapsed into single work-researcher Task call. Validation phases (4.3, 4.4) collapsed into single work-validator Task call. Critical steps (branch creation Phase 2, commit/PR Phase 6) marked with `[REQUIRED — DO NOT SKIP]` headers
+- **`/work` auto-detects default branch** via `gh repo view --json defaultBranchRef` instead of hardcoding `dev`
+- **`/work` uses `git push -u origin HEAD`** for simpler push that works with any branch name
+- **Updated agent counts** from 41 to 43 across all documentation (CLAUDE.md, README.md, plugins/README.md)
+- **Workflow agents category** expanded from 1 to 3 agents
+
 ## [1.17.0] - 2026-02-05
 
 ### Added
