@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.19.0] - 2026-02-18
+
+### Added
+- **`learning-writer` agent** (workflow) - Lightweight automatic learning capture agent with `memory: project`. Deduplicates against existing learnings and writes to `docs/learnings/{category}/`
+- **`meta-reviewer` agent** (meta) - Deep analysis of accumulated learnings and agent memory. Uses opus-4-6 with `memory: project` and extended-thinking. Complete rewrite of the former meta-orchestrator
+- **`/meta-review` skill** - On-demand analysis of accumulated learnings, producing prioritized improvement roadmaps via meta-reviewer agent
+- **Conditional learning capture** in `/work` (Phase 7), `/test` (Phase 6), `/review-pr` (Phase 6) — triggers only when notable patterns detected (3+ errors, self-healing activated, P1 issues found, etc.)
+- **`memory: project`** frontmatter on 4 agents: learnings-researcher, work-researcher, test-specialist, learning-writer, meta-reviewer — enables cross-session knowledge retention
+
+### Changed
+- **Sonnet 4.5 → 4.6** - Upgraded `claude-sonnet-4-5` to `claude-sonnet-4-6` across all 51 agent and skill files
+- **`/meta-health` rewritten** - Replaced 759-line aspirational dashboard with simple, honest health check that counts learnings, lists agent memory files, and shows recent activity
+- **hooks.json stripped** to PostToolUse only — removed SessionStart, UserPromptSubmit, SubagentStop, and Stop hook events
+- **Agent counts** updated: 43 → 42 total, meta 3 → 1, workflow 3 → 4
+- **Skill counts** updated: 25 → 17 total (removed 9 meta-*, added /meta-review, rewrote /meta-health)
+- **Model strategy** updated in CLAUDE.md to reference sonnet-4-6 as default
+
+### Removed
+- **9 meta-* skills** that never worked on real data: meta-analyze, meta-learn, meta-implement, meta-experiment, meta-evolve, meta-document, meta-predict, meta-improve, meta-compound-analyze
+- **2 dead meta agents**: code-cleanup-specialist, pr-review-responder
+- **4 telemetry scripts**: telemetry-init.sh, telemetry-command.sh, telemetry-agent.sh, telemetry-track.sh (telemetry.json was always empty)
+- **Telemetry architecture section** from CLAUDE.md (hooks data flow diagram, debugging instructions for telemetry)
+- **Stale telemetry references** from /test and /review-pr skills
+
 ## [1.18.0] - 2026-02-05
 
 ### Added

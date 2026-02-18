@@ -2,7 +2,7 @@
 name: triage
 description: Triage FreshService ticket and create GitHub issue
 argument-hint: "[ticket-id]"
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 context: fork
 agent: general-purpose
 allowed-tools:

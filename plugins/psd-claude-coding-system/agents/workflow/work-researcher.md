@@ -2,7 +2,8 @@
 name: work-researcher
 description: Pre-implementation research orchestrator for /work — dispatches knowledge lookup, codebase research, external validation, git history, and parallel specialist agents
 tools: Bash, Read, Grep, Glob, Task
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
+memory: project
 extended-thinking: true
 color: blue
 ---

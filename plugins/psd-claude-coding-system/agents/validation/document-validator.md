@@ -2,7 +2,7 @@
 name: document-validator
 description: Data validation at extraction boundaries (UTF-8, encoding, database constraints)
 tools: Bash, Read, Edit, Write, Grep, Glob
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: green
 ---

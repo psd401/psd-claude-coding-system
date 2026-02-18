@@ -2,7 +2,7 @@
 name: python-reviewer
 description: Python code reviewer for type hints, async patterns, security, and Pythonic best practices
 tools: Read, Grep, Glob
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: yellow
 ---

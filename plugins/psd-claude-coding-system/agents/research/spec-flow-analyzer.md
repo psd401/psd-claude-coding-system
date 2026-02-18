@@ -2,7 +2,7 @@
 name: spec-flow-analyzer
 description: Gap analysis for feature specs, user flow permutations, and edge case identification
 tools: Read, Grep, Glob, WebSearch
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: cyan
 ---

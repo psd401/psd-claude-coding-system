@@ -2,7 +2,7 @@
 name: framework-docs-researcher
 description: Validates frameworks and APIs are not deprecated, sunset, or EOL before recommending them. Checks official docs, changelogs, and migration guides.
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: blue
 ---

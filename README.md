@@ -4,14 +4,14 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.18.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.19.0-green)]()
 
 ## Overview
 
-**One unified plugin** combining battle-tested development workflows with self-improving meta-learning and knowledge compounding.
+**One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.18.0
-**Status**: Production-Ready Workflows + Experimental Meta-Learning
+**Version**: 1.19.0
+**Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
 
@@ -32,18 +32,18 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.18.0
+## What's New in v1.19.0
 
-**`/work` Refactored** - Decomposed from 594 lines into a slim ~192-line orchestrator backed by two new workflow agents.
+**Sonnet 4.6 upgrade + Meta-learning redesign** — replaced broken telemetry system with memory-based learning.
 
 ### Key Changes
 
-- **`/work` slim orchestrator** - 6 clear phases with `[REQUIRED]` headers on branch creation and PR creation to prevent skipping
-- **`work-researcher` agent** - Pre-implementation research dispatching 5+ sub-agents in parallel (learnings, codebase research, external validation, git history, test strategy, domain/security/UX)
-- **`work-validator` agent** - Post-implementation validation dispatching language reviewers (LIGHT mode) and deployment/migration validators
-- **`/test` self-healing** - New Phase 4.5 "Fix & Retry Loop" automatically fixes FIXABLE test failures (max 3 iterations)
-- **Post-edit validation hook** - PostToolUse hook validates `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq) after every Edit/Write
-- **Auto-detect default branch** - `/work` now uses `gh repo view` instead of hardcoding `dev`
+- **Sonnet 4.5 → 4.6** - All 51 agent/skill files upgraded to `claude-sonnet-4-6`
+- **Memory-based learning** - Replaced 9 aspirational meta-* skills and broken telemetry with 2 working meta skills (`/meta-review`, `/meta-health`) and automatic learning capture
+- **`learning-writer` agent** - Lightweight agent that auto-captures learnings from `/work`, `/test`, `/review-pr` when notable patterns are detected
+- **`meta-reviewer` agent** - Deep analysis of accumulated learnings and agent memory (replaces meta-orchestrator)
+- **`memory: project`** - 3 agents now retain cross-session knowledge (learnings-researcher, work-researcher, test-specialist)
+- **Removed broken telemetry** - Deleted 4 telemetry scripts, stripped hooks.json to PostToolUse only, removed 2 dead meta agents
 
 ---
 
@@ -60,42 +60,38 @@ The plugin provides a complete development lifecycle:
 
 ---
 
-## Workflow Commands (11 total)
+## Workflow Commands
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `/work` | Implement solutions with auto reviews | `/work 347` |
+| `/work` | Implement solutions with auto reviews + learning capture | `/work 347` |
 | `/architect` | System architecture design | `/architect "caching system"` |
-| `/test` | Comprehensive testing | `/test auth` |
-| `/review-pr` | Handle PR feedback | `/review-pr 123` |
+| `/test` | Comprehensive testing with self-healing + learning capture | `/test auth` |
+| `/review-pr` | Handle PR feedback + learning capture | `/review-pr 123` |
 | `/issue` | AI-validated GitHub issues | `/issue "add caching"` |
 | `/product-manager` | Product specs to sub-issues | `/product-manager "dashboard"` |
 | `/security-audit` | Security analysis | `/security-audit` |
-| `/compound` | **NEW:** Capture session learnings | `/compound` |
-| `/contribute-pattern` | **NEW:** Share patterns | `/contribute-pattern` |
+| `/scope` | Scope classification + tiered planning | `/scope "add caching"` |
+| `/compound` | Capture session learnings | `/compound` |
+| `/contribute-pattern` | Share universal patterns | `/contribute-pattern` |
 | `/compound-concepts` | Find automation opportunities | `/compound-concepts` |
 | `/clean-branch` | Post-merge cleanup | `/clean-branch` |
+| `/triage` | FreshService ticket triage | `/triage 12345` |
+| `/claude-code-updates` | Analyze Claude Code releases | `/claude-code-updates` |
+| `/compound-plugin-analyzer` | Compare with Every's plugin | `/compound-plugin-analyzer` |
 
 ---
 
-## Meta-Learning Commands (10 total)
+## Meta-Learning Commands (2 total)
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/meta-health` | System status dashboard | Daily/Weekly |
-| `/meta-analyze` | Find workflow patterns | Weekly |
-| `/meta-learn` | Get improvement suggestions | Weekly |
-| `/meta-implement` | Apply improvements safely | As needed |
-| `/meta-improve` | Full improvement pipeline | Weekly |
-| `/meta-document` | Auto-update documentation | As needed |
-| `/meta-predict` | Forecast future issues | Monthly |
-| `/meta-experiment` | A/B test ideas | Advanced |
-| `/meta-evolve` | Improve AI agents | Monthly |
-| `/meta-compound-analyze` | Analyze learnings | Monthly |
+| `/meta-review` | Analyze learnings + suggest improvements | Weekly/Monthly |
+| `/meta-health` | Quick system health check | Anytime |
 
 ---
 
-## AI Agents (43 total)
+## AI Agents (42 total)
 
 ### Review Specialists (14 agents)
 `security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
@@ -109,11 +105,11 @@ The plugin provides a complete development lifecycle:
 ### Research (6 agents)
 `learnings-researcher` · `spec-flow-analyzer` · `best-practices-researcher` · `framework-docs-researcher` · `git-history-analyzer` · `repo-research-analyst`
 
-### Workflow (3 agents)
-`bug-reproduction-validator` · `work-researcher` · `work-validator`
+### Workflow (4 agents)
+`bug-reproduction-validator` · `work-researcher` · `work-validator` · `learning-writer`
 
-### Meta-Learning & Validation (8 agents)
-`meta-orchestrator` · `code-cleanup-specialist` · `pr-review-responder` · `plan-validator` · `document-validator` · `configuration-validator` · `breaking-change-validator` · `telemetry-data-specialist`
+### Meta & Validation (6 agents)
+`meta-reviewer` · `plan-validator` · `document-validator` · `configuration-validator` · `breaking-change-validator` · `telemetry-data-specialist`
 
 ### External AI (2 agents)
 `gpt-5-codex` (GPT-5.2-pro) · `gemini-3-pro` (Gemini 3 Pro)
@@ -169,7 +165,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.15.1)
+# Should show: psd-claude-coding-system (v1.19.0)
 
 # Test a command
 /meta-health
@@ -208,16 +204,14 @@ The plugin automatically detects languages in changed files and invokes appropri
 /contribute-pattern ./docs/learnings/build-errors/2026-01-22-vite-config-gotcha.md
 ```
 
-### Meta-Learning (After 2-4 Weeks)
+### Meta-Learning
 
 ```bash
-# Weekly improvement routine
-/meta-improve
+# Review accumulated learnings for improvement suggestions
+/meta-review
 
-# Or step by step
-/meta-analyze      # Find patterns
-/meta-learn        # Get suggestions
-/meta-implement    # Apply improvements
+# Quick health check — learning counts, agent memory, recent activity
+/meta-health
 ```
 
 ---
@@ -226,26 +220,29 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```
 plugins/psd-claude-coding-system/
-├── skills/                    # 25 user-invocable skills
+├── skills/                    # 17 user-invocable skills
 │   ├── work/SKILL.md          # Main implementation workflow
 │   ├── compound/SKILL.md      # Knowledge capture
-│   ├── contribute-pattern/SKILL.md
-│   └── meta-*/SKILL.md        # Meta-learning skills
-├── agents/                    # 43 specialized agents
-│   ├── review/                # Code review specialists
-│   ├── domain/                # Domain experts
-│   ├── quality/               # Quality assurance
-│   ├── research/              # Research agents
-│   ├── external/              # External AI providers
-│   ├── meta/                  # Meta-learning
-│   └── validation/            # Validators
+│   ├── meta-review/SKILL.md   # Learning analysis
+│   ├── meta-health/SKILL.md   # System health check
+│   └── ...                    # Other workflow skills
+├── agents/                    # 42 specialized agents
+│   ├── review/                # 14 code review specialists
+│   ├── domain/                # 7 domain experts
+│   ├── quality/               # 3 quality assurance
+│   ├── research/              # 6 research agents
+│   ├── workflow/              # 4 workflow agents
+│   ├── external/              # 2 external AI providers
+│   ├── meta/                  # 1 meta-reviewer
+│   └── validation/            # 5 validators
 ├── docs/
+│   ├── learnings/             # Project learnings (auto-captured)
 │   └── patterns/              # Universal patterns
 ├── scripts/
-│   ├── language-detector.sh   # Auto-detect languages
-│   └── telemetry-*.sh         # Telemetry hooks
+│   ├── post-edit-validate.sh  # PostToolUse syntax validation
+│   └── language-detector.sh   # Language detection utility
 └── hooks/
-    └── hooks.json             # Automatic telemetry
+    └── hooks.json             # PostToolUse validation hook
 ```
 
 ---
@@ -257,16 +254,15 @@ Every interaction creates improvement opportunities:
 - Every bug → prevention system
 - Every manual process → automation candidate
 - Every solution → template for similar problems
-- Every workflow → data for meta-learning
+- Every workflow → captured learning for future sessions
 
-Use `/compound` after sessions to capture learnings.
+Use `/compound` after sessions to capture learnings. `/work`, `/test`, and `/review-pr` also auto-capture when notable patterns are detected.
 
 ---
 
 ## Documentation
 
 - [Plugin README](./plugins/psd-claude-coding-system/README.md) - Detailed plugin docs
-- [Meta-Learning Guide](./docs/META_LEARNING_GUIDE.md) - Command reference
 - [CLAUDE.md](./CLAUDE.md) - Technical reference
 
 ---

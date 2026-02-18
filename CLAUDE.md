@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peninsula School District combining:
 
-1. **Workflow Automation** (Stable) - 9 battle-tested commands + 10 workflow specialist agents
-2. **Meta-Learning System** (Experimental) - 10 commands + 5 meta-learning agents that learn from usage
+1. **Workflow Automation** (Stable) - 9 battle-tested commands + specialized agents
+2. **Memory-Based Learning** - Automatic learning capture + 2 meta commands
 
-**Version**: 1.18.0
-**Status**: ✅ Production-Ready Workflows + 🧪 Experimental Meta-Learning
+**Version**: 1.19.0
+**Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
 
@@ -31,14 +31,14 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 - `/compound` gains YAML validation gates blocking save until frontmatter is complete and valid
 
 **Agent Organization:**
-All 43 agents organized into category subdirectories:
+All 42 agents organized into category subdirectories:
 - `agents/review/` - 14 code review specialists
 - `agents/domain/` - 7 domain specialists
 - `agents/quality/` - 3 quality assurance agents
 - `agents/research/` - 6 research agents
-- `agents/workflow/` - 3 workflow agents
+- `agents/workflow/` - 4 workflow agents
 - `agents/external/` - 2 external AI providers
-- `agents/meta/` - 3 meta-learning agents
+- `agents/meta/` - 1 meta-reviewer agent
 - `agents/validation/` - 5 validator agents
 
 **Knowledge Compounding System:**
@@ -46,9 +46,10 @@ All 43 agents organized into category subdirectories:
 - Plugin patterns: `plugins/.../docs/patterns/`
 - Adaptive high-signal detection for `/compound` suggestions
 
-**Simplified Telemetry:**
-- Removed complex transcript parsing (now handled by `/compound`)
-- High-signal session detection for learning capture suggestions
+**Memory-Based Learning (v1.19.0):**
+- Automatic learning capture in `/work`, `/test`, `/review-pr`
+- `memory: project` on key agents for cross-session knowledge
+- `/meta-review` and `/meta-health` replace 9 broken meta-* skills
 
 ## Architecture
 
@@ -59,7 +60,7 @@ The plugin follows Claude Code 2.1.x architecture with skills-based organization
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
   │   └── plugin.json           # Plugin metadata (v1.15.0)
-  ├── skills/                   # 25 user-invocable skills
+  ├── skills/                   # 17 user-invocable skills
   │   ├── work/SKILL.md         # Main implementation workflow
   │   ├── test/SKILL.md         # Testing and validation
   │   ├── review-pr/SKILL.md    # PR feedback handling
@@ -67,12 +68,13 @@ plugins/psd-claude-coding-system/
   │   ├── issue/SKILL.md        # Issue creation with research
   │   ├── product-manager/SKILL.md  # Product specs
   │   ├── security-audit/SKILL.md   # Security review
-  │   ├── scope/SKILL.md        # Scope classification + planning (NEW v1.15.0)
+  │   ├── scope/SKILL.md        # Scope classification + planning
   │   ├── compound/SKILL.md     # Knowledge capture
   │   ├── contribute-pattern/SKILL.md  # Pattern sharing
   │   ├── claude-code-updates/SKILL.md  # Release monitoring
-  │   └── meta-*/SKILL.md       # 10 meta-learning skills
-  ├── agents/                   # 43 specialized AI agents (organized by category)
+  │   ├── meta-review/SKILL.md  # Analyze learnings + improvements (NEW v1.19.0)
+  │   └── meta-health/SKILL.md  # Quick system health check (rewritten v1.19.0)
+  ├── agents/                   # 42 specialized AI agents (organized by category)
   │   ├── review/               # 14 code review specialists
   │   │   ├── security-analyst.md
   │   │   ├── security-analyst-specialist.md
@@ -107,17 +109,16 @@ plugins/psd-claude-coding-system/
   │   │   ├── framework-docs-researcher.md  (NEW v1.15.0)
   │   │   ├── git-history-analyzer.md  (NEW v1.17.0)
   │   │   └── repo-research-analyst.md  (NEW v1.17.0)
-  │   ├── workflow/             # 3 workflow agents
+  │   ├── workflow/             # 4 workflow agents
   │   │   ├── bug-reproduction-validator.md
-  │   │   ├── work-researcher.md  (NEW v1.18.0)
-  │   │   └── work-validator.md  (NEW v1.18.0)
+  │   │   ├── work-researcher.md
+  │   │   ├── work-validator.md
+  │   │   └── learning-writer.md  (NEW v1.19.0)
   │   ├── external/             # 2 external AI providers
   │   │   ├── gpt-5-codex.md
   │   │   └── gemini-3-pro.md
-  │   ├── meta/                 # 3 meta-learning agents
-  │   │   ├── meta-orchestrator.md
-  │   │   ├── code-cleanup-specialist.md
-  │   │   └── pr-review-responder.md
+  │   ├── meta/                 # 1 meta agent
+  │   │   └── meta-reviewer.md  (rewritten from meta-orchestrator v1.19.0)
   │   └── validation/           # 5 validator agents
   │       ├── plan-validator.md
   │       ├── document-validator.md
@@ -128,15 +129,10 @@ plugins/psd-claude-coding-system/
   │   ├── learnings/            # Project learnings (NEW v1.15.0)
   │   └── patterns/             # Plugin-wide patterns
   ├── hooks/
-  │   └── hooks.json            # Automatic telemetry collection
+  │   └── hooks.json            # PostToolUse syntax validation hook
   ├── scripts/
-  │   ├── telemetry-init.sh     # SessionStart hook
-  │   ├── telemetry-command.sh  # UserPromptSubmit hook
-  │   ├── telemetry-agent.sh    # SubagentStop hook
-  │   ├── telemetry-track.sh    # Stop hook (simplified v1.14.0)
-  │   ├── language-detector.sh  # Language detection (NEW v1.14.0)
-  │   └── post-edit-validate.sh # PostToolUse hook (NEW v1.18.0)
-  ├── meta/                     # Telemetry data (git-ignored)
+  │   ├── post-edit-validate.sh # PostToolUse hook — validates .ts/.tsx/.py/.json
+  │   └── language-detector.sh  # Language detection utility
   └── README.md                 # Plugin documentation
 ```
 
@@ -159,7 +155,8 @@ plugins/psd-claude-coding-system/
 
 **Agents** are specialized AI assistants invoked by skills or other Claude Code instances:
 - Located in `agents/<category>/<name>.md` (reorganized v1.14.0)
-- Contain YAML frontmatter with name, description, tools, model, color
+- Contain YAML frontmatter with name, description, tools, model, color, memory
+- `memory: project` gives agents persistent cross-session knowledge
 - Organized into categories: review, domain, quality, research, workflow, external, meta, validation
 - Focused on specific domains (backend, frontend, security, testing, etc.)
 - Run autonomously with specific tool access
@@ -168,7 +165,7 @@ plugins/psd-claude-coding-system/
 
 ### Workflow Commands (9 commands)
 
-Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) with extended-thinking enabled.
+Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) with extended-thinking enabled.
 
 #### NEW in v1.11.2
 - **UX Specialist Agent** - Evaluates UI against 68 usability heuristics from 7 HCI frameworks
@@ -198,14 +195,14 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-6)
 - `/clean_branch` - Post-merge cleanup
 
-#### Agents by Category (43 total)
+#### Agents by Category (42 total)
 
 **Review Agents** (14 total) - `agents/review/`:
 - **Security**: security-analyst, security-analyst-specialist
 - **Deployment**: deployment-verification-agent, data-migration-expert
-- **Architecture**: agent-native-reviewer, architecture-strategist (NEW v1.15.0)
-- **Code Quality**: code-simplicity-reviewer (NEW v1.15.0), pattern-recognition-specialist (NEW v1.15.0)
-- **Schema & Data**: schema-drift-detector (NEW v1.17.0), data-integrity-guardian (NEW v1.17.0)
+- **Architecture**: agent-native-reviewer, architecture-strategist
+- **Code Quality**: code-simplicity-reviewer, pattern-recognition-specialist
+- **Schema & Data**: schema-drift-detector, data-integrity-guardian
 - **Language-Specific**: typescript-reviewer, python-reviewer, swift-reviewer, sql-reviewer
 
 **Domain Specialists** (7 total) - `agents/domain/`:
@@ -214,26 +211,27 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 - architect-specialist, shell-devops-specialist
 
 **Quality Agents** (3 total) - `agents/quality/`:
-- test-specialist, performance-optimizer, documentation-writer
+- test-specialist (`memory: project`), performance-optimizer, documentation-writer
 
 **Research Agents** (6 total) - `agents/research/`:
-- learnings-researcher - Searches knowledge base before implementation
+- learnings-researcher (`memory: project`) - Searches knowledge base before implementation
 - spec-flow-analyzer - Gap analysis for feature specs
-- best-practices-researcher (NEW v1.15.0) - Two-phase knowledge lookup with deprecation validation
-- framework-docs-researcher (NEW v1.15.0) - Framework/API deprecation checking
-- git-history-analyzer (NEW v1.17.0) - Git archaeology for blame, churn, hot file detection
-- repo-research-analyst (NEW v1.17.0) - Codebase onboarding and deep research
+- best-practices-researcher - Two-phase knowledge lookup with deprecation validation
+- framework-docs-researcher - Framework/API deprecation checking
+- git-history-analyzer - Git archaeology for blame, churn, hot file detection
+- repo-research-analyst - Codebase onboarding and deep research
 
-**Workflow Agents** (3 total) - `agents/workflow/`:
+**Workflow Agents** (4 total) - `agents/workflow/`:
 - bug-reproduction-validator - Documented bug reproduction with evidence
-- work-researcher (NEW v1.18.0) - Pre-implementation research orchestrator dispatching 5+ sub-agents
-- work-validator (NEW v1.18.0) - Post-implementation validation orchestrator for language reviews and deployment checks
+- work-researcher (`memory: project`) - Pre-implementation research orchestrator dispatching 5+ sub-agents
+- work-validator - Post-implementation validation orchestrator for language reviews and deployment checks
+- learning-writer (`memory: project`) - Automatic lightweight learning capture (NEW v1.19.0)
 
 **External AI** (2 total) - `agents/external/`:
 - gpt-5-codex (GPT-5.2-pro), gemini-3-pro (Gemini 3 Pro)
 
-**Meta-Learning Agents** (3 total) - `agents/meta/`:
-- meta-orchestrator, code-cleanup-specialist, pr-review-responder
+**Meta Agent** (1 total) - `agents/meta/`:
+- meta-reviewer (`memory: project`) - Analyzes learnings and agent memory for patterns and improvements (rewritten v1.19.0)
 
 **Validator Agents** (5 total) - `agents/validation/`:
 - plan-validator, document-validator, configuration-validator
@@ -243,22 +241,24 @@ Production-ready workflows using latest Claude models (sonnet-4-5, opus-4-6) wit
 
 Skills are now the primary user-facing interface. There are two types:
 
-**User-Invocable Skills** (in `skills/<name>/SKILL.md`):
-- `/work` - Slim orchestrator with work-researcher and work-validator agents (refactored v1.18.0)
-- `/test` - Comprehensive testing
-- `/review-pr` - PR feedback handling (enhanced v1.15.0: 3 always-on review agents, P1/P2/P3 severity)
+**User-Invocable Skills** (17 total, in `skills/<name>/SKILL.md`):
+- `/work` - Slim orchestrator with work-researcher and work-validator agents + conditional learning capture
+- `/test` - Comprehensive testing with self-healing retry loop + conditional learning capture
+- `/review-pr` - PR feedback handling with 3 always-on review agents + conditional learning capture
 - `/architect` - Architecture design
 - `/issue` - GitHub issue creation
 - `/product-manager` - Product specifications
 - `/security-audit` - Security review
-- `/scope` - **NEW v1.15.0** - Scope classification and tiered planning on-ramp
-- `/compound` - Capture learnings for knowledge compounding (enhanced v1.15.0: validation gates)
+- `/scope` - Scope classification and tiered planning on-ramp
+- `/compound` - Capture learnings for knowledge compounding
 - `/contribute-pattern` - Share patterns to plugin repository
 - `/compound-concepts` - Automation opportunities
 - `/clean-branch` - Post-merge cleanup
 - `/triage` - FreshService ticket triage
 - `/claude-code-updates` - Analyze Claude Code releases
-- `/meta-*` - 10 meta-learning skills
+- `/compound-plugin-analyzer` - Compare with Every's plugin
+- `/meta-review` - Analyze accumulated learnings and suggest improvements (NEW v1.19.0)
+- `/meta-health` - Quick system health check (rewritten v1.19.0)
 
 **Reusable Workflow Components** (helper skills):
 
@@ -279,93 +279,54 @@ Skills are now the primary user-facing interface. There are two types:
 - Secret/vulnerability detection
 - Security checklist validation
 
-**telemetry-report.md** - Telemetry utilities
-- Query command history
-- Track parallel execution patterns
-- Get recommendations from historical data
-
 **parallel-dispatch.md** - Multi-agent coordination
 - Auto-detect which agents to invoke based on context
 - Pattern for parallel Task tool invocations
 - Synthesize multiple agent responses
 - Track parallelism for telemetry
 
-### Meta-Learning Commands (9 commands)
+### Memory-Based Learning System (v1.19.0)
 
-Experimental self-improving system with telemetry-based learning.
+Replaced the previous telemetry-based meta-learning system (which never produced real data) with a memory-based approach.
 
-**Architecture Principle**: Observes → Learns → Suggests → Implements → Evolves → Predicts
+**Architecture Principle**: Implement → Detect patterns → Capture learnings → Review → Improve
 
-**Data Storage**: All telemetry stored in `plugins/psd-claude-coding-system/meta/*.json` (git-ignored)
-- `telemetry.json` - Command execution logs (auto-generated by hooks)
-- `experiments.json` - A/B test results
-- `compound_history.json` - Improvement history
-- `workflow_graph.json` - Agent workflow patterns
-- `agent_variants.json` - Genetic algorithm variants
+**How It Works**:
+
+1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr` conditionally invoke the `learning-writer` agent when notable patterns are detected (3+ errors, self-healing activated, common mistakes found)
+2. **Manual Learning Capture** — `/compound` for detailed session retrospectives
+3. **Cross-Session Memory** — 4 agents have `memory: project` for persistent knowledge (learnings-researcher, work-researcher, test-specialist, learning-writer, meta-reviewer)
+4. **On-Demand Analysis** — `/meta-review` dispatches the meta-reviewer agent (opus-4-6) to analyze accumulated learnings and suggest improvements
+
+**Data Flow**:
+```
+/work, /test, /review-pr (conditional)
+  └── learning-writer agent
+        ├── Deduplicates against docs/learnings/
+        └── Writes docs/learnings/{category}/{date}-{slug}.md
+
+/compound (manual, unchanged)
+  └── Writes docs/learnings/{category}/{date}-{slug}.md
+
+/meta-review (on-demand)
+  └── meta-reviewer agent
+        ├── Reads docs/learnings/**/*.md
+        └── Produces improvement roadmap
+
+/meta-health (on-demand)
+  └── Counts files, shows recent learnings, displays summary
+```
 
 **Key Commands**:
-- `/meta_analyze` - Pattern extraction from telemetry
-- `/meta_learn` - Generate improvement suggestions
-- `/meta_implement` - Auto-apply improvements (with dry-run)
-- `/meta_evolve` - Genetic algorithm for agent improvement
+- `/meta-review` - Deep analysis of accumulated learnings → prioritized improvements
+- `/meta-health` - Quick health check showing learning counts and recent activity
 
-### Telemetry Integration Architecture (NEW in v1.1.0)
+### Hooks
 
-**Hook-Based Automatic Telemetry** - Zero AI involvement, 100% reliable:
-
-1. **SessionStart Hook** (`scripts/telemetry-init.sh`):
-   - Runs when Claude Code session starts
-   - Creates `meta/telemetry.json` if it doesn't exist
-   - No output, silent initialization
-
-2. **UserPromptSubmit Hook** (`scripts/telemetry-command.sh`):
-   - Runs when user submits a prompt
-   - Detects slash command execution (e.g., `/work`, `/test`, `/meta_analyze`)
-   - Creates session state file in `meta/.session_state_{SESSION_ID}`
-   - Records: command name, arguments, start time
-
-3. **SubagentStop Hook** (`scripts/telemetry-agent.sh`):
-   - Runs when a Task tool (agent) completes
-   - Appends agent name to session state file
-   - Tracks which agents were invoked during command execution
-
-4. **PostToolUse Hook** (`scripts/post-edit-validate.sh`) (NEW v1.18.0):
-   - Runs after Edit or Write tool calls (matcher: `Edit|Write`)
-   - Validates file syntax by extension: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
-   - Non-blocking, 10s timeout, exits cleanly for unknown file types
-
-5. **Stop Hook** (`scripts/telemetry-track.sh`):
-   - Runs when Claude finishes responding
-   - Reads session state file
-   - Calculates duration
-   - Uses `jq` to UPSERT entry into `meta/telemetry.json`
-   - Cleans up session state file
-
-**Data Flow** (completely automatic):
-```
-User runs: /work 347
-  ├─> UserPromptSubmit hook: Create session state
-  ├─> Claude executes command workflow
-  │    ├─> Invokes backend-specialist
-  │    │    └─> SubagentStop hook: Add "backend-specialist" to session
-  │    └─> Invokes test-specialist
-  │         └─> SubagentStop hook: Add "test-specialist" to session
-  ├─> Claude finishes responding
-  └─> Stop hook: Finalize and write to telemetry.json
-```
-
-**Key Advantages**:
-- **Reliable**: Hooks always execute (no AI involvement)
-- **Zero Config**: Works automatically on plugin install
-- **Privacy-Safe**: Only metadata collected, never code content
-- **Graceful**: Uses `jq` if available, degrades gracefully if not
-- **Local Only**: All data stays in git-ignored `meta/` folder
-
-**Privacy Safeguards**:
-- All data stored locally in git-ignored `meta/` folder
-- Only metadata collected (never code, issues, commits, personal info)
-- User can opt-out by disabling hooks or removing plugin
-- No external network requests
+**PostToolUse Hook** (`scripts/post-edit-validate.sh`):
+- Runs after Edit or Write tool calls (matcher: `Edit|Write`)
+- Validates file syntax by extension: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
+- Non-blocking, 10s timeout, exits cleanly for unknown file types
 
 ## Marketplace Structure & Critical Files
 
@@ -423,15 +384,15 @@ psd-claude-coding-system/
   │   └── psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
-  │       ├── skills/         # 25 user-invocable skills (v1.15.0)
-  │       ├── agents/         # 41 AI agents (v1.17.0)
+  │       ├── skills/         # 17 user-invocable skills
+  │       ├── agents/         # 42 AI agents
   │       │   ├── review/     # 14 review agents
   │       │   ├── domain/     # 7 domain specialists
   │       │   ├── quality/    # 3 quality agents
   │       │   ├── research/   # 6 research agents
-  │       │   ├── workflow/   # 1 workflow agent (NEW v1.15.0)
+  │       │   ├── workflow/   # 4 workflow agents
   │       │   ├── external/   # 2 external AI
-  │       │   ├── meta/       # 3 meta-learning
+  │       │   ├── meta/       # 1 meta-reviewer
   │       │   └── validation/ # 5 validators
   │       ├── docs/
   │       │   ├── learnings/  # Project learnings
@@ -455,7 +416,7 @@ psd-claude-coding-system/
 # Verify command availability
 /work 1  # Test with dummy issue number
 
-# Check telemetry hooks installed
+# Check hooks installed
 ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/
 
 # Uninstall for clean testing
@@ -549,47 +510,8 @@ ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-co
 # Should show: hooks.json
 
 ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/scripts/
-# Should show: telemetry-*.sh files
+# Should show: post-edit-validate.sh, language-detector.sh
 ```
-
-**Problem: Hooks not firing / telemetry not collecting**
-
-Hooks were fixed in v1.1.2. If you're on an older version, update:
-
-```bash
-cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
-git pull origin main
-/plugin uninstall psd-claude-coding-system
-/plugin install psd-claude-coding-system
-# Restart Claude Code for hooks to take effect
-```
-
-**Debugging hooks:**
-1. Check hooks are registered (they load at startup):
-   ```bash
-   ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/hooks.json
-   ```
-
-2. Verify scripts are executable:
-   ```bash
-   ls -la ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/scripts/*.sh
-   # All should have 'x' permission
-   ```
-
-3. Test hooks manually:
-   ```bash
-   cd ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system
-   echo '{"session_id":"test"}' | ./scripts/telemetry-init.sh
-   ls -la meta/telemetry.json  # Should exist
-   ```
-
-4. Check if telemetry is being collected:
-   ```bash
-   cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/telemetry.json | jq '.executions | length'
-   # Should show number of tracked commands
-   ```
-
-**Note**: Hooks load at Claude Code startup. Changes to hooks require restarting Claude Code.
 
 ### hooks.json Format (CRITICAL)
 
@@ -719,17 +641,18 @@ git push origin vX.Y.Z
 - Branch naming: `feature/[issue-number]-brief-description` for issues, `fix/brief-description` for quick fixes
 - Detailed commit messages required (per user's global CLAUDE.md)
 
-### Telemetry & Privacy
-- Meta-learning telemetry is **git-ignored by default** (in `meta/` folder)
-- Only logs: command names, durations, success/failure, file counts
-- Never logs: code content, issue details, personal data
-- Collected automatically via hooks (v1.1.0+)
-- Users can opt-out by disabling hooks or removing plugin
+### Learning Data & Privacy
+- Project learnings stored in `docs/learnings/` (committed to repo)
+- Agent memory stored by Claude Code in `.claude/agent-memory/` (local only)
+- `meta/` directory is git-ignored
+- Only the PostToolUse hook runs automatically (syntax validation on Edit/Write)
+- No telemetry collection — removed in v1.19.0
 
 ### Model Selection Strategy
-- **sonnet-4-5**: Default for commands, agents, and coding tasks (fast + capable)
-- **opus-4-6**: Architecture, planning, and product-manager commands (deep reasoning)
+- **sonnet-4-6**: Default for commands, agents, and coding tasks (fast + capable)
+- **opus-4-6**: Architecture, planning, meta-review, and product-manager commands (deep reasoning)
 - **extended-thinking: true**: Enabled on all commands/agents for thorough analysis
+- **memory: project**: Enabled on key agents for cross-session knowledge retention
 
 ## Future Development
 

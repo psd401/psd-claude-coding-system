@@ -2,7 +2,7 @@
 name: compound
 description: Capture learnings from current session for future knowledge compounding
 argument-hint: "[optional: specific topic or learning to capture]"
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 context: fork
 agent: general-purpose
 allowed-tools:

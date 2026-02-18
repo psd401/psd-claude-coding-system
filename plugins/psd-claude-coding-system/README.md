@@ -2,20 +2,20 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.18.0
-Status: Production-Ready Workflows + Experimental Meta-Learning
+Version: 1.19.0
+Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
 ---
 
 ## What Is This?
 
-A unified Claude Code plugin combining **battle-tested development workflows** with **self-improving meta-learning** and **knowledge compounding**. Get immediate productivity gains from proven commands while the system learns your patterns and compounds knowledge over time.
+A unified Claude Code plugin combining **battle-tested development workflows** with **memory-based learning** and **knowledge compounding**. Get immediate productivity gains from proven commands while the system captures learnings and compounds knowledge over time.
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 11 commands + 43 specialized agents
-2. **Meta-Learning** - 10 commands that learn from your usage
+1. **Workflow Automation** - 11 commands + 42 specialized agents
+2. **Memory-Based Learning** - 2 meta commands + automatic learning capture
 3. **Knowledge Compounding** - Capture and share learnings across projects
 
 ---
@@ -35,10 +35,9 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 /review-pr 123         # Handle PR feedback
 /compound              # Capture session learnings
 
-# After 2-4 weeks, check what the system learned
-/meta-health           # System status
-/meta-analyze          # Your patterns
-/meta-learn            # Improvement suggestions
+# Review what the system has learned
+/meta-health           # Quick system health check
+/meta-review           # Deep analysis of learnings
 ```
 
 ---
@@ -66,20 +65,12 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
-| `/meta-health` | Check system status | Daily/Weekly |
-| `/meta-analyze` | Find patterns in your workflow | Weekly |
-| `/meta-learn` | Get improvement suggestions | Weekly |
-| `/meta-implement` | Apply improvements safely | As needed |
-| `/meta-improve` | Full weekly improvement pipeline | Weekly (automated) |
-| `/meta-document` | Auto-update documentation | As needed |
-| `/meta-predict` | Forecast future issues | Monthly |
-| `/meta-experiment` | A/B test ideas safely | Advanced |
-| `/meta-evolve` | Improve AI agents | Monthly |
-| `/meta-compound-analyze` | Analyze compound learnings | Monthly |
+| `/meta-review` | Analyze learnings + suggest improvements | Weekly/Monthly |
+| `/meta-health` | Quick system health check | Anytime |
 
 ---
 
-## AI Agents (43 total)
+## AI Agents (42 total)
 
 ### Review Specialists (`agents/review/`)
 
@@ -138,6 +129,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `bug-reproduction-validator` | Documented bug reproduction with evidence |
 | `work-researcher` | Pre-implementation research orchestrator |
 | `work-validator` | Post-implementation validation orchestrator |
+| `learning-writer` | Automatic lightweight learning capture |
 
 ### External AI (`agents/external/`)
 
@@ -146,13 +138,11 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `gpt-5-codex` | GPT-5.2-pro for second opinions |
 | `gemini-3-pro` | Gemini 3 Pro for multimodal analysis |
 
-### Meta-Learning (`agents/meta/`)
+### Meta (`agents/meta/`)
 
 | Agent | Purpose |
 |-------|---------|
-| `meta-orchestrator` | Coordinates agents optimally |
-| `code-cleanup-specialist` | Dead code removal |
-| `pr-review-responder` | Multi-reviewer synthesis |
+| `meta-reviewer` | Analyzes learnings + agent memory for patterns |
 
 ### Validators (`agents/validation/`)
 
@@ -286,7 +276,7 @@ Using `scripts/language-detector.sh`:
 
 ## Enhanced Workflow Phases
 
-### `/work` (v1.18.0 — Slim Orchestrator)
+### `/work` (v1.19.0 — Slim Orchestrator)
 
 | Phase | Description |
 |-------|-------------|
@@ -296,51 +286,45 @@ Using `scripts/language-detector.sh`:
 | 4 | Implementation + incremental commits + testing |
 | 5 | Validation via work-validator agent |
 | **6** | **Commit & Create PR [REQUIRED]** |
+| 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
 
-### `/review-pr` (v1.14.0)
-
-| Phase | Description |
-|-------|-------------|
-| 1 | Fetch PR details |
-| 2 | Parallel agent analysis |
-| **2.5** | **NEW:** Language-specific deep review |
-| **2.6** | **NEW:** Deployment verification (if migrations) |
-| 3 | Synthesize feedback |
-| 4 | Apply changes |
-
-### `/issue` (v1.14.0)
+### `/review-pr` (v1.19.0)
 
 | Phase | Description |
 |-------|-------------|
-| 1 | Research and context |
-| **1.5** | **NEW:** Spec flow analysis (if complex feature) |
-| 2 | Issue creation |
+| 1 | Fetch PR details + inline comments |
+| 2 | Parallel agent analysis (3 always-on + conditional) |
+| 2.5 | Language-specific deep review |
+| 2.6 | Deployment verification (if migrations) |
+| 3 | Severity classification (P1/P2/P3) + fix |
+| 4 | Update PR |
+| 5 | Quality checks |
+| 6 | Learning capture (conditional — recurring patterns, P1 issues) |
+
+### `/test` (v1.19.0)
+
+| Phase | Description |
+|-------|-------------|
+| 1 | Test analysis |
+| 2 | Test execution |
+| 3 | Write missing tests |
+| 3.5 | UX testing validation (if UI components) |
+| 4 | Quality gates |
+| 4.5 | Self-healing retry loop (max 3 iterations) |
+| 5 | Test documentation |
+| 6 | Learning capture (conditional — self-healing activated, investigation needed) |
 
 ---
 
-## Automatic Telemetry
+## Hooks
 
-**Zero configuration required!** The system automatically tracks usage via hooks.
+The plugin uses a single PostToolUse hook for automatic syntax validation:
 
-### What Gets Tracked
+| Hook | Trigger | What It Does |
+|------|---------|--------------|
+| `post-edit-validate.sh` | After Edit/Write | Validates `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq) |
 
-| Collected | NOT Collected |
-|-----------|---------------|
-| Command names | Your actual code |
-| Duration | File names or paths |
-| Success/failure | Issue descriptions |
-| Agents invoked | Personal information |
-| File counts | API keys or secrets |
-
-### High-Signal Session Detection
-
-The telemetry system detects sessions worth capturing:
-- Tool errors (`is_error: true`)
-- User negative sentiment
-- Multiple edit retries (>3x same file)
-- Long duration (>2x average)
-
-When detected, suggests running `/compound`.
+Non-blocking with 10s timeout. Exits cleanly for unknown file types.
 
 ---
 
@@ -358,16 +342,14 @@ When detected, suggests running `/compound`.
 /compound              # Capture it
 ```
 
-### Week 3+: Meta-Learning
+### Ongoing: Review Learnings
 
 ```bash
-# Weekly routine
-/meta-improve
+# Quick health check
+/meta-health
 
-# Or step by step
-/meta-analyze          # Find patterns
-/meta-learn            # Get suggestions
-/meta-implement        # Apply improvements
+# Deep analysis of accumulated learnings
+/meta-review
 ```
 
 ### Monthly: Knowledge Contribution
@@ -417,17 +399,6 @@ cp ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-co
 /plugin install psd-claude-coding-system
 ```
 
-### No Telemetry Data
-
-```bash
-# Check hooks installed
-ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/
-
-# Check jq installed
-which jq
-# If not: brew install jq (macOS)
-```
-
 ### Plugin Not Found
 
 ```bash
@@ -440,10 +411,11 @@ git pull origin main
 
 ## Privacy & Security
 
-- All data stays local in `meta/` folder (git-ignored)
+- Project learnings stored in `docs/learnings/` (committed to repo, you control what's captured)
+- Agent memory stored locally by Claude Code in `.claude/agent-memory/`
+- No telemetry collection — removed in v1.19.0
+- Only hook is PostToolUse syntax validation (no data collection)
 - No external network requests
-- Only metadata collected, never code content
-- Opt-out by disabling hooks or removing plugin
 
 ---
 

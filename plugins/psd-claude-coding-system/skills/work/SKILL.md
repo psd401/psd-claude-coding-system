@@ -190,3 +190,21 @@ fi
 
 echo "=== PR created ==="
 ```
+
+## Phase 7: Learning Capture (Conditional)
+
+Trigger learning capture **only** if any of these conditions are met during the session:
+- 3+ errors encountered during implementation
+- Same file edited 3+ times (indicates iterative debugging)
+- A novel solution or workaround was used
+- Research learning from Phase 3 was directly applicable
+
+**If none of these conditions are met, skip this phase entirely.**
+
+If triggered, invoke the learning-writer agent:
+
+- subagent_type: "psd-claude-coding-system:workflow:learning-writer"
+- description: "Capture learning from #$ISSUE_NUMBER"
+- prompt: "TRIGGER_REASON=[reason this was triggered] SUMMARY=[brief description of what happened during implementation] KEY_INSIGHT=[the specific learning or pattern discovered] CATEGORY=[appropriate category] TAGS=[relevant tags]. Write a concise learning document if this insight is novel."
+
+**Do not block on this agent** — if it fails, proceed without learning capture.

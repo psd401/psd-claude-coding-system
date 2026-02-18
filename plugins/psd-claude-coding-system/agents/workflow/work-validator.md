@@ -2,7 +2,7 @@
 name: work-validator
 description: Post-implementation validation orchestrator for /work — dispatches language reviewers and deployment verification agents based on changed files
 tools: Bash, Read, Grep, Glob, Task
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: green
 ---

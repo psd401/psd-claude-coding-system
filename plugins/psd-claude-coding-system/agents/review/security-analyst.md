@@ -2,7 +2,7 @@
 name: security-analyst
 description: Security specialist for vulnerability analysis, penetration testing, and security hardening
 tools: Bash, Read, Edit, WebSearch
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: red
 ---

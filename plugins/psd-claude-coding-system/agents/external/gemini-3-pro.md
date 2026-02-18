@@ -2,7 +2,7 @@
 name: gemini-3-pro
 description: Advanced AI agent leveraging Google Gemini 3 Pro for deep analysis, multimodal reasoning, and complex problem-solving.
 tools: Bash
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 ---
 

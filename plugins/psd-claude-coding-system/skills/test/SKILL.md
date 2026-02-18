@@ -2,7 +2,7 @@
 name: test
 description: Comprehensive testing command for running, writing, and validating tests
 argument-hint: "[issue number, PR number, or test scope]"
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 context: fork
 agent: general-purpose
 allowed-tools:
@@ -215,21 +215,25 @@ Update test documentation:
 - Update README with test commands if needed
 
 ```bash
-# Collect test metrics for telemetry
-TESTS_RUN=$(grep -o "Tests:.*passed" test-output.txt 2>/dev/null | head -1 || echo "unknown")
-COVERAGE=$(grep -o "[0-9.]*%" coverage/coverage-summary.txt 2>/dev/null | head -1 || echo "unknown")
-
-
-
-# Finalize telemetry (mark as success)
-if [ -n "$TELEMETRY_SESSION_ID" ]; then
-  TELEMETRY_END_TIME=$(date +%s)
-  TELEMETRY_DURATION=$((TELEMETRY_END_TIME - TELEMETRY_START_TIME))
-fi
-
-echo ""
 echo "Testing completed successfully!"
 ```
+
+### Phase 6: Learning Capture (Conditional)
+
+Trigger learning capture **only** if any of these conditions are met:
+- Self-healing loop (Phase 4.5) was activated
+- Test failures required investigation to diagnose
+- Coverage gaps were found in critical paths
+
+**If none of these conditions are met, skip this phase entirely.**
+
+If triggered, invoke the learning-writer agent:
+
+- subagent_type: "psd-claude-coding-system:workflow:learning-writer"
+- description: "Capture testing learning"
+- prompt: "TRIGGER_REASON=[reason this was triggered] SUMMARY=[what test issues were encountered and resolved] KEY_INSIGHT=[the specific testing pattern or failure mode discovered] CATEGORY=test-failures TAGS=[relevant tags]. Write a concise learning document if this insight is novel."
+
+**Do not block on this agent** — if it fails, proceed without learning capture.
 
 ## Quick Reference
 

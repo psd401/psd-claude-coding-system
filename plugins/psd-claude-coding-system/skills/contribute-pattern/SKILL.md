@@ -2,7 +2,7 @@
 name: contribute-pattern
 description: Share a project learning as a universal pattern to the plugin repository
 argument-hint: "[path to learning file OR leave empty to select]"
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 context: fork
 agent: general-purpose
 allowed-tools:

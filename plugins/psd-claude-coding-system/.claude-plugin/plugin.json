@@ -1,6 +1,6 @@
 {
   "name": "psd-claude-coding-system",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "description": "Comprehensive AI-assisted development system for Peninsula School District - combines workflow automation, specialized agents, and self-improving meta-learning with automatic telemetry collection",
   "author": {
     "name": "Kris Hagel",

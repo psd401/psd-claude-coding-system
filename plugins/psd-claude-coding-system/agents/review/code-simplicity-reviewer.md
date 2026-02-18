@@ -2,7 +2,7 @@
 name: code-simplicity-reviewer
 description: Enforces YAGNI, flags unnecessary complexity, premature abstractions, and over-engineering. Every line is a liability.
 tools: Read, Grep, Glob
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: green
 ---

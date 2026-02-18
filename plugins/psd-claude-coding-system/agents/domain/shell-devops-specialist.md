@@ -1,7 +1,7 @@
 ---
 name: shell-devops-specialist
 description: Shell scripting semantics, exit codes, JSON parsing, and hook integration specialist
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: cyan
 ---

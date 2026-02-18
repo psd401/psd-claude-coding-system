@@ -2,7 +2,7 @@
 name: typescript-reviewer
 description: TypeScript/JavaScript code reviewer for type safety, async patterns, and framework best practices
 tools: Read, Grep, Glob
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: blue
 ---

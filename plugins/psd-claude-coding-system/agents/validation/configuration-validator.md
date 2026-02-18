@@ -1,7 +1,7 @@
 ---
 name: configuration-validator
 description: Multi-file consistency, version tracking, and configuration drift detection specialist
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: orange
 ---
@@ -66,15 +66,15 @@ When version changes detected, validate ALL 5 required locations are updated:
 **Model Name/ID Consistency:**
 
 When model changes detected, validate consistency across:
-- Agent frontmatter: `model: claude-sonnet-4-5` (current standard)
+- Agent frontmatter: `model: claude-sonnet-4-6` (current standard)
 - Command frontmatter: `model: claude-opus-4-6`
 - Code references: check for hardcoded model names
 - Documentation: ensure model references are up-to-date
 
 **Common model errors:**
-- Inconsistent naming: `claude-sonnet-4-5` vs `sonnet-4-5` vs `claude-sonnet-4-5-20250101`
+- Inconsistent naming: `claude-sonnet-4-6` vs `sonnet-4-5` vs `claude-sonnet-4-6-20250101`
 - Old model IDs: `claude-opus-4-1` instead of `claude-opus-4-6`
-- Hardcoded in code: `const model = "claude-sonnet-4-5"` instead of config
+- Hardcoded in code: `const model = "claude-sonnet-4-6"` instead of config
 - Model change in agent but not documented in CLAUDE.md
 
 #### Environment Variable Validation
@@ -295,8 +295,8 @@ grep -h "version.*1\.11\.0" \
 ### High Priority Issue Example
 
 **File:** plugins/psd-claude-coding-system/agents/backend-specialist.md:4
-**Issue:** Outdated model ID - using deprecated claude-sonnet-4-5 instead of current standard
-**Problem:** Agent frontmatter specifies `model: claude-sonnet-4-5` but should use full model ID `claude-sonnet-4-5-20250929` per current convention
+**Issue:** Outdated model ID - using deprecated claude-sonnet-4-6 instead of current standard
+**Problem:** Agent frontmatter specifies `model: claude-sonnet-4-6` but should use full model ID `claude-sonnet-4-6-20250929` per current convention
 **Impact:** May use wrong model version, inconsistent with other agents
 **Inconsistency Evidence:**
 ```bash
@@ -304,17 +304,17 @@ grep -h "version.*1\.11\.0" \
 grep -n "^model:" plugins/psd-claude-coding-system/agents/*.md
 
 # Results show inconsistency:
-backend-specialist.md:4:model: claude-sonnet-4-5  # Incomplete ID
-frontend-specialist.md:4:model: claude-sonnet-4-5-20250929  # Correct
-test-specialist.md:4:model: claude-sonnet-4-5-20250929  # Correct
+backend-specialist.md:4:model: claude-sonnet-4-6  # Incomplete ID
+frontend-specialist.md:4:model: claude-sonnet-4-6-20250929  # Correct
+test-specialist.md:4:model: claude-sonnet-4-6-20250929  # Correct
 ```
 **Fix:**
 ```diff
 # plugins/psd-claude-coding-system/agents/backend-specialist.md
 ---
 name: backend-specialist
--model: claude-sonnet-4-5
-+model: claude-sonnet-4-5-20250929
+-model: claude-sonnet-4-6
++model: claude-sonnet-4-6-20250929
 extended-thinking: true
 ---
 ```
@@ -330,7 +330,7 @@ grep "^model:" plugins/psd-claude-coding-system/agents/*.md | \
 
 **Validated Consistency:**
 - All 5 version locations in sync at 1.11.0
-- All agent model IDs use full format: `claude-sonnet-4-5-20250929`
+- All agent model IDs use full format: `claude-sonnet-4-6-20250929`
 - Environment variables: 3 documented in .env.example, 3 used in code (100% match)
 - Agent count: README says "20 agents", actual count: 20 (correct)
 

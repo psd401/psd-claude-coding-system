@@ -1,7 +1,7 @@
 ---
 name: clean-branch
 description: Clean up merged branches, close issues, and extract compound learning insights
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 context: fork
 agent: general-purpose
 allowed-tools:

@@ -2,7 +2,7 @@
 name: sql-reviewer
 description: SQL code reviewer for injection prevention, query performance, schema design, and migration safety
 tools: Read, Grep, Glob
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: cyan
 ---

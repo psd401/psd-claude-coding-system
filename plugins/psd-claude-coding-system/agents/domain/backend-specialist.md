@@ -2,7 +2,7 @@
 name: backend-specialist
 description: Backend development specialist for APIs, server logic, and system integration
 tools: Read, Edit, Write
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: blue
 ---

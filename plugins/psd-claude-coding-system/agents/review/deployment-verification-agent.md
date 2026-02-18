@@ -2,7 +2,7 @@
 name: deployment-verification-agent
 description: Go/No-Go checklists for risky deployments (migrations, schema changes, critical paths)
 tools: Bash, Read, Grep, Glob
-model: claude-sonnet-4-5
+model: claude-sonnet-4-6
 extended-thinking: true
 color: orange
 ---
