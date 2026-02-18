@@ -528,20 +528,13 @@ After PR is approved and merged:
 echo "PR review completed successfully!"
 ```
 
-### Phase 6: Learning Capture (Conditional)
+### Phase 6: Learning Capture
 
-Trigger learning capture **only** if any of these conditions are met:
-- Review comments revealed recurring patterns (same feedback given before)
-- Common mistakes were flagged by review agents (SOLID violations, security issues)
-- A P1 (blocking) issue was found that could have been prevented
-
-**If none of these conditions are met, skip this phase entirely.**
-
-If triggered, invoke the learning-writer agent:
+Always dispatch the learning-writer agent with a session summary. The agent handles deduplication and novelty detection — it will skip writing if the insight isn't novel.
 
 - subagent_type: "psd-claude-coding-system:workflow:learning-writer"
 - description: "Capture PR review learning for #$ARGUMENTS"
-- prompt: "TRIGGER_REASON=[reason this was triggered] SUMMARY=[what review patterns were found] KEY_INSIGHT=[the specific mistake pattern or prevention strategy] CATEGORY=[appropriate category — e.g., security, logic, integration] TAGS=[relevant tags]. Write a concise learning document if this insight is novel."
+- prompt: "SUMMARY=[what review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[the most notable mistake pattern or prevention strategy from this session, or 'routine review' if nothing stood out] CATEGORY=[appropriate category — e.g., security, logic, integration] TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.
 

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.20.0] - 2026-02-18
+
+### Added
+- **Context7 MCP server** - Live framework docs for 100+ frameworks via `resolve-library-id` and `query-docs` tools. Configured in plugin.json, no API key required
+- **`/lfg` skill** - Autonomous end-to-end workflow: implement → test → review → fix → learn. Delegates 5 of 10 phases to Task agents for context budget management. Dispatches test-specialist, work-validator, security-analyst-specialist, and language reviewers
+- **Swarm orchestration documentation** - `docs/patterns/swarm-orchestration.md` documenting Agent Teams (experimental) leader/teammate/inbox pattern for future integration
+
+### Changed
+- **Learning capture now always-run** - `/work` (Phase 7), `/test` (Phase 6), `/review-pr` (Phase 6) always dispatch learning-writer agent instead of conditional triggers. Agent handles deduplication and novelty detection internally
+- **plugin.json description/keywords cleaned** - Removed stale "telemetry", "self-improving", "meta-learning" references from plugin.json and marketplace.json
+- **Skill count** 17 → 18 (added `/lfg`)
+
 ## [1.19.0] - 2026-02-18
 
 ### Added

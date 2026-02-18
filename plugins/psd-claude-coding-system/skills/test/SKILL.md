@@ -218,20 +218,13 @@ Update test documentation:
 echo "Testing completed successfully!"
 ```
 
-### Phase 6: Learning Capture (Conditional)
+### Phase 6: Learning Capture
 
-Trigger learning capture **only** if any of these conditions are met:
-- Self-healing loop (Phase 4.5) was activated
-- Test failures required investigation to diagnose
-- Coverage gaps were found in critical paths
-
-**If none of these conditions are met, skip this phase entirely.**
-
-If triggered, invoke the learning-writer agent:
+Always dispatch the learning-writer agent with a session summary. The agent handles deduplication and novelty detection — it will skip writing if the insight isn't novel.
 
 - subagent_type: "psd-claude-coding-system:workflow:learning-writer"
 - description: "Capture testing learning"
-- prompt: "TRIGGER_REASON=[reason this was triggered] SUMMARY=[what test issues were encountered and resolved] KEY_INSIGHT=[the specific testing pattern or failure mode discovered] CATEGORY=test-failures TAGS=[relevant tags]. Write a concise learning document if this insight is novel."
+- prompt: "SUMMARY=[what test issues were encountered, self-healing attempts, coverage findings] KEY_INSIGHT=[the most notable testing pattern or failure mode from this session, or 'routine testing' if nothing stood out] CATEGORY=test-failures TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.
 

@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + 2 meta commands
 
-**Version**: 1.19.0
+**Version**: 1.20.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -60,8 +60,9 @@ The plugin follows Claude Code 2.1.x architecture with skills-based organization
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
   │   └── plugin.json           # Plugin metadata (v1.15.0)
-  ├── skills/                   # 17 user-invocable skills
+  ├── skills/                   # 18 user-invocable skills
   │   ├── work/SKILL.md         # Main implementation workflow
+  │   ├── lfg/SKILL.md          # Autonomous end-to-end workflow (NEW v1.20.0)
   │   ├── test/SKILL.md         # Testing and validation
   │   ├── review-pr/SKILL.md    # PR feedback handling
   │   ├── architect/SKILL.md    # Architecture design
@@ -241,10 +242,11 @@ Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) wit
 
 Skills are now the primary user-facing interface. There are two types:
 
-**User-Invocable Skills** (17 total, in `skills/<name>/SKILL.md`):
-- `/work` - Slim orchestrator with work-researcher and work-validator agents + conditional learning capture
-- `/test` - Comprehensive testing with self-healing retry loop + conditional learning capture
-- `/review-pr` - PR feedback handling with 3 always-on review agents + conditional learning capture
+**User-Invocable Skills** (18 total, in `skills/<name>/SKILL.md`):
+- `/work` - Slim orchestrator with work-researcher and work-validator agents + always-run learning capture
+- `/lfg` - Autonomous end-to-end workflow: implement → test → review → fix → learn (NEW v1.20.0)
+- `/test` - Comprehensive testing with self-healing retry loop + always-run learning capture
+- `/review-pr` - PR feedback handling with 3 always-on review agents + always-run learning capture
 - `/architect` - Architecture design
 - `/issue` - GitHub issue creation
 - `/product-manager` - Product specifications
@@ -293,14 +295,14 @@ Replaced the previous telemetry-based meta-learning system (which never produced
 
 **How It Works**:
 
-1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr` conditionally invoke the `learning-writer` agent when notable patterns are detected (3+ errors, self-healing activated, common mistakes found)
+1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr`, `/lfg` always invoke the `learning-writer` agent (the agent handles deduplication and novelty detection)
 2. **Manual Learning Capture** — `/compound` for detailed session retrospectives
 3. **Cross-Session Memory** — 4 agents have `memory: project` for persistent knowledge (learnings-researcher, work-researcher, test-specialist, learning-writer, meta-reviewer)
 4. **On-Demand Analysis** — `/meta-review` dispatches the meta-reviewer agent (opus-4-6) to analyze accumulated learnings and suggest improvements
 
 **Data Flow**:
 ```
-/work, /test, /review-pr (conditional)
+/work, /test, /review-pr, /lfg (always-run)
   └── learning-writer agent
         ├── Deduplicates against docs/learnings/
         └── Writes docs/learnings/{category}/{date}-{slug}.md
@@ -320,6 +322,30 @@ Replaced the previous telemetry-based meta-learning system (which never produced
 **Key Commands**:
 - `/meta-review` - Deep analysis of accumulated learnings → prioritized improvements
 - `/meta-health` - Quick health check showing learning counts and recent activity
+
+### Context7 MCP Server (v1.20.0)
+
+The plugin configures a Context7 MCP server providing live framework documentation for 100+ frameworks. No API key required.
+
+**Tools available:**
+- `resolve-library-id` — Find the Context7 ID for a framework/library
+- `query-docs` — Query live documentation for a specific library
+
+**Configuration** (in `plugin.json`):
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
+```
+
+### Swarm Orchestration (v1.20.0 — Documentation Only)
+
+Agent Teams (experimental) enable leader/teammate/inbox patterns for parallel agent coordination. Documented in `docs/patterns/swarm-orchestration.md`. No code changes in v1.20.0 — manual opt-in via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`.
 
 ### Hooks
 
@@ -384,7 +410,7 @@ psd-claude-coding-system/
   │   └── psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
-  │       ├── skills/         # 17 user-invocable skills
+  │       ├── skills/         # 18 user-invocable skills
   │       ├── agents/         # 42 AI agents
   │       │   ├── review/     # 14 review agents
   │       │   ├── domain/     # 7 domain specialists

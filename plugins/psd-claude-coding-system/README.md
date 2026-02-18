@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.19.0
+Version: 1.20.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -14,7 +14,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 11 commands + 42 specialized agents
+1. **Workflow Automation** - 12 commands + 42 specialized agents
 2. **Memory-Based Learning** - 2 meta commands + automatic learning capture
 3. **Knowledge Compounding** - Capture and share learnings across projects
 
@@ -47,6 +47,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | Command | Description | Example |
 |---------|-------------|---------|
 | `/work` | Implement solutions with auto reviews | `/work 347` or `/work "add logging"` |
+| `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn | `/lfg 347` or `/lfg "add caching"` |
 | `/architect` | System architecture via architect-specialist | `/architect 347` |
 | `/test` | Comprehensive testing with coverage validation | `/test auth` |
 | `/review-pr` | Handle PR feedback systematically | `/review-pr 123` |
@@ -276,7 +277,7 @@ Using `scripts/language-detector.sh`:
 
 ## Enhanced Workflow Phases
 
-### `/work` (v1.19.0 — Slim Orchestrator)
+### `/work` (v1.20.0 — Slim Orchestrator)
 
 | Phase | Description |
 |-------|-------------|
@@ -288,7 +289,7 @@ Using `scripts/language-detector.sh`:
 | **6** | **Commit & Create PR [REQUIRED]** |
 | 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
 
-### `/review-pr` (v1.19.0)
+### `/review-pr` (v1.20.0)
 
 | Phase | Description |
 |-------|-------------|
@@ -301,7 +302,7 @@ Using `scripts/language-detector.sh`:
 | 5 | Quality checks |
 | 6 | Learning capture (conditional — recurring patterns, P1 issues) |
 
-### `/test` (v1.19.0)
+### `/test` (v1.20.0)
 
 | Phase | Description |
 |-------|-------------|
@@ -413,7 +414,7 @@ git pull origin main
 
 - Project learnings stored in `docs/learnings/` (committed to repo, you control what's captured)
 - Agent memory stored locally by Claude Code in `.claude/agent-memory/`
-- No telemetry collection — removed in v1.19.0
+- No telemetry collection — removed in v1.20.0
 - Only hook is PostToolUse syntax validation (no data collection)
 - No external network requests
 

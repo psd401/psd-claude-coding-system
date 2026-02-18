@@ -1,7 +1,7 @@
 {
   "name": "psd-claude-coding-system",
-  "version": "1.19.0",
-  "description": "Comprehensive AI-assisted development system for Peninsula School District - combines workflow automation, specialized agents, and self-improving meta-learning with automatic telemetry collection",
+  "version": "1.20.0",
+  "description": "AI-assisted development system for Peninsula School District - workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
   "author": {
     "name": "Kris Hagel",
     "email": "hagelk@psd401.net",
@@ -12,12 +12,17 @@
     "workflow",
     "development",
     "agents",
-    "meta-learning",
-    "self-improving",
     "compound-engineering",
-    "telemetry",
+    "memory-learning",
+    "context7",
     "psd",
     "education"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
 }

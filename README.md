@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.19.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.20.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.19.0
+**Version**: 1.20.0
 **Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
@@ -32,18 +32,17 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.19.0
+## What's New in v1.20.0
 
-**Sonnet 4.6 upgrade + Meta-learning redesign** — replaced broken telemetry system with memory-based learning.
+**Context7 MCP + Autonomous Workflow + Swarm Foundation**
 
 ### Key Changes
 
-- **Sonnet 4.5 → 4.6** - All 51 agent/skill files upgraded to `claude-sonnet-4-6`
-- **Memory-based learning** - Replaced 9 aspirational meta-* skills and broken telemetry with 2 working meta skills (`/meta-review`, `/meta-health`) and automatic learning capture
-- **`learning-writer` agent** - Lightweight agent that auto-captures learnings from `/work`, `/test`, `/review-pr` when notable patterns are detected
-- **`meta-reviewer` agent** - Deep analysis of accumulated learnings and agent memory (replaces meta-orchestrator)
-- **`memory: project`** - 3 agents now retain cross-session knowledge (learnings-researcher, work-researcher, test-specialist)
-- **Removed broken telemetry** - Deleted 4 telemetry scripts, stripped hooks.json to PostToolUse only, removed 2 dead meta agents
+- **Context7 MCP server** - Live framework docs for 100+ frameworks, configured in plugin.json (no API key)
+- **`/lfg` skill** - Autonomous end-to-end workflow: implement → test → review → fix → learn in one shot
+- **Always-run learning capture** - `/work`, `/test`, `/review-pr` now always dispatch learning-writer (agent handles deduplication)
+- **Swarm documentation** - Agent Teams pattern documented in `docs/patterns/swarm-orchestration.md` (manual opt-in)
+- **Cleaned stale references** - Removed "telemetry" and "self-improving" from plugin descriptions/keywords
 
 ---
 
@@ -65,6 +64,7 @@ The plugin provides a complete development lifecycle:
 | Command | Description | Example |
 |---------|-------------|---------|
 | `/work` | Implement solutions with auto reviews + learning capture | `/work 347` |
+| `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn | `/lfg 347` |
 | `/architect` | System architecture design | `/architect "caching system"` |
 | `/test` | Comprehensive testing with self-healing + learning capture | `/test auth` |
 | `/review-pr` | Handle PR feedback + learning capture | `/review-pr 123` |
@@ -165,7 +165,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.19.0)
+# Should show: psd-claude-coding-system (v1.20.0)
 
 # Test a command
 /meta-health
@@ -220,8 +220,9 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```
 plugins/psd-claude-coding-system/
-├── skills/                    # 17 user-invocable skills
+├── skills/                    # 18 user-invocable skills
 │   ├── work/SKILL.md          # Main implementation workflow
+│   ├── lfg/SKILL.md           # Autonomous end-to-end workflow
 │   ├── compound/SKILL.md      # Knowledge capture
 │   ├── meta-review/SKILL.md   # Learning analysis
 │   ├── meta-health/SKILL.md   # System health check
@@ -256,7 +257,7 @@ Every interaction creates improvement opportunities:
 - Every solution → template for similar problems
 - Every workflow → captured learning for future sessions
 
-Use `/compound` after sessions to capture learnings. `/work`, `/test`, and `/review-pr` also auto-capture when notable patterns are detected.
+Use `/compound` after sessions to capture learnings. `/work`, `/test`, `/review-pr`, and `/lfg` always dispatch the learning-writer agent (it handles deduplication).
 
 ---
 
