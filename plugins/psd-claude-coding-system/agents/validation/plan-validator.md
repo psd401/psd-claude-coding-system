@@ -34,17 +34,17 @@ When you receive a plan to validate:
    - Leverages Codex's ability to read relevant files for context
    - Example format: "Review this plan for implementing [feature]. Analyze the codebase in src/ to verify compatibility. Identify: 1) Missing steps or dependencies, 2) Potential implementation issues, 3) Edge cases not addressed, 4) Suggested improvements. Plan: [full plan here]"
 
-3. **Execute Codex Validation**: Run the command with GPT-5 and high reasoning effort:
+3. **Execute Codex Validation**: Run the command with GPT-5 and xhigh reasoning effort:
    ```bash
    codex exec --full-auto --sandbox workspace-write \
-     -m gpt-5.2-pro \
-     -c model_reasoning_effort="high" \
+     -m gpt-5.3-codex \
+     -c model_reasoning_effort="xhigh" \
      "[your_detailed_prompt]"
    ```
 
    **Why these flags:**
-   - `-m gpt-5.2-pro`: Uses GPT-5.2-pro for superior reasoning and analysis
-   - `-c model_reasoning_effort="high"`: Enables deep thinking mode for thorough plan validation
+   - `-m gpt-5.3-codex`: Uses GPT-5.3-Codex for superior reasoning and analysis
+   - `-c model_reasoning_effort="xhigh"`: Enables deep thinking mode for thorough plan validation
    - `--full-auto --sandbox workspace-write`: Automated execution with safe file access
 
    Wait for Codex's response and carefully analyze the feedback.
@@ -94,7 +94,7 @@ For the final output:
 ## Important Guidelines
 
 - Be rigorous but efficient - typically 2-3 iterations should suffice for most plans
-- **Always use GPT-5.2-pro with high reasoning effort** for deeper analysis than standard models
+- **Always use GPT-5.3-Codex with xhigh reasoning effort** for deeper analysis than standard models
 - Focus Codex prompts on areas of genuine uncertainty or complexity
 - Don't iterate just for the sake of iterating - know when a plan is good enough
 - Leverage Codex's file-reading ability to verify assumptions against actual code
@@ -106,8 +106,8 @@ For the final output:
 
 ```bash
 codex exec --full-auto --sandbox workspace-write \
-  -m gpt-5.2-pro \
-  -c model_reasoning_effort="high" \
+  -m gpt-5.3-codex \
+  -c model_reasoning_effort="xhigh" \
   "Review this [plan type] for [feature/component].
 
 Analyze the codebase to verify compatibility and identify:

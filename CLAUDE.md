@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 9 battle-tested commands + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + 2 meta commands
 
-**Version**: 1.20.0
+**Version**: 1.20.1
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -171,7 +171,7 @@ Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) wit
 #### NEW in v1.11.2
 - **UX Specialist Agent** - Evaluates UI against 68 usability heuristics from 7 HCI frameworks
 - **Automatic UX review** - `/work`, `/product-manager`, `/review_pr`, `/architect`, `/test` auto-invoke for UI work
-- **GPT-5.2-pro upgrade** - Updated `gpt-5-codex` and `plan-validator` agents to use gpt-5.2-pro model
+- **GPT-5.3-Codex upgrade** - Updated `gpt-5-codex` and `plan-validator` agents to use gpt-5.3-codex model
 
 #### In v1.7.0
 - **Opus 4.6** used for architecture/planning (upgraded from Opus 4.5 in v1.16.0)
@@ -229,7 +229,7 @@ Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) wit
 - learning-writer (`memory: project`) - Automatic lightweight learning capture (NEW v1.19.0)
 
 **External AI** (2 total) - `agents/external/`:
-- gpt-5-codex (GPT-5.2-pro), gemini-3-pro (Gemini 3 Pro)
+- gpt-5-codex (GPT-5.3-Codex), gemini-3-pro (Gemini 3.1 Pro)
 
 **Meta Agent** (1 total) - `agents/meta/`:
 - meta-reviewer (`memory: project`) - Analyzes learnings and agent memory for patterns and improvements (rewritten v1.19.0)

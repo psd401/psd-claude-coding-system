@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.20.0
+Version: 1.20.1
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -136,8 +136,8 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 | Agent | Purpose |
 |-------|---------|
-| `gpt-5-codex` | GPT-5.2-pro for second opinions |
-| `gemini-3-pro` | Gemini 3 Pro for multimodal analysis |
+| `gpt-5-codex` | GPT-5.3-Codex for second opinions |
+| `gemini-3-pro` | Gemini 3.1 Pro for multimodal analysis |
 
 ### Meta (`agents/meta/`)
 
@@ -277,7 +277,7 @@ Using `scripts/language-detector.sh`:
 
 ## Enhanced Workflow Phases
 
-### `/work` (v1.20.0 — Slim Orchestrator)
+### `/work` (v1.20.1 — Slim Orchestrator)
 
 | Phase | Description |
 |-------|-------------|
@@ -289,7 +289,7 @@ Using `scripts/language-detector.sh`:
 | **6** | **Commit & Create PR [REQUIRED]** |
 | 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
 
-### `/review-pr` (v1.20.0)
+### `/review-pr` (v1.20.1)
 
 | Phase | Description |
 |-------|-------------|
@@ -302,7 +302,7 @@ Using `scripts/language-detector.sh`:
 | 5 | Quality checks |
 | 6 | Learning capture (conditional — recurring patterns, P1 issues) |
 
-### `/test` (v1.20.0)
+### `/test` (v1.20.1)
 
 | Phase | Description |
 |-------|-------------|
@@ -414,7 +414,7 @@ git pull origin main
 
 - Project learnings stored in `docs/learnings/` (committed to repo, you control what's captured)
 - Agent memory stored locally by Claude Code in `.claude/agent-memory/`
-- No telemetry collection — removed in v1.20.0
+- No telemetry collection — removed in v1.20.1
 - Only hook is PostToolUse syntax validation (no data collection)
 - No external network requests
 

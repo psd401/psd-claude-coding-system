@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.20.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.20.1-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.20.0
+**Version**: 1.20.1
 **Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
@@ -32,7 +32,7 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.20.0
+## What's New in v1.20.1
 
 **Context7 MCP + Autonomous Workflow + Swarm Foundation**
 
@@ -112,7 +112,7 @@ The plugin provides a complete development lifecycle:
 `meta-reviewer` · `plan-validator` · `document-validator` · `configuration-validator` · `breaking-change-validator` · `telemetry-data-specialist`
 
 ### External AI (2 agents)
-`gpt-5-codex` (GPT-5.2-pro) · `gemini-3-pro` (Gemini 3 Pro)
+`gpt-5-codex` (GPT-5.3-Codex) · `gemini-3-pro` (Gemini 3.1 Pro)
 
 ---
 
@@ -165,7 +165,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.20.0)
+# Should show: psd-claude-coding-system (v1.20.1)
 
 # Test a command
 /meta-health
