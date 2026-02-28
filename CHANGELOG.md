@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.23.0] - 2026-02-28
+
+### Added
+- **`/brainstorm` skill** — collaborative requirements exploration using opus. Produces structured briefs with approaches, risks, and recommended next step before `/scope` or `/work`.
+- **`/worktree` skill** — user-invocable git worktree management (create, list, remove, clean). Supports issue-number-based branch creation for parallel development.
+- **`/swarm` skill** — orchestrates parallel agent teams. Falls back to Task-parallel dispatch when Agent Teams is not enabled. Decomposes tasks into parallelizable work units with dependency ordering.
+- **`isolation: worktree`** added to deployment-verification-agent, data-migration-expert, work-validator (from #25)
+- **`background: true`** added to learning-writer agent (from #25)
+- **`.evolve-state.json` gitignored** — local per-machine state no longer tracked in git
+
+### Changed
+- **Skill count** 12 → 15
+
 ## [1.22.0] - 2026-02-27
 
 ### Changed
