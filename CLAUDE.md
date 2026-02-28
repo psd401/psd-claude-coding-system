@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peninsula School District combining:
 
-1. **Workflow Automation** (Stable) - 9 battle-tested commands + specialized agents
-2. **Memory-Based Learning** - Automatic learning capture + 2 meta commands
+1. **Workflow Automation** (Stable) - 12 skills + specialized agents
+2. **Memory-Based Learning** - Automatic learning capture + `/evolve` for analysis
 
-**Version**: 1.20.1
+**Version**: 1.21.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -60,9 +60,10 @@ The plugin follows Claude Code 2.1.x architecture with skills-based organization
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
   │   └── plugin.json           # Plugin metadata (v1.15.0)
-  ├── skills/                   # 18 user-invocable skills
+  ├── skills/                   # 12 user-invocable skills
   │   ├── work/SKILL.md         # Main implementation workflow
-  │   ├── lfg/SKILL.md          # Autonomous end-to-end workflow (NEW v1.20.0)
+  │   ├── lfg/SKILL.md          # Autonomous end-to-end workflow
+  │   ├── evolve/SKILL.md       # Auto-evolve (learnings, releases, comparison) (NEW v1.21.0)
   │   ├── test/SKILL.md         # Testing and validation
   │   ├── review-pr/SKILL.md    # PR feedback handling
   │   ├── architect/SKILL.md    # Architecture design
@@ -70,11 +71,8 @@ plugins/psd-claude-coding-system/
   │   ├── product-manager/SKILL.md  # Product specs
   │   ├── security-audit/SKILL.md   # Security review
   │   ├── scope/SKILL.md        # Scope classification + planning
-  │   ├── compound/SKILL.md     # Knowledge capture
-  │   ├── contribute-pattern/SKILL.md  # Pattern sharing
-  │   ├── claude-code-updates/SKILL.md  # Release monitoring
-  │   ├── meta-review/SKILL.md  # Analyze learnings + improvements (NEW v1.19.0)
-  │   └── meta-health/SKILL.md  # Quick system health check (rewritten v1.19.0)
+  │   ├── triage/SKILL.md       # FreshService ticket triage
+  │   └── clean-branch/SKILL.md # Post-merge cleanup
   ├── agents/                   # 42 specialized AI agents (organized by category)
   │   ├── review/               # 14 code review specialists
   │   │   ├── security-analyst.md
@@ -190,7 +188,7 @@ Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) wit
 - `/architect [issue-number|topic]` - Architecture design using opus-4-6 with parallel context gathering
 - `/test [scope]` - Comprehensive testing with coverage validation
 - `/review_pr [number]` - PR feedback handling with parallel categorization (v1.7.0)
-- `/compound_concepts` - Finds automation/systematization opportunities
+- `/evolve` - Auto-evolve: analyzes learnings, checks releases, compares plugins, contributes patterns
 - `/security_audit` - Security review and vulnerability analysis
 - `/issue [description]` - Research and create GitHub issues (opus-4-6)
 - `/product-manager [idea]` - Transform ideas into product specs (opus-4-6)
@@ -242,9 +240,9 @@ Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) wit
 
 Skills are now the primary user-facing interface. There are two types:
 
-**User-Invocable Skills** (18 total, in `skills/<name>/SKILL.md`):
+**User-Invocable Skills** (12 total, in `skills/<name>/SKILL.md`):
 - `/work` - Slim orchestrator with work-researcher and work-validator agents + always-run learning capture
-- `/lfg` - Autonomous end-to-end workflow: implement → test → review → fix → learn (NEW v1.20.0)
+- `/lfg` - Autonomous end-to-end workflow: implement → test → review → fix → learn
 - `/test` - Comprehensive testing with self-healing retry loop + always-run learning capture
 - `/review-pr` - PR feedback handling with 3 always-on review agents + always-run learning capture
 - `/architect` - Architecture design
@@ -252,15 +250,9 @@ Skills are now the primary user-facing interface. There are two types:
 - `/product-manager` - Product specifications
 - `/security-audit` - Security review
 - `/scope` - Scope classification and tiered planning on-ramp
-- `/compound` - Capture learnings for knowledge compounding
-- `/contribute-pattern` - Share patterns to plugin repository
-- `/compound-concepts` - Automation opportunities
+- `/evolve` - Auto-evolve: analyzes learnings, checks releases, compares plugins, contributes patterns (NEW v1.21.0)
 - `/clean-branch` - Post-merge cleanup
 - `/triage` - FreshService ticket triage
-- `/claude-code-updates` - Analyze Claude Code releases
-- `/compound-plugin-analyzer` - Compare with Every's plugin
-- `/meta-review` - Analyze accumulated learnings and suggest improvements (NEW v1.19.0)
-- `/meta-health` - Quick system health check (rewritten v1.19.0)
 
 **Reusable Workflow Components** (helper skills):
 
@@ -296,9 +288,8 @@ Replaced the previous telemetry-based meta-learning system (which never produced
 **How It Works**:
 
 1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr`, `/lfg` always invoke the `learning-writer` agent (the agent handles deduplication and novelty detection)
-2. **Manual Learning Capture** — `/compound` for detailed session retrospectives
-3. **Cross-Session Memory** — 4 agents have `memory: project` for persistent knowledge (learnings-researcher, work-researcher, test-specialist, learning-writer, meta-reviewer)
-4. **On-Demand Analysis** — `/meta-review` dispatches the meta-reviewer agent (opus-4-6) to analyze accumulated learnings and suggest improvements
+2. **Cross-Session Memory** — 5 agents have `memory: project` for persistent knowledge (learnings-researcher, work-researcher, test-specialist, learning-writer, meta-reviewer)
+3. **On-Demand Analysis** — `/evolve` auto-picks the highest-value action: deep pattern analysis, release gap check, plugin comparison, pattern contribution, or automation concepts
 
 **Data Flow**:
 ```
@@ -307,21 +298,17 @@ Replaced the previous telemetry-based meta-learning system (which never produced
         ├── Deduplicates against docs/learnings/
         └── Writes docs/learnings/{category}/{date}-{slug}.md
 
-/compound (manual, unchanged)
-  └── Writes docs/learnings/{category}/{date}-{slug}.md
-
-/meta-review (on-demand)
-  └── meta-reviewer agent
-        ├── Reads docs/learnings/**/*.md
-        └── Produces improvement roadmap
-
-/meta-health (on-demand)
-  └── Counts files, shows recent learnings, displays summary
+/evolve (on-demand, zero-argument auto-decision)
+  ├── Priority 1: ≥8 unanalyzed learnings → meta-reviewer agent (opus)
+  ├── Priority 2: Release check stale → fetch Claude Code changelog
+  ├── Priority 3: Universal learnings not contributed → offer PR
+  ├── Priority 4: Plugin comparison stale → compare vs Every's plugin
+  ├── Priority 5: No recent learnings → extract automation concepts
+  └── Priority 6: Everything current → show health dashboard
 ```
 
-**Key Commands**:
-- `/meta-review` - Deep analysis of accumulated learnings → prioritized improvements
-- `/meta-health` - Quick health check showing learning counts and recent activity
+**Key Command**:
+- `/evolve` - Auto-picks highest-value action based on `.evolve-state.json` timestamps
 
 ### Context7 MCP Server (v1.20.0)
 
@@ -410,7 +397,7 @@ psd-claude-coding-system/
   │   └── psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
-  │       ├── skills/         # 18 user-invocable skills
+  │       ├── skills/         # 12 user-invocable skills
   │       ├── agents/         # 42 AI agents
   │       │   ├── review/     # 14 review agents
   │       │   ├── domain/     # 7 domain specialists
@@ -482,7 +469,7 @@ git push origin main
 /plugin install psd-claude-coding-system
 /work "add logging to auth module"
 /test auth
-/compound_concepts
+/evolve
 ```
 
 ### Troubleshooting Plugin Installation
@@ -580,7 +567,7 @@ This system embodies compound engineering - every interaction creates improvemen
 - Every solution → template for similar problems
 - Every workflow → data for meta-learning system
 
-Use `/compound_concepts` after completing work to extract systematization opportunities.
+Use `/evolve` to analyze accumulated learnings and improve the plugin.
 
 ## Important Notes
 

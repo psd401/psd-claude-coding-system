@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.20.1
+Version: 1.21.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -14,9 +14,9 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 12 commands + 42 specialized agents
-2. **Memory-Based Learning** - 2 meta commands + automatic learning capture
-3. **Knowledge Compounding** - Capture and share learnings across projects
+1. **Workflow Automation** - 12 skills + 42 specialized agents
+2. **Memory-Based Learning** - Automatic learning capture via `/work`, `/test`, `/review-pr`, `/lfg`
+3. **Knowledge Evolution** - `/evolve` auto-analyzes learnings, checks releases, compares plugins, contributes patterns
 
 ---
 
@@ -33,11 +33,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 /work 347              # Implement an issue
 /test                  # Run comprehensive tests
 /review-pr 123         # Handle PR feedback
-/compound              # Capture session learnings
-
-# Review what the system has learned
-/meta-health           # Quick system health check
-/meta-review           # Deep analysis of learnings
+/evolve               # Auto-evolve the plugin
 ```
 
 ---
@@ -55,19 +51,8 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `/issue` | AI-validated issues with spec flow analysis | `/issue "add caching"` |
 | `/triage` | FreshService ticket to GitHub issue | `/triage 12345` |
 | `/product-manager` | Validated specs to auto sub-issues | `/product-manager "dashboard"` |
-| `/compound` | **NEW:** Capture session learnings | `/compound` |
-| `/contribute-pattern` | **NEW:** Share universal patterns | `/contribute-pattern` |
-| `/compound-concepts` | Find automation opportunities | `/compound-concepts` |
+| `/evolve` | Auto-evolve: analyze learnings, check releases, compare plugins | `/evolve` |
 | `/clean-branch` | Cleanup + auto learning extraction | `/clean-branch` |
-
----
-
-## Meta-Learning Commands
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/meta-review` | Analyze learnings + suggest improvements | Weekly/Monthly |
-| `/meta-health` | Quick system health check | Anytime |
 
 ---
 
@@ -168,9 +153,9 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 │                                                                 │
 │  Session Event           AI Synthesis                           │
 │  ┌───────────────────┐  ┌───────────────────┐                  │
-│  │ Error detected    │  │ /compound skill   │                  │
-│  │ Rework observed   │  │ - Analyze session │                  │
-│  │ User frustration  │──▶ - Extract pattern │                  │
+│  │ Error detected    │  │ learning-writer   │                  │
+│  │ Rework observed   │  │ - Auto-capture    │                  │
+│  │ User frustration  │──▶ - Deduplicate     │                  │
 │  │ Discovery made    │  │ - Generate doc    │                  │
 │  └───────────────────┘  └─────────┬─────────┘                  │
 │                                   │                             │
@@ -190,17 +175,15 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ### Capturing Learnings
 
-After a session where you discovered something useful:
+Learnings are captured automatically by `/work`, `/test`, `/review-pr`, and `/lfg` via the learning-writer agent.
+
+To analyze accumulated learnings and improve the plugin:
 
 ```bash
-/compound
+/evolve
 ```
 
-The system will:
-1. Analyze the session for patterns
-2. Extract what went wrong/right
-3. Generate structured markdown with YAML frontmatter
-4. Save to `./docs/learnings/[category]/[date]-[topic].md`
+The system will auto-pick the highest-value action based on current state.
 
 ### Learning Document Format
 
@@ -229,13 +212,7 @@ How to avoid this in the future.
 
 ### Sharing Universal Patterns
 
-If a learning applies to all projects (not project-specific):
-
-```bash
-/contribute-pattern ./docs/learnings/build-errors/2026-01-22-vite-config-gotcha.md
-```
-
-This creates a PR to the plugin repository with the pattern.
+`/evolve` automatically detects universal learnings ready for contribution and offers to create a PR to the plugin repository.
 
 ---
 
@@ -277,7 +254,7 @@ Using `scripts/language-detector.sh`:
 
 ## Enhanced Workflow Phases
 
-### `/work` (v1.20.1 — Slim Orchestrator)
+### `/work` (v1.21.0 — Slim Orchestrator)
 
 | Phase | Description |
 |-------|-------------|
@@ -289,7 +266,7 @@ Using `scripts/language-detector.sh`:
 | **6** | **Commit & Create PR [REQUIRED]** |
 | 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
 
-### `/review-pr` (v1.20.1)
+### `/review-pr` (v1.21.0)
 
 | Phase | Description |
 |-------|-------------|
@@ -302,7 +279,7 @@ Using `scripts/language-detector.sh`:
 | 5 | Quality checks |
 | 6 | Learning capture (conditional — recurring patterns, P1 issues) |
 
-### `/test` (v1.20.1)
+### `/test` (v1.21.0)
 
 | Phase | Description |
 |-------|-------------|
@@ -338,29 +315,13 @@ Non-blocking with 10s timeout. Exits cleanly for unknown file types.
 /test                  # Run tests
 /review-pr 123         # Handle feedback
 /clean-branch          # Cleanup
-
-# If you learn something useful
-/compound              # Capture it
 ```
 
-### Ongoing: Review Learnings
+### Ongoing: Evolve the Plugin
 
 ```bash
-# Quick health check
-/meta-health
-
-# Deep analysis of accumulated learnings
-/meta-review
-```
-
-### Monthly: Knowledge Contribution
-
-```bash
-# Review captured learnings
-ls ./docs/learnings/
-
-# Share universal patterns
-/contribute-pattern ./docs/learnings/security/2026-01-15-sql-injection-gotcha.md
+# Auto-picks highest-value action based on current state
+/evolve
 ```
 
 ---
@@ -414,7 +375,7 @@ git pull origin main
 
 - Project learnings stored in `docs/learnings/` (committed to repo, you control what's captured)
 - Agent memory stored locally by Claude Code in `.claude/agent-memory/`
-- No telemetry collection — removed in v1.20.1
+- No telemetry collection — removed in v1.21.0
 - Only hook is PostToolUse syntax validation (no data collection)
 - No external network requests
 
@@ -429,7 +390,7 @@ Every interaction creates improvement opportunities:
 - Every solution → template for similar problems
 - Every workflow → data for meta-learning
 
-Use `/compound` to capture learnings.
+Use `/evolve` to analyze and improve.
 
 ---
 

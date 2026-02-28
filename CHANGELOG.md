@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.0] - 2026-02-27
+
+### Added
+- **`/evolve` skill** - Zero-argument auto-decision command that reads system state and picks the highest-value action. Priority cascade: deep pattern analysis (≥8 unanalyzed learnings) → Claude Code release gap check → universal pattern contribution → plugin comparison → automation concepts → health dashboard
+- **`.evolve-state.json`** - State tracking file at `docs/learnings/.evolve-state.json` recording timestamps of last analysis, release check, comparison, and concepts extraction
+- **Plugin feedback loop** - `/evolve` Phase 4.5 auto-creates GitHub issues on psd401/psd-claude-coding-system when findings require plugin changes
+
+### Removed
+- **7 knowledge skills consolidated into `/evolve`**: `/compound`, `/meta-review`, `/meta-health`, `/claude-code-updates`, `/compound-plugin-analyzer`, `/compound-concepts`, `/contribute-pattern`
+
+### Changed
+- **Skill count** 18 → 12 (removed 7, added 1)
+- **All documentation** updated to reference `/evolve` instead of removed skills
+- **README.md** Quick Start and usage examples updated
+- **CLAUDE.md** skill lists, directory trees, and data flow diagrams updated
+
 ## [1.20.1] - 2026-02-26
 
 ### Changed

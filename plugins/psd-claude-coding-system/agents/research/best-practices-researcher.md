@@ -138,7 +138,7 @@ Compile all findings into actionable guidance:
 
 ### Knowledge Gaps
 - [Topic with no local or external guidance]
-- Consider `/compound` capture after implementation
+- Consider `/evolve` for pattern analysis after implementation
 ```
 
 ## Output Format

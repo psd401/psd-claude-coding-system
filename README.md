@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.20.1-green)]()
+[![Version](https://img.shields.io/badge/Version-1.21.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.20.1
+**Version**: 1.21.0
 **Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
@@ -27,22 +27,21 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 # Start using immediately
 /work 347              # Implement an issue
 /test                  # Run tests
-/compound              # Capture learnings from session
+/evolve               # Auto-evolve the plugin
 ```
 
 ---
 
-## What's New in v1.20.1
+## What's New in v1.21.0
 
-**Context7 MCP + Autonomous Workflow + Swarm Foundation**
+**Unified `/evolve` Command — 7 Knowledge Skills Collapsed Into 1**
 
 ### Key Changes
 
-- **Context7 MCP server** - Live framework docs for 100+ frameworks, configured in plugin.json (no API key)
-- **`/lfg` skill** - Autonomous end-to-end workflow: implement → test → review → fix → learn in one shot
-- **Always-run learning capture** - `/work`, `/test`, `/review-pr` now always dispatch learning-writer (agent handles deduplication)
-- **Swarm documentation** - Agent Teams pattern documented in `docs/patterns/swarm-orchestration.md` (manual opt-in)
-- **Cleaned stale references** - Removed "telemetry" and "self-improving" from plugin descriptions/keywords
+- **`/evolve` skill** - Zero-argument auto-decision command that reads system state and picks the highest-value action: deep pattern analysis, release gap check, pattern contribution, plugin comparison, or automation concepts
+- **7 skills removed** - `/compound`, `/meta-review`, `/meta-health`, `/claude-code-updates`, `/compound-plugin-analyzer`, `/compound-concepts`, `/contribute-pattern` all consolidated into `/evolve`
+- **State tracking** - `docs/learnings/.evolve-state.json` tracks when each action was last run for intelligent priority selection
+- **Skill count** 18 → 12 (removed 7, added 1)
 
 ---
 
@@ -55,7 +54,7 @@ The plugin provides a complete development lifecycle:
 1. **Planning** - Create issues (`/issue`) or break down big ideas into epics (`/product-manager`), design architecture (`/architect`)
 2. **Implementation** - Work on issues (`/work 347`) with automatic agent assistance
 3. **Validation** - Run tests (`/test`), handle PR feedback (`/review-pr`)
-4. **Completion** - Clean up (`/clean-branch`), capture learnings (`/compound`)
+4. **Completion** - Clean up (`/clean-branch`), evolve the plugin (`/evolve`)
 
 ---
 
@@ -72,22 +71,9 @@ The plugin provides a complete development lifecycle:
 | `/product-manager` | Product specs to sub-issues | `/product-manager "dashboard"` |
 | `/security-audit` | Security analysis | `/security-audit` |
 | `/scope` | Scope classification + tiered planning | `/scope "add caching"` |
-| `/compound` | Capture session learnings | `/compound` |
-| `/contribute-pattern` | Share universal patterns | `/contribute-pattern` |
-| `/compound-concepts` | Find automation opportunities | `/compound-concepts` |
+| `/evolve` | Auto-evolve: analyze learnings, check releases, compare plugins | `/evolve` |
 | `/clean-branch` | Post-merge cleanup | `/clean-branch` |
 | `/triage` | FreshService ticket triage | `/triage 12345` |
-| `/claude-code-updates` | Analyze Claude Code releases | `/claude-code-updates` |
-| `/compound-plugin-analyzer` | Compare with Every's plugin | `/compound-plugin-analyzer` |
-
----
-
-## Meta-Learning Commands (2 total)
-
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `/meta-review` | Analyze learnings + suggest improvements | Weekly/Monthly |
-| `/meta-health` | Quick system health check | Anytime |
 
 ---
 
@@ -125,11 +111,11 @@ The plugin includes a hybrid knowledge capture system:
 ### Project Learnings (`./docs/learnings/`)
 - Store project-specific patterns and solutions
 - Automatically searched before implementation via `learnings-researcher`
-- Captured with `/compound` after sessions with issues or discoveries
+- Automatically captured by `/work`, `/test`, `/review-pr`, `/lfg` via learning-writer agent
 
 ### Plugin Patterns (`docs/patterns/`)
 - Universal patterns shared across all projects
-- Contributed via `/contribute-pattern`
+- Contributed via `/evolve` (auto-detects uncontributed universal learnings)
 - Available to all plugin users after merge
 
 ---
@@ -165,10 +151,10 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.20.1)
+# Should show: psd-claude-coding-system (v1.21.0)
 
 # Test a command
-/meta-health
+/evolve
 ```
 
 ---
@@ -190,28 +176,8 @@ The plugin automatically detects languages in changed files and invokes appropri
 # Clean up after merge
 /clean-branch
 
-# Capture what you learned
-/compound
-```
-
-### Knowledge Compounding
-
-```bash
-# After a session where you discovered something useful
-/compound
-
-# If the learning applies to all projects
-/contribute-pattern ./docs/learnings/build-errors/2026-01-22-vite-config-gotcha.md
-```
-
-### Meta-Learning
-
-```bash
-# Review accumulated learnings for improvement suggestions
-/meta-review
-
-# Quick health check — learning counts, agent memory, recent activity
-/meta-health
+# Evolve the plugin (auto-picks highest-value action)
+/evolve
 ```
 
 ---
@@ -220,12 +186,10 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```
 plugins/psd-claude-coding-system/
-├── skills/                    # 18 user-invocable skills
+├── skills/                    # 12 user-invocable skills
 │   ├── work/SKILL.md          # Main implementation workflow
 │   ├── lfg/SKILL.md           # Autonomous end-to-end workflow
-│   ├── compound/SKILL.md      # Knowledge capture
-│   ├── meta-review/SKILL.md   # Learning analysis
-│   ├── meta-health/SKILL.md   # System health check
+│   ├── evolve/SKILL.md        # Auto-evolve (learnings, releases, comparison)
 │   └── ...                    # Other workflow skills
 ├── agents/                    # 42 specialized agents
 │   ├── review/                # 14 code review specialists
@@ -257,7 +221,7 @@ Every interaction creates improvement opportunities:
 - Every solution → template for similar problems
 - Every workflow → captured learning for future sessions
 
-Use `/compound` after sessions to capture learnings. `/work`, `/test`, `/review-pr`, and `/lfg` always dispatch the learning-writer agent (it handles deduplication).
+Use `/evolve` to analyze accumulated learnings and improve the plugin. `/work`, `/test`, `/review-pr`, and `/lfg` always dispatch the learning-writer agent automatically (it handles deduplication).
 
 ---
 
