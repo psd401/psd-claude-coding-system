@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 12 skills + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + `/evolve` for analysis
 
-**Version**: 1.21.0
+**Version**: 1.22.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
