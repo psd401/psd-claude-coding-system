@@ -4,6 +4,7 @@ description: Automatic lightweight learning capture — deduplicates against exi
 tools: Read, Write, Grep, Glob
 model: claude-sonnet-4-6
 memory: project
+background: true
 color: yellow
 ---
 
