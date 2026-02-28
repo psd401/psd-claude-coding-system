@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.24.0] - 2026-02-28
+
+### Added
+- **`/bump-version` skill** — automates the 6-file version bump ritual. Reads current version from plugin.json, increments based on patch/minor/major argument, patches all 6 locations, prompts for CHANGELOG entry, commits, tags, and pushes.
+- **`/evolve` Phase 0** — cache staleness check comparing repo version vs installed plugin cache version. Warns user with refresh command when stale.
+
+### Fixed
+- **`/evolve` Phase 4.5 repo detection** — multi-fallback chain: `gh repo view` → `git remote get-url origin` parsing → explicit warning. Fixes silent failure when `gh repo view .` fails in subdirectories.
+- **`/evolve` Phase 4.5 label creation** — idempotent `evolve-feedback` label creation before issue creation. No more "label not found" errors on first run.
+- **Item 5 from #27 (auto-commit state)** — moot since `.evolve-state.json` was gitignored in v1.23.0
+
+### Changed
+- **Skill count** 15 → 16
+
 ## [1.23.0] - 2026-02-28
 
 ### Added

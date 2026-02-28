@@ -21,11 +21,36 @@ extended-thinking: true
 
 You are the plugin evolution engine. You take no arguments — instead you read system state and auto-pick the highest-value action to improve the plugin.
 
+## Phase 0: Cache Staleness Check
+
+```bash
+echo "=== Plugin Cache Check ==="
+PLUGIN_DIR="$(pwd)"
+REPO_VERSION=$(grep -o '"version": *"[^"]*"' "$PLUGIN_DIR/.claude-plugin/plugin.json" 2>/dev/null | head -1 | sed 's/.*"version": *"//;s/"//')
+CACHE_DIR=$(find ~/.claude/plugins/cache/psd-claude-coding-system -name "plugin.json" -path "*/psd-claude-coding-system/*/.claude-plugin/*" 2>/dev/null | head -1)
+CACHE_VERSION=""
+if [ -n "$CACHE_DIR" ]; then
+  CACHE_VERSION=$(grep -o '"version": *"[^"]*"' "$CACHE_DIR" 2>/dev/null | head -1 | sed 's/.*"version": *"//;s/"//')
+fi
+
+echo "Repo version: ${REPO_VERSION:-unknown}"
+echo "Cache version: ${CACHE_VERSION:-unknown}"
+
+if [ -n "$REPO_VERSION" ] && [ -n "$CACHE_VERSION" ] && [ "$REPO_VERSION" != "$CACHE_VERSION" ]; then
+  echo ""
+  echo "⚠ STALE CACHE: Repo is v${REPO_VERSION} but cache has v${CACHE_VERSION}"
+  echo "  This skill is running from the cached version."
+  echo "  To refresh: /plugin install psd-claude-coding-system"
+  echo ""
+fi
+```
+
+**If the cache is stale, warn the user but proceed anyway.** The evolve run still produces valid results — the warning helps the user know when to refresh.
+
 ## Phase 1: Read State
 
 ```bash
 echo "=== Evolve State ==="
-PLUGIN_DIR="$(pwd)"
 STATE_FILE="$PLUGIN_DIR/docs/learnings/.evolve-state.json"
 
 # Ensure learnings directory exists
@@ -333,7 +358,22 @@ If the executed action produced actionable findings, create GitHub issues — bu
 
 ```bash
 PLUGIN_REPO="psd401/psd-claude-coding-system"
-CURRENT_REPO=$(gh repo view . --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "unknown")
+
+# Multi-fallback repo detection (gh repo view fails in subdirectories)
+CURRENT_REPO=$(gh repo view . --json nameWithOwner -q .nameWithOwner 2>/dev/null || echo "")
+if [ -z "$CURRENT_REPO" ] || [ "$CURRENT_REPO" = "unknown" ]; then
+  # Fallback: parse git remote URL
+  REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+  if [ -n "$REMOTE_URL" ]; then
+    CURRENT_REPO=$(echo "$REMOTE_URL" | sed 's|.*github.com[:/]||;s|\.git$||')
+  fi
+fi
+if [ -z "$CURRENT_REPO" ]; then
+  CURRENT_REPO="unknown"
+  echo "WARNING: Could not detect current repo. Issues will not be auto-created."
+  echo "Manually bring findings to the appropriate repo."
+fi
+
 IS_PLUGIN_REPO=$( [ "$CURRENT_REPO" = "$PLUGIN_REPO" ] && echo "true" || echo "false" )
 echo "Current repo: $CURRENT_REPO"
 echo "Is plugin repo: $IS_PLUGIN_REPO"
@@ -369,8 +409,14 @@ If `$IS_PLUGIN_REPO` is `true`, create the issue on the current repo directly.
 If `$IS_PLUGIN_REPO` is `false`, create the issue on `$PLUGIN_REPO` (the remote plugin repo).
 
 ```bash
+TARGET_REPO="$PLUGIN_REPO"
+
+# Ensure evolve-feedback label exists (idempotent)
+gh label create "evolve-feedback" --color "0075ca" --description "Auto-created by /evolve" --repo "$TARGET_REPO" 2>/dev/null || true
+
 gh issue create \
-  --repo "$PLUGIN_REPO" \
+  --repo "$TARGET_REPO" \
+  --label "evolve-feedback" \
   --title "evolve: [Brief description]" \
   --body "[Issue body with findings, recommended changes, evidence]"
 ```
@@ -380,8 +426,14 @@ gh issue create \
 Create the issue on `$CURRENT_REPO` (the repo where `/evolve` was run). Do NOT create project-specific issues on the plugin repo.
 
 ```bash
+TARGET_REPO="$CURRENT_REPO"
+
+# Ensure evolve-feedback label exists (idempotent)
+gh label create "evolve-feedback" --color "0075ca" --description "Auto-created by /evolve" --repo "$TARGET_REPO" 2>/dev/null || true
+
 gh issue create \
-  --repo "$CURRENT_REPO" \
+  --repo "$TARGET_REPO" \
+  --label "evolve-feedback" \
   --title "evolve: [Brief description]" \
   --body "[Issue body with findings, recommended changes, evidence]"
 ```
