@@ -8,6 +8,9 @@
 plugins/psd-claude-coding-system/meta/*
 !plugins/psd-claude-coding-system/meta/.gitkeep
 
+# Evolve state (local per-machine, not shared)
+plugins/psd-claude-coding-system/docs/learnings/.evolve-state.json
+
 # Node modules if added later
 node_modules/
 
