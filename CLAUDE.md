@@ -6,10 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peninsula School District combining:
 
-1. **Workflow Automation** (Stable) - 12 skills + specialized agents
+1. **Workflow Automation** (Stable) - 15 skills + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + `/evolve` for analysis
 
-**Version**: 1.22.0
+**Version**: 1.23.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -60,7 +60,7 @@ The plugin follows Claude Code 2.1.x architecture with skills-based organization
 plugins/psd-claude-coding-system/
   ├── .claude-plugin/
   │   └── plugin.json           # Plugin metadata (v1.15.0)
-  ├── skills/                   # 12 user-invocable skills
+  ├── skills/                   # 15 user-invocable skills
   │   ├── work/SKILL.md         # Main implementation workflow
   │   ├── lfg/SKILL.md          # Autonomous end-to-end workflow
   │   ├── evolve/SKILL.md       # Auto-evolve (learnings, releases, comparison) (NEW v1.21.0)
@@ -71,6 +71,9 @@ plugins/psd-claude-coding-system/
   │   ├── product-manager/SKILL.md  # Product specs
   │   ├── security-audit/SKILL.md   # Security review
   │   ├── scope/SKILL.md        # Scope classification + planning
+  │   ├── brainstorm/SKILL.md   # Collaborative requirements exploration (NEW v1.23.0)
+  │   ├── worktree/SKILL.md     # Git worktree management (NEW v1.23.0)
+  │   ├── swarm/SKILL.md        # Parallel agent orchestration (NEW v1.23.0)
   │   ├── triage/SKILL.md       # FreshService ticket triage
   │   └── clean-branch/SKILL.md # Post-merge cleanup
   ├── agents/                   # 42 specialized AI agents (organized by category)
@@ -240,17 +243,20 @@ Production-ready workflows using latest Claude models (sonnet-4-6, opus-4-6) wit
 
 Skills are now the primary user-facing interface. There are two types:
 
-**User-Invocable Skills** (12 total, in `skills/<name>/SKILL.md`):
+**User-Invocable Skills** (15 total, in `skills/<name>/SKILL.md`):
 - `/work` - Slim orchestrator with work-researcher and work-validator agents + always-run learning capture
 - `/lfg` - Autonomous end-to-end workflow: implement → test → review → fix → learn
 - `/test` - Comprehensive testing with self-healing retry loop + always-run learning capture
 - `/review-pr` - PR feedback handling with 3 always-on review agents + always-run learning capture
 - `/architect` - Architecture design
+- `/brainstorm` - Collaborative requirements exploration before /scope or /work (NEW v1.23.0)
 - `/issue` - GitHub issue creation
 - `/product-manager` - Product specifications
 - `/security-audit` - Security review
 - `/scope` - Scope classification and tiered planning on-ramp
-- `/evolve` - Auto-evolve: analyzes learnings, checks releases, compares plugins, contributes patterns (NEW v1.21.0)
+- `/evolve` - Auto-evolve: analyzes learnings, checks releases, compares plugins, contributes patterns
+- `/worktree` - Git worktree management for parallel development (NEW v1.23.0)
+- `/swarm` - Parallel agent team orchestration (NEW v1.23.0)
 - `/clean-branch` - Post-merge cleanup
 - `/triage` - FreshService ticket triage
 
@@ -397,7 +403,7 @@ psd-claude-coding-system/
   │   └── psd-claude-coding-system/
   │       ├── .claude-plugin/
   │       │   └── plugin.json # Plugin metadata
-  │       ├── skills/         # 12 user-invocable skills
+  │       ├── skills/         # 15 user-invocable skills
   │       ├── agents/         # 42 AI agents
   │       │   ├── review/     # 14 review agents
   │       │   ├── domain/     # 7 domain specialists
