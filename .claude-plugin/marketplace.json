@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "Unified Claude Code plugin for Peninsula School District combining workflow automation, specialized agents, and memory-based learning",
-    "version": "1.23.0",
+    "version": "1.24.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -15,7 +15,7 @@
       "name": "psd-claude-coding-system",
       "source": "./plugins/psd-claude-coding-system",
       "description": "AI-assisted development system with workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
-      "version": "1.23.0",
+      "version": "1.24.0",
       "category": "productivity",
       "keywords": [
         "workflow",
