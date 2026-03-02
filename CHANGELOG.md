@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.0] - 2026-02-28
+
+### Added
+- **Iterative `/review-pr`** — Multi-round PR feedback handling. Rounds 2+ only process new comments since last run via PR comment markers (`<!-- review-pr:round:N:timestamp:T:sha:S -->`).
+- **Phase 0.5: Incremental Detection** — Searches PR comments for round markers, sets `INCREMENTAL` mode with `SINCE_TIMESTAMP` filtering on all comment fetches.
+- **`--full` flag** — Force complete re-review on any round: `/review-pr 123 --full`.
+- **Early exit on no new feedback** — Incremental runs with no new comments exit gracefully with "PR up to date" message.
+
+### Changed
+- **Always-on structural agents skipped on rounds 2+** — architecture-strategist, code-simplicity-reviewer, pattern-recognition-specialist only run on Round 1. Incremental runs focus on addressing new reviewer feedback.
+- **Phase 4 summary comment** — Now includes round marker with timestamp and HEAD SHA for stateless cross-session tracking.
+- **All `$ARGUMENTS` references → `$PR_NUMBER`** — Supports `--full` flag parsing without breaking gh commands.
+- **Learning capture** — Includes round number and incremental context in learning-writer prompt.
+- **Learnings gitignored** — `docs/learnings/**/*.md` no longer committed to git. Learning files are local working data; agents build knowledge as you work.
+- **90-day TTL on learnings** — `/evolve` Phase 1 now auto-deletes learning files older than 90 days (based on `date:` frontmatter). Runs on every `/evolve` invocation regardless of priority.
+
 ## [1.24.0] - 2026-02-28
 
 ### Added

@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.24.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.25.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.24.0
+**Version**: 1.25.0
 **Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
@@ -32,16 +32,17 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.24.0
+## What's New in v1.25.0
 
-**Unified `/evolve` Command — 7 Knowledge Skills Collapsed Into 1**
+**Iterative `/review-pr` — Multi-Round PR Feedback Handling**
 
 ### Key Changes
 
-- **`/evolve` skill** - Zero-argument auto-decision command that reads system state and picks the highest-value action: deep pattern analysis, release gap check, pattern contribution, plugin comparison, or automation concepts
-- **7 skills removed** - `/compound`, `/meta-review`, `/meta-health`, `/claude-code-updates`, `/compound-plugin-analyzer`, `/compound-concepts`, `/contribute-pattern` all consolidated into `/evolve`
-- **State tracking** - `docs/learnings/.evolve-state.json` tracks when each action was last run for intelligent priority selection
-- **Skill count** 18 → 12 (removed 7, added 1)
+- **Incremental detection** — `/review-pr` now detects previous runs via PR comment markers and only processes NEW feedback since the last round
+- **Round tracking** — Each run embeds `<!-- review-pr:round:N:timestamp:T:sha:S -->` in the summary comment, enabling stateless cross-session tracking
+- **Smart agent dispatch** — Always-on structural review agents (architecture-strategist, code-simplicity-reviewer, pattern-recognition-specialist) run on Round 1 only; rounds 2+ focus on addressing reviewer feedback
+- **Early exit** — If no new feedback exists since last round, exits with "PR up to date" message
+- **`--full` flag** — Force a complete re-review: `/review-pr 123 --full`
 
 ---
 
@@ -66,7 +67,7 @@ The plugin provides a complete development lifecycle:
 | `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn | `/lfg 347` |
 | `/architect` | System architecture design | `/architect "caching system"` |
 | `/test` | Comprehensive testing with self-healing + learning capture | `/test auth` |
-| `/review-pr` | Handle PR feedback + learning capture | `/review-pr 123` |
+| `/review-pr` | Iterative PR feedback (rounds 2+ process only new comments) | `/review-pr 123` |
 | `/issue` | AI-validated GitHub issues | `/issue "add caching"` |
 | `/product-manager` | Product specs to sub-issues | `/product-manager "dashboard"` |
 | `/security-audit` | Security analysis | `/security-audit` |
@@ -109,9 +110,10 @@ The plugin provides a complete development lifecycle:
 The plugin includes a hybrid knowledge capture system:
 
 ### Project Learnings (`./docs/learnings/`)
-- Store project-specific patterns and solutions
+- Store project-specific patterns and solutions (local only, gitignored)
 - Automatically searched before implementation via `learnings-researcher`
 - Automatically captured by `/work`, `/test`, `/review-pr`, `/lfg` via learning-writer agent
+- Auto-deleted after 90 days by `/evolve` TTL cleanup
 
 ### Plugin Patterns (`docs/patterns/`)
 - Universal patterns shared across all projects
@@ -151,7 +153,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.24.0)
+# Should show: psd-claude-coding-system (v1.25.0)
 
 # Test a command
 /evolve

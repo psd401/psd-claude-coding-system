@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 16 skills + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + `/evolve` for analysis
 
-**Version**: 1.24.0
+**Version**: 1.25.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -248,7 +248,7 @@ Skills are now the primary user-facing interface. There are two types:
 - `/work` - Slim orchestrator with work-researcher and work-validator agents + always-run learning capture
 - `/lfg` - Autonomous end-to-end workflow: implement → test → review → fix → learn
 - `/test` - Comprehensive testing with self-healing retry loop + always-run learning capture
-- `/review-pr` - PR feedback handling with 3 always-on review agents + always-run learning capture
+- `/review-pr` - Iterative PR feedback handling with incremental detection (rounds 2+ only process new comments) + always-run learning capture
 - `/architect` - Architecture design
 - `/brainstorm` - Collaborative requirements exploration before /scope or /work (NEW v1.24.0)
 - `/issue` - GitHub issue creation
@@ -663,7 +663,9 @@ git push origin vX.Y.Z
 - Detailed commit messages required (per user's global CLAUDE.md)
 
 ### Learning Data & Privacy
-- Project learnings stored in `docs/learnings/` (committed to repo)
+- Project learnings stored in `docs/learnings/` (local only, gitignored since v1.25.0)
+- Learnings auto-deleted after 90 days by `/evolve` TTL cleanup
+- New clones start with empty learnings — agents build knowledge as you work
 - Agent memory stored by Claude Code in `.claude/agent-memory/` (local only)
 - `meta/` directory is git-ignored
 - Only the PostToolUse hook runs automatically (syntax validation on Edit/Write)

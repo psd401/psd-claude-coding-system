@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.24.0
+Version: 1.25.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -46,7 +46,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn | `/lfg 347` or `/lfg "add caching"` |
 | `/architect` | System architecture via architect-specialist | `/architect 347` |
 | `/test` | Comprehensive testing with coverage validation | `/test auth` |
-| `/review-pr` | Handle PR feedback systematically | `/review-pr 123` |
+| `/review-pr` | Iterative PR feedback (incremental on rounds 2+) | `/review-pr 123` |
 | `/security-audit` | Manual security audit (auto in /work) | `/security-audit 123` |
 | `/issue` | AI-validated issues with spec flow analysis | `/issue "add caching"` |
 | `/triage` | FreshService ticket to GitHub issue | `/triage 12345` |
@@ -266,18 +266,23 @@ Using `scripts/language-detector.sh`:
 | **6** | **Commit & Create PR [REQUIRED]** |
 | 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
 
-### `/review-pr` (v1.21.0)
+### `/review-pr` (v1.25.0)
+
+Supports **iterative reviews** — run multiple times on the same PR. Rounds 2+ only process new feedback since last run via PR comment markers.
 
 | Phase | Description |
 |-------|-------------|
-| 1 | Fetch PR details + inline comments |
-| 2 | Parallel agent analysis (3 always-on + conditional) |
+| **0.5** | **Incremental detection** — find last round marker, set `INCREMENTAL` mode |
+| 1 | Fetch PR details + inline comments (filtered on incremental runs) |
+| 2 | Parallel agent analysis (always-on agents skipped on rounds 2+) |
 | 2.5 | Language-specific deep review |
 | 2.6 | Deployment verification (if migrations) |
 | 3 | Severity classification (P1/P2/P3) + fix |
-| 4 | Update PR |
+| 4 | Update PR with round marker (`<!-- review-pr:round:N:timestamp:T:sha:S -->`) |
 | 5 | Quality checks |
-| 6 | Learning capture (conditional — recurring patterns, P1 issues) |
+| 6 | Learning capture (with round context) |
+
+**Usage:** `/review-pr 123` (auto-detects round), `/review-pr 123 --full` (force full re-review)
 
 ### `/test` (v1.21.0)
 
@@ -373,7 +378,7 @@ git pull origin main
 
 ## Privacy & Security
 
-- Project learnings stored in `docs/learnings/` (committed to repo, you control what's captured)
+- Project learnings stored in `docs/learnings/` (local only, gitignored — auto-deleted after 90 days by `/evolve`)
 - Agent memory stored locally by Claude Code in `.claude/agent-memory/`
 - No telemetry collection — removed in v1.21.0
 - Only hook is PostToolUse syntax validation (no data collection)

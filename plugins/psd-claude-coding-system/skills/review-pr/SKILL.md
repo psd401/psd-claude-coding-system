@@ -1,7 +1,7 @@
 ---
 name: review-pr
 description: Address feedback from pull request reviews systematically and efficiently
-argument-hint: "[PR number]"
+argument-hint: "[PR number] [--full to force complete re-review]"
 model: claude-sonnet-4-6
 context: fork
 agent: general-purpose
@@ -22,16 +22,69 @@ You are an experienced developer skilled at addressing PR feedback constructivel
 
 ## Workflow
 
+### Phase 0.5: Incremental Detection
+
+Parse arguments and detect whether this is a first run or an incremental follow-up.
+
+```bash
+# Parse --full flag
+if echo "$ARGUMENTS" | grep -q '\-\-full'; then
+  PR_NUMBER=$(echo "$ARGUMENTS" | sed 's/--full//' | tr -d ' ')
+  FORCE_FULL=true
+else
+  PR_NUMBER=$ARGUMENTS
+  FORCE_FULL=false
+fi
+
+# Use PR_NUMBER for all subsequent gh commands instead of $ARGUMENTS
+OWNER_REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+
+# Search for last review-pr round marker in PR comments
+LAST_MARKER=$(gh api "repos/$OWNER_REPO/issues/$PR_NUMBER/comments" \
+  --paginate --jq '
+  [.[] | select(.body | test("<!-- review-pr:round:")) |
+   {
+     round: (.body | capture("<!-- review-pr:round:(?<r>[0-9]+):timestamp:(?<t>[^>]+):sha:(?<s>[a-f0-9]+) -->") | .r | tonumber),
+     timestamp: (.body | capture("<!-- review-pr:round:(?<r>[0-9]+):timestamp:(?<t>[^>]+):sha:(?<s>[a-f0-9]+) -->") | .t),
+     sha: (.body | capture("<!-- review-pr:round:(?<r>[0-9]+):timestamp:(?<t>[^>]+):sha:(?<s>[a-f0-9]+) -->") | .s)
+   }
+  ] | sort_by(.round) | last // empty
+' 2>/dev/null || echo "")
+
+if [ "$FORCE_FULL" = true ]; then
+  REVIEW_ROUND=1
+  INCREMENTAL=false
+  SINCE_TIMESTAMP=""
+  echo "=== Full Review (forced with --full) ==="
+elif [ -n "$LAST_MARKER" ] && [ "$LAST_MARKER" != "null" ] && [ "$LAST_MARKER" != "" ]; then
+  PREV_ROUND=$(echo "$LAST_MARKER" | jq -r '.round')
+  SINCE_TIMESTAMP=$(echo "$LAST_MARKER" | jq -r '.timestamp')
+  PREV_SHA=$(echo "$LAST_MARKER" | jq -r '.sha')
+  REVIEW_ROUND=$((PREV_ROUND + 1))
+  INCREMENTAL=true
+  echo "=== Incremental Review (Round $REVIEW_ROUND) ==="
+  echo "  Previous run: Round $PREV_ROUND at $SINCE_TIMESTAMP"
+  echo "  Filtering to comments after: $SINCE_TIMESTAMP"
+else
+  REVIEW_ROUND=1
+  INCREMENTAL=false
+  SINCE_TIMESTAMP=""
+  echo "=== Full Review (Round 1) ==="
+fi
+```
+
+**IMPORTANT**: All subsequent phases use `$PR_NUMBER` instead of `$ARGUMENTS` for gh commands (to exclude the `--full` flag).
+
 ### Phase 1: PR Analysis
 ```bash
 # Get full PR context with top-level comments
-gh pr view $ARGUMENTS --comments
+gh pr view $PR_NUMBER --comments
 
 # Check PR status and CI/CD checks
-gh pr checks $ARGUMENTS
+gh pr checks $PR_NUMBER
 
 # View the diff
-gh pr diff $ARGUMENTS
+gh pr diff $PR_NUMBER
 ```
 
 ### Phase 1.1: Fetch Inline Review Comments (Code-Level Annotations)
@@ -40,13 +93,23 @@ gh pr diff $ARGUMENTS
 
 ```bash
 echo "=== Inline Review Comments (Code-Level) ==="
-OWNER_REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+# OWNER_REPO already set in Phase 0.5
 
-# Fetch ALL inline review comments once and cache for reuse
-# This prevents redundant API calls in Phases 1.1, 1.2, and 2
-INLINE_COMMENTS_RAW=$(gh api "repos/$OWNER_REPO/pulls/$ARGUMENTS/comments" \
-  --paginate \
-  2>/dev/null || echo "[]")
+# Fetch inline review comments and cache for reuse (Phases 1.1, 1.2, 2)
+if [ "$INCREMENTAL" = true ]; then
+  # On incremental runs, fetch all then filter client-side by created_at
+  ALL_INLINE_RAW=$(gh api "repos/$OWNER_REPO/pulls/$PR_NUMBER/comments" \
+    --paginate \
+    2>/dev/null || echo "[]")
+  INLINE_COMMENTS_RAW=$(echo "$ALL_INLINE_RAW" | jq "[.[] | select(.created_at > \"$SINCE_TIMESTAMP\")]" 2>/dev/null || echo "[]")
+  TOTAL_BEFORE_FILTER=$(echo "$ALL_INLINE_RAW" | jq 'length' 2>/dev/null || echo 0)
+  TOTAL_AFTER_FILTER=$(echo "$INLINE_COMMENTS_RAW" | jq 'length' 2>/dev/null || echo 0)
+  echo "  Filtered inline comments: $TOTAL_AFTER_FILTER new (of $TOTAL_BEFORE_FILTER total)"
+else
+  INLINE_COMMENTS_RAW=$(gh api "repos/$OWNER_REPO/pulls/$PR_NUMBER/comments" \
+    --paginate \
+    2>/dev/null || echo "[]")
+fi
 
 # Check if any inline comments exist
 if [ "$INLINE_COMMENTS_RAW" = "[]" ] || [ -z "$INLINE_COMMENTS_RAW" ]; then
@@ -123,7 +186,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SECURITY_SENSITIVE=false
 
-if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$ARGUMENTS" "pr" 2>&1; then
+if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$PR_NUMBER" "pr" 2>&1; then
   SECURITY_SENSITIVE=true
   echo ""
   echo "This PR contains security-sensitive changes and will receive a security review."
@@ -136,25 +199,48 @@ fi
 Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
 
 ```bash
-# Extract all review comments from ALL sources (top-level + inline)
-# Reuses cached INLINE_COMMENTS_RAW from Phase 1.1 to avoid redundant API calls
+# Extract review comments from ALL sources (top-level + inline)
+# Reuses cached INLINE_COMMENTS_RAW from Phase 1.1
 
-# 1. Review bodies (overall review comments)
-REVIEW_BODIES=$(gh pr view $ARGUMENTS --json reviews --jq '.reviews[].body' 2>/dev/null || echo "")
+if [ "$INCREMENTAL" = true ]; then
+  # Filter review bodies by submittedAt
+  REVIEW_BODIES=$(gh pr view $PR_NUMBER --json reviews \
+    --jq "[.reviews[] | select(.submittedAt > \"$SINCE_TIMESTAMP\")] | .[].body" \
+    2>/dev/null || echo "")
 
-# 2. Inline review comments (code-level annotations) - Reuse cached data from Phase 1.1
+  # Filter PR-level comments by createdAt (exclude our own review-pr marker comments)
+  PR_COMMENTS=$(gh pr view $PR_NUMBER --json comments \
+    --jq "[.comments[] | select(.createdAt > \"$SINCE_TIMESTAMP\") | select(.body | test(\"<!-- review-pr:round:\") | not)] | .[].body" \
+    2>/dev/null || echo "")
+else
+  REVIEW_BODIES=$(gh pr view $PR_NUMBER --json reviews --jq '.reviews[].body' 2>/dev/null || echo "")
+  PR_COMMENTS=$(gh pr view $PR_NUMBER --json comments --jq '.comments[].body' 2>/dev/null || echo "")
+fi
+
+# Inline review comments (code-level annotations) - Reuse cached data from Phase 1.1
 INLINE_COMMENT_BODIES=$(echo "$INLINE_COMMENTS_RAW" | jq -r '.[].body' 2>/dev/null || echo "")
-
-# 3. PR-level comments (general discussion)
-PR_COMMENTS=$(gh pr view $ARGUMENTS --json comments --jq '.comments[].body' 2>/dev/null || echo "")
 
 # Combine ALL feedback sources for categorization
 REVIEW_COMMENTS=$(printf "%s\n%s\n%s" "$REVIEW_BODIES" "$INLINE_COMMENT_BODIES" "$PR_COMMENTS")
 
-echo "=== Feedback Sources ==="
+# Early exit on incremental runs with no new feedback
+if [ "$INCREMENTAL" = true ]; then
+  COMBINED_LENGTH=$(printf "%s%s%s" "$REVIEW_BODIES" "$INLINE_COMMENT_BODIES" "$PR_COMMENTS" | wc -c | tr -d ' ')
+  if [ "$COMBINED_LENGTH" -lt 5 ]; then
+    echo ""
+    echo "=== No New Feedback Found ==="
+    echo "No new comments since Round $PREV_ROUND ($SINCE_TIMESTAMP)."
+    echo "The PR appears up to date with all feedback addressed."
+    echo ""
+    echo "To force a full re-review, run: /review-pr $PR_NUMBER --full"
+    # Exit early — skip remaining phases
+  fi
+fi
+
+echo "=== Feedback Sources$([ "$INCREMENTAL" = true ] && echo " (since Round $PREV_ROUND)") ==="
 echo "  Review bodies: $(echo "$REVIEW_BODIES" | grep -c . || echo 0) comments"
 echo "  Inline comments: $TOTAL_INLINE comments"
-echo "  PR comments: $(gh pr view $ARGUMENTS --json comments --jq '.comments | length' 2>/dev/null || echo 0) comments"
+echo "  PR comments: $(echo "$PR_COMMENTS" | grep -c . || echo 0) comments"
 
 # Detect feedback types
 SECURITY_FEEDBACK=$(echo "$REVIEW_COMMENTS" | grep -iE "security|vulnerability|auth|xss|injection|secret" || echo "")
@@ -172,7 +258,7 @@ if [[ "$SECURITY_SENSITIVE" == true ]]; then
 fi
 
 # Auto-trigger UX review for UI file changes
-FILES_CHANGED=$(gh pr diff $ARGUMENTS --name-only)
+FILES_CHANGED=$(gh pr diff $PR_NUMBER --name-only)
 if echo "$FILES_CHANGED" | grep -iEq "component|\.tsx|\.jsx|\.vue|\.svelte|modal|dialog|form|button|input"; then
   UX_FEEDBACK="${UX_FEEDBACK:-Auto-triggered: PR contains UI component changes}"
 fi
@@ -181,7 +267,7 @@ fi
 HAS_MIGRATION=$(echo "$FILES_CHANGED" | grep -iE 'migration' | head -1)
 HAS_SCHEMA_CHANGE=$(echo "$FILES_CHANGED" | grep -iEq "migration|\.prisma|models\.py|schema\.|CreateTable|ALTER TABLE" && echo "yes" || echo "")
 HAS_PII_FILES=$(echo "$FILES_CHANGED" | grep -iEq "user|student|email|password|personal|ssn|address" && echo "yes" || echo "")
-HAS_BUG_LABEL=$(gh pr view $ARGUMENTS --json labels --jq '.labels[].name' 2>/dev/null | grep -iE "bug|fix" || echo "")
+HAS_BUG_LABEL=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name' 2>/dev/null | grep -iE "bug|fix" || echo "")
 
 echo "=== Feedback Categories Detected ==="
 [ -n "$SECURITY_FEEDBACK" ] && echo "  - Security issues"
@@ -193,10 +279,14 @@ echo "=== Feedback Categories Detected ==="
 [ -n "$CONFIG_FEEDBACK" ] && echo "  - Configuration consistency issues"
 [ -n "$UX_FEEDBACK" ] && echo "  - UX/Usability issues"
 echo ""
-echo "=== Always-On Review Agents ==="
-echo "  - Architecture strategist (SOLID compliance)"
-echo "  - Code simplicity reviewer (YAGNI enforcement)"
-echo "  - Pattern recognition specialist (duplication detection)"
+if [ "$INCREMENTAL" = true ]; then
+  echo "=== Structural Review Agents (SKIPPED — Round 2+, already ran on Round 1) ==="
+else
+  echo "=== Always-On Review Agents ==="
+  echo "  - Architecture strategist (SOLID compliance)"
+  echo "  - Code simplicity reviewer (YAGNI enforcement)"
+  echo "  - Pattern recognition specialist (duplication detection)"
+fi
 [ -n "$HAS_MIGRATION" ] && echo "  - Data migration expert (conditional: migration files detected)"
 [ -n "$HAS_MIGRATION" ] && echo "  - Deployment verification agent (conditional: migration files detected)"
 [ -n "$HAS_SCHEMA_CHANGE" ] && echo "  - Schema drift detector (conditional: schema/migration changes detected)"
@@ -208,9 +298,11 @@ echo "  - Pattern recognition specialist (duplication detection)"
 
 **CRITICAL: Use Task tool with multiple simultaneous invocations:**
 
-#### Always-On Review Agents (unconditional — run on every PR)
+#### Always-On Review Agents (Round 1 only — skip on incremental runs)
 
-Always invoke these 3 agents for structural code quality:
+On **Round 1**, invoke these 3 agents for structural code quality. On **rounds 2+** (incremental), skip them — they already ran on round 1 and the focus should be on addressing new reviewer feedback.
+
+**Only if `$INCREMENTAL` is NOT true:**
 
 - subagent_type: "psd-claude-coding-system:review:architecture-strategist"
 - description: "SOLID review for PR #$ARGUMENTS"
@@ -397,19 +489,27 @@ Using synthesized agent recommendations, systematically address each comment in 
 ```bash
 # After making changes, commit with clear message
 git add -A
-git commit -m "fix: address PR feedback
+git commit -m "fix: address PR feedback (Round $REVIEW_ROUND)
 
 - [Addressed comment about X]
 - [Fixed issue with Y]
 - [Improved Z per review]
 
-Addresses review comments in PR #$ARGUMENTS"
+Addresses review comments in PR #$PR_NUMBER"
 
-# Post summary comment on PR with severity breakdown
-gh pr comment $ARGUMENTS --body "## Review Feedback Addressed
+# Generate timestamp and SHA for round marker
+CURRENT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+CURRENT_SHA=$(git rev-parse HEAD)
 
-I've addressed all the review comments:
+# Post summary comment on PR with severity breakdown and round marker
+gh pr comment $PR_NUMBER --body "## Review Feedback Addressed (Round $REVIEW_ROUND)
 
+<!-- review-pr:round:${REVIEW_ROUND}:timestamp:${CURRENT_TIMESTAMP}:sha:${CURRENT_SHA} -->
+
+$(if [ "$INCREMENTAL" = true ]; then
+  echo "**Incremental review** — only processed new feedback since Round $PREV_ROUND ($SINCE_TIMESTAMP)"
+  echo ""
+fi)
 ### Severity Summary
 - **P1 (Blocking):** [count] found → [count] resolved
 - **P2 (Must Fix):** [count] found → [count] resolved
@@ -421,9 +521,11 @@ I've addressed all the review comments:
 - [Specific change 3]
 
 ### Review Agents Used:
-- Architecture strategist (SOLID compliance)
-- Code simplicity reviewer (YAGNI enforcement)
-- Pattern recognition specialist (duplication detection)
+$(if [ "$INCREMENTAL" != true ]; then
+  echo "- Architecture strategist (SOLID compliance)"
+  echo "- Code simplicity reviewer (YAGNI enforcement)"
+  echo "- Pattern recognition specialist (duplication detection)"
+fi)
 - [Additional conditional agents invoked]
 
 ### Testing:
@@ -448,7 +550,7 @@ npm run typecheck
 npm test
 
 # Verify CI/CD status
-gh pr checks $ARGUMENTS --watch
+gh pr checks $PR_NUMBER --watch
 ```
 
 ## Response Templates
@@ -486,16 +588,16 @@ However, I'm happy to change it if you feel strongly. What do you think about [a
 
 ```bash
 # Mark conversations as resolved after addressing
-gh pr review $ARGUMENTS --comment --body "All feedback addressed"
+gh pr review $PR_NUMBER --comment --body "All feedback addressed"
 
 # Request re-review from specific reviewer
-gh pr review $ARGUMENTS --request-reviewer @username
+gh pr review $PR_NUMBER --request-reviewer @username
 
 # Check if PR is ready to merge
-gh pr ready $ARGUMENTS
+gh pr ready $PR_NUMBER
 
 # Merge when approved (to dev!)
-gh pr merge $ARGUMENTS --merge --delete-branch
+gh pr merge $PR_NUMBER --merge --delete-branch
 ```
 
 ## Best Practices
@@ -533,8 +635,8 @@ echo "PR review completed successfully!"
 Always dispatch the learning-writer agent with a session summary. The agent handles deduplication and novelty detection — it will skip writing if the insight isn't novel.
 
 - subagent_type: "psd-claude-coding-system:workflow:learning-writer"
-- description: "Capture PR review learning for #$ARGUMENTS"
-- prompt: "SUMMARY=[what review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[the most notable mistake pattern or prevention strategy from this session, or 'routine review' if nothing stood out] CATEGORY=[appropriate category — e.g., security, logic, integration] TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
+- description: "Capture PR review learning for #$PR_NUMBER"
+- prompt: "SUMMARY=[Round $REVIEW_ROUND review of PR #$PR_NUMBER. $(if [ "$INCREMENTAL" = true ]; then echo "Incremental run — only new feedback since Round $PREV_ROUND."; else echo "Full review — first pass."; fi) What review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[the most notable mistake pattern or prevention strategy from this session, or 'routine review' if nothing stood out] CATEGORY=[appropriate category — e.g., security, logic, integration] TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.
 

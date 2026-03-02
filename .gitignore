@@ -8,6 +8,10 @@
 plugins/psd-claude-coding-system/meta/*
 !plugins/psd-claude-coding-system/meta/.gitkeep
 
+# Learning files (local working data, not shared via git)
+plugins/psd-claude-coding-system/docs/learnings/**/*.md
+!plugins/psd-claude-coding-system/docs/learnings/*/.gitkeep
+
 # Evolve state (local per-machine, not shared)
 plugins/psd-claude-coding-system/docs/learnings/.evolve-state.json
 
