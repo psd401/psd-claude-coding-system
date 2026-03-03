@@ -130,7 +130,7 @@ echo "$CHANGED_FILES"
 
 **Handle results:**
 - **PASS**: Proceed
-- **PASS_WITH_WARNINGS**: Note warnings for PR body
+- **PASS_WITH_WARNINGS**: Fix the warnings, then proceed
 - **FAIL**: Fix critical issues, then proceed
 - **Agent failure**: Fall back to inline quality gates
 
@@ -237,16 +237,16 @@ If SQL detected:
 
 ## Phase 9: Fix Review Findings (Inline)
 
-Address P1 and P2 findings from Phase 8. P3 items are left for manual follow-up.
+Address ALL findings from Phase 8 — P1, P2, and P3. If an agent flagged it, fix it.
 
 **P1 (Blocks Merge):** Security vulnerabilities, data loss risks, auth bypasses, breaking API changes.
 **P2 (Must Fix):** Missing error handling, missing tests on critical paths, SOLID violations, accessibility issues.
-**P3 (Suggestions):** Style, naming, minor optimizations — skip these.
+**P3 (Fix):** Style, naming, minor optimizations — fix these too.
 
 ```bash
-# After fixing P1 + P2 issues:
+# After fixing all issues:
 git add [specific fixed files]
-git commit -m "fix: address P1/P2 review findings
+git commit -m "fix: address P1/P2/P3 review findings
 
 - [P1 fix description]
 - [P2 fix description]
@@ -256,7 +256,7 @@ Self-review fixes for PR #$PR_NUMBER"
 git push
 ```
 
-If no P1/P2 findings, skip this phase.
+If no findings at any severity, skip this phase.
 
 ## Phase 10: Learning Capture (Task-Delegated — Always)
 

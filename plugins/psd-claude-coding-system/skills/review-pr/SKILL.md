@@ -481,7 +481,7 @@ Before addressing feedback, classify all findings from ALL agents into priority 
 Using synthesized agent recommendations, systematically address each comment in priority order:
 1. **P1 first** — Fix all blocking issues before anything else
 2. **P2 next** — Address must-fix items
-3. **P3 last** — Apply non-blocking suggestions where reasonable
+3. **P3 last** — Apply all P3 fixes. If a finding was worth flagging, fix it.
 4. Test each change
 5. Respond to the reviewer
 
@@ -513,7 +513,7 @@ fi)
 ### Severity Summary
 - **P1 (Blocking):** [count] found → [count] resolved
 - **P2 (Must Fix):** [count] found → [count] resolved
-- **P3 (Suggestions):** [count] found → [count] applied
+- **P3 (Suggestions):** [count] found → [count] fixed
 
 ### Changes Made:
 - [Specific change 1]
@@ -532,9 +532,6 @@ fi)
 - All tests passing
 - Linting and type checks clean
 - Manual testing completed
-
-### Outstanding Items:
-- [Any items needing discussion]
 
 Ready for re-review. Thank you for the feedback!"
 
@@ -616,7 +613,7 @@ After PR is approved and merged:
 1. Delete the feature branch locally: `git branch -d feature/branch-name`
 2. Update local dev: `git checkout dev && git pull origin dev`
 3. Close related issue if not auto-closed
-4. Create follow-up issues for any deferred improvements
+4. Create follow-up issues ONLY for out-of-scope requests (unrelated to this PR's purpose)
 
 ## Success Criteria
 

@@ -93,7 +93,7 @@ gh pr comment $ARGUMENTS --body "## Automated Security & Best Practices Review
 ### Summary
 - Critical Issues: [count from agent]
 - High Priority: [count from agent]
-- Suggestions: [count from agent]
+- Low Priority: [count from agent]
 
 ### Critical Issues (Must Fix Before Merge)
 [Critical findings from agent with file:line, problem, fix, reference]
@@ -101,22 +101,39 @@ gh pr comment $ARGUMENTS --body "## Automated Security & Best Practices Review
 ### High Priority (Should Fix Before Merge)
 [High priority findings from agent]
 
-### Suggestions (Consider for Improvement)
-[Suggestions from agent]
+### Low Priority (Fix Before Merge)
+[Low priority findings from agent]
 
 ### Positive Practices Observed
 [Good practices noted by agent]
 
 ### Required Actions
-1. Address all critical issues before merge
-2. Consider high priority fixes
-3. Run security checks: \`npm audit\`, \`npm run lint\`, \`npm run typecheck\`
-4. Verify all tests pass after fixes
+1. Fix all critical issues
+2. Fix all high priority issues
+3. Fix all low priority issues
+4. Run security checks: \`npm audit\`, \`npm run lint\`, \`npm run typecheck\`
+5. Verify all tests pass after fixes
 
 ---
 *Automated security review by security-analyst-specialist agent*"
 
 echo "Security audit completed and posted to PR #$ARGUMENTS"
+```
+
+### Step 3: Fix All Findings
+
+After posting the review comment, fix every finding:
+1. **Critical issues** — Fix immediately, these block merge
+2. **High priority** — Fix all of them
+3. **Low priority** — Fix all of them
+
+Commit fixes and push:
+```bash
+git add [specific changed files]
+git commit -m "fix: address security audit findings for PR #$ARGUMENTS
+
+- [List each finding fixed]"
+git push
 ```
 
 ## Key Features

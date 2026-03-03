@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 1.25.0
+Version: 1.25.1
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -266,7 +266,7 @@ Using `scripts/language-detector.sh`:
 | **6** | **Commit & Create PR [REQUIRED]** |
 | 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
 
-### `/review-pr` (v1.25.0)
+### `/review-pr` (v1.25.1)
 
 Supports **iterative reviews** — run multiple times on the same PR. Rounds 2+ only process new feedback since last run via PR comment markers.
 

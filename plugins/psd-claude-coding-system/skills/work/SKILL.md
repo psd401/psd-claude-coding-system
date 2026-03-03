@@ -126,7 +126,7 @@ echo "$CHANGED_FILES"
 
 **Handle validation results:**
 - **PASS**: Proceed to Phase 6
-- **PASS_WITH_WARNINGS**: Proceed, note warnings in PR body
+- **PASS_WITH_WARNINGS**: Fix the warnings, then proceed to Phase 6
 - **FAIL**: Fix critical issues identified in the report, then re-validate or proceed if fixes are applied
 - **Agent failure**: Fall back to inline quality gates (tests pass, lint clean, types check) and proceed
 

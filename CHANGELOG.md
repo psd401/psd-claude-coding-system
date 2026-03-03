@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.25.1] - 2026-03-02
+
+### Changed
+- **Eliminate work deferral across skills** — Skills now fix all identified issues instead of deferring them as "suggestions to consider" or "follow-up issues"
+- **`/review-pr`** — P3 findings must be fixed (not "applied where reasonable"), removed "Outstanding Items" section from PR comment template, follow-up issues only allowed for true scope-creep (unrelated to PR's purpose)
+- **`/security-audit`** — Renamed "Suggestions (Consider for Improvement)" tier to "Low Priority (Fix Before Merge)", hardened Required Actions to say "Fix" not "Consider", added Step 3 to actually fix all findings after posting the review comment
+- **`/lfg`** — P3 items are now fixed instead of skipped, commit message updated to reflect P1/P2/P3 fixes, PASS_WITH_WARNINGS requires fixing before proceeding
+- **`/work`** — PASS_WITH_WARNINGS now requires fixing warnings before proceeding to PR creation instead of just noting them in PR body
+
 ## [1.25.0] - 2026-02-28
 
 ### Added
