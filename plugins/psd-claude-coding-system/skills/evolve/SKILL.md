@@ -40,7 +40,7 @@ if [ -n "$REPO_VERSION" ] && [ -n "$CACHE_VERSION" ] && [ "$REPO_VERSION" != "$C
   echo ""
   echo "⚠ STALE CACHE: Repo is v${REPO_VERSION} but cache has v${CACHE_VERSION}"
   echo "  This skill is running from the cached version."
-  echo "  To refresh: /plugin install psd-claude-coding-system"
+  echo "  To refresh: /reload-plugins or /plugin install psd-claude-coding-system"
   echo ""
 fi
 ```

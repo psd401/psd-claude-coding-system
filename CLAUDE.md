@@ -392,8 +392,8 @@ Located at `.claude-plugin/marketplace.json`, this file is **essential** for Cla
 3. **When changing plugin structure:**
    - ✅ Update marketplace.json FIRST
    - ✅ Commit and push to GitHub
-   - ✅ Force refresh in Claude Code: `cd ~/.claude/plugins/marketplaces/[name] && git pull`
-   - ✅ Then run `/plugin install [name]`
+   - ✅ Run `/reload-plugins` to activate pending changes without restarting
+   - ✅ Or force refresh: `cd ~/.claude/plugins/marketplaces/[name] && git pull` then `/plugin install [name]`
 
 ### Repository Structure
 
@@ -496,13 +496,10 @@ This means marketplace.json doesn't list the plugin or points to wrong path.
    ls -la plugins/psd-claude-coding-system/.claude-plugin/
    ```
 3. If mismatch, update marketplace.json and push
-4. Force refresh:
+4. Run `/reload-plugins` to activate changes, or force refresh:
    ```bash
    cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
    git pull origin main
-   ```
-5. Retry install:
-   ```bash
    /plugin install psd-claude-coding-system
    ```
 
