@@ -3,6 +3,7 @@ name: product-manager
 description: Transform ideas into comprehensive product specifications and user stories
 argument-hint: "[product idea, feature request, or user need]"
 model: claude-opus-4-6
+effort: high
 context: fork
 agent: Plan
 allowed-tools:

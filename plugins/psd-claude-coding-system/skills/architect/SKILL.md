@@ -3,6 +3,7 @@ name: architect
 description: System architecture design and technical decision making for complex features
 argument-hint: "[issue number or architecture topic]"
 model: claude-opus-4-6
+effort: high
 context: fork
 agent: Plan
 allowed-tools:

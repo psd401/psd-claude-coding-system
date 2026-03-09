@@ -3,6 +3,7 @@ name: work
 description: Implement solutions for GitHub issues or quick fixes
 argument-hint: "[issue number OR description of quick fix]"
 model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:
