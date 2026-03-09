@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 16 skills + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + `/evolve` for analysis
 
-**Version**: 1.25.1
+**Version**: 1.26.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -349,6 +349,14 @@ Agent Teams (experimental) enable leader/teammate/inbox patterns for parallel ag
 - Validates file syntax by extension: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
 - Non-blocking, 10s timeout, exits cleanly for unknown file types
 
+**WorktreeCreate Hook** (v2.1.50+):
+- Fires when a git worktree is created (e.g., via `/worktree` skill)
+- Auto-symlinks `.env` from project root into worktree for environment continuity
+
+**WorktreeRemove Hook** (v2.1.50+):
+- Fires when a git worktree is removed
+- Logs worktree cleanup for visibility
+
 ## Marketplace Structure & Critical Files
 
 ### marketplace.json (CRITICAL)
@@ -392,8 +400,8 @@ Located at `.claude-plugin/marketplace.json`, this file is **essential** for Cla
 3. **When changing plugin structure:**
    - ✅ Update marketplace.json FIRST
    - ✅ Commit and push to GitHub
-   - ✅ Force refresh in Claude Code: `cd ~/.claude/plugins/marketplaces/[name] && git pull`
-   - ✅ Then run `/plugin install [name]`
+   - ✅ Run `/reload-plugins` to activate pending changes without restarting
+   - ✅ Or force refresh: `cd ~/.claude/plugins/marketplaces/[name] && git pull` then `/plugin install [name]`
 
 ### Repository Structure
 
@@ -496,13 +504,10 @@ This means marketplace.json doesn't list the plugin or points to wrong path.
    ls -la plugins/psd-claude-coding-system/.claude-plugin/
    ```
 3. If mismatch, update marketplace.json and push
-4. Force refresh:
+4. Run `/reload-plugins` to activate changes, or force refresh:
    ```bash
    cd ~/.claude/plugins/marketplaces/psd-claude-coding-system
    git pull origin main
-   ```
-5. Retry install:
-   ```bash
    /plugin install psd-claude-coding-system
    ```
 
