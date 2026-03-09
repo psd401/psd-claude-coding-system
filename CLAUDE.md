@@ -349,6 +349,14 @@ Agent Teams (experimental) enable leader/teammate/inbox patterns for parallel ag
 - Validates file syntax by extension: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
 - Non-blocking, 10s timeout, exits cleanly for unknown file types
 
+**WorktreeCreate Hook** (v2.1.50+):
+- Fires when a git worktree is created (e.g., via `/worktree` skill)
+- Auto-symlinks `.env` from project root into worktree for environment continuity
+
+**WorktreeRemove Hook** (v2.1.50+):
+- Fires when a git worktree is removed
+- Logs worktree cleanup for visibility
+
 ## Marketplace Structure & Critical Files
 
 ### marketplace.json (CRITICAL)

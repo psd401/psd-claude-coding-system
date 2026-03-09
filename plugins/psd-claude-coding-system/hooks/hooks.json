@@ -11,6 +11,28 @@
           }
         ]
       }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== Worktree created: ${worktree_path:-unknown} ===' && [ -f .env ] && ln -sf \"$(pwd)/.env\" \"${worktree_path}/.env\" 2>/dev/null && echo 'Symlinked .env to worktree' || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '=== Worktree removed: ${worktree_path:-unknown} ==='",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }
