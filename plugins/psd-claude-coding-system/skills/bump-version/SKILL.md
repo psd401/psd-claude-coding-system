@@ -135,6 +135,12 @@ git push origin HEAD
 git push origin "v$NEW_VERSION"
 ```
 
+After pushing, instruct the user to refresh the plugin cache so the cached version matches the repo:
+
+```
+Run `/reload-plugins` to refresh the plugin cache.
+```
+
 ## Phase 7: Summary
 
 ```markdown
@@ -151,9 +157,5 @@ git push origin "v$NEW_VERSION"
 
 **Tag:** v$NEW_VERSION
 **Pushed:** ✅
-
-Don't forget to refresh the plugin cache:
-```
-/plugin install psd-claude-coding-system
-```
+**Cache:** Run `/reload-plugins` to activate
 ```
