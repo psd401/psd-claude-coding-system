@@ -75,6 +75,35 @@ fi
 
 **IMPORTANT**: All subsequent phases use `$PR_NUMBER` instead of `$ARGUMENTS` for gh commands (to exclude the `--full` flag).
 
+### Phase 0.7: Load Project Review Config
+
+Check for a project-level review config created by `/setup`. Agents disabled in this config are skipped during Phase 2 dispatch.
+
+```bash
+REVIEW_CONFIG=".claude/review-config.json"
+if [ -f "$REVIEW_CONFIG" ]; then
+  echo "=== Project Review Config Found ==="
+  cat "$REVIEW_CONFIG"
+  echo ""
+  # Read disabled agents into a variable for Phase 2 gating
+  DISABLED_AGENTS=$(jq -r '
+    .reviewAgents | to_entries[] | .value | to_entries[] |
+    select(.value == false) | .key
+  ' "$REVIEW_CONFIG" 2>/dev/null | tr '\n' ' ')
+  echo "Disabled agents: ${DISABLED_AGENTS:-none}"
+else
+  DISABLED_AGENTS=""
+fi
+
+# Helper used in Phase 2: returns true if agent should run
+agent_enabled() {
+  local agent="$1"
+  echo "$DISABLED_AGENTS" | grep -qw "$agent" && echo "false" || echo "true"
+}
+```
+
+Before dispatching any agent in Phase 2, check `$(agent_enabled "<agent-name>")`. If it returns `false`, skip that agent without invoking a Task.
+
 ### Phase 1: PR Analysis
 ```bash
 # Get full PR context with top-level comments
