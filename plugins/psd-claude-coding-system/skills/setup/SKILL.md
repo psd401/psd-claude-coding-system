@@ -17,7 +17,7 @@ extended-thinking: true
 
 # Project Review Setup
 
-Configure which of the 14 review agents activate during `/review-pr` for this specific project. Creates a `.claude/review-config.json` in the project root.
+Configure which of the 20 review and language agents activate during `/review-pr` for this specific project. Creates a `.claude/review-config.json` in the project root.
 
 **Arguments:** $ARGUMENTS
 
@@ -32,13 +32,19 @@ if [ "$ARGUMENTS" = "reset" ]; then
   exit 0
 fi
 
-if [ "$ARGUMENTS" = "show" ] || [ -f "$CONFIG_FILE" ]; then
+if [ "$ARGUMENTS" = "show" ]; then
   if [ -f "$CONFIG_FILE" ]; then
     echo "=== Current Review Config ==="
     cat "$CONFIG_FILE"
   else
     echo "No review config found. Using defaults."
   fi
+  exit 0
+fi
+
+if [ -f "$CONFIG_FILE" ]; then
+  echo "=== Current Review Config ==="
+  cat "$CONFIG_FILE"
   echo ""
 fi
 
@@ -47,7 +53,7 @@ echo "=== Available Review Agents ==="
 
 ## Phase 2: Show Available Agents
 
-Present all 14 review agents with their descriptions and let the user choose which to enable:
+Present all 20 review and language agents with their descriptions and let the user choose which to enable:
 
 ```markdown
 ### Always-On Structural Agents (Round 1)
@@ -74,23 +80,25 @@ These activate when matching keywords appear in review comments:
 | 11 | ux-specialist | UX/accessibility keywords | ON |
 
 ### Context-Triggered Agents
-These activate when specific file patterns appear in the PR diff:
+These activate when specific file patterns or labels appear in the PR:
 
 | # | Agent | Trigger | Default |
 |---|-------|---------|---------|
 | 12 | data-migration-expert | Migration files detected | ON |
 | 13 | schema-drift-detector | Schema/ORM changes detected | ON |
 | 14 | data-integrity-guardian | PII-related files detected | ON |
+| 15 | deployment-verification-agent | Migration files detected | ON |
+| 16 | bug-reproduction-validator | Bug label on linked issue | ON |
 
 ### Language Reviewers
 These activate when matching file extensions appear in the PR diff:
 
 | # | Agent | Trigger | Default |
 |---|-------|---------|---------|
-| 15 | typescript-reviewer | .ts/.tsx/.js/.jsx files | ON |
-| 16 | python-reviewer | .py files | ON |
-| 17 | swift-reviewer | .swift files | ON |
-| 18 | sql-reviewer | .sql files | ON |
+| 17 | typescript-reviewer | .ts/.tsx/.js/.jsx files | ON |
+| 18 | python-reviewer | .py files | ON |
+| 19 | swift-reviewer | .swift files | ON |
+| 20 | sql-reviewer | .sql files | ON |
 ```
 
 ## Phase 3: Interactive Configuration
@@ -101,9 +109,9 @@ Ask the user which agents to disable (all are enabled by default):
 > Enter numbers separated by commas (e.g., "9,11,17,18"), or "none" to keep all enabled.
 >
 > Common configurations:
-> - **Python-only project:** Disable 15, 17 (TS and Swift reviewers)
-> - **No database project:** Disable 12, 13, 14 (migration/schema/PII agents)
-> - **Minimal review:** Disable 4-14 (keep only structural + language reviewers)
+> - **Python-only project:** Disable 17, 19 (TS and Swift reviewers)
+> - **No database project:** Disable 12, 13, 14, 15 (migration/schema/PII/deployment agents)
+> - **Minimal review:** Disable 4-16 (keep only structural + language reviewers)
 
 ## Phase 4: Write Config
 
@@ -136,7 +144,9 @@ Write a JSON config file with this structure:
     "contextTriggered": {
       "data-migration-expert": true,
       "schema-drift-detector": true,
-      "data-integrity-guardian": true
+      "data-integrity-guardian": true,
+      "deployment-verification-agent": true,
+      "bug-reproduction-validator": true
     },
     "languageReviewers": {
       "typescript-reviewer": true,
