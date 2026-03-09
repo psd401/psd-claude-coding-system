@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '=== Worktree created: ${worktree_path:-unknown} ===' && [ -f .env ] && ln -sf \"$(pwd)/.env\" \"${worktree_path}/.env\" 2>/dev/null && echo 'Symlinked .env to worktree' || true",
+            "command": "echo '=== Worktree created: ${worktree_path:-unknown} ==='; if [ -n \"${worktree_path}\" ] && [ -d \"${worktree_path}\" ] && [ -f .env ]; then if ln -sf \"$(pwd)/.env\" \"${worktree_path}/.env\"; then echo 'Symlinked .env to worktree'; else echo 'Warning: Failed to symlink .env to worktree' >&2; fi; fi; true",
             "timeout": 10
           }
         ]

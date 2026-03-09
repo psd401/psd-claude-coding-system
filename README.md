@@ -34,15 +34,14 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ## What's New in v1.26.0
 
-**Iterative `/review-pr` — Multi-Round PR Feedback Handling**
+**Claude Code v2.1.43-2.1.71 Release Gap Adoption**
 
 ### Key Changes
 
-- **Incremental detection** — `/review-pr` now detects previous runs via PR comment markers and only processes NEW feedback since the last round
-- **Round tracking** — Each run embeds `<!-- review-pr:round:N:timestamp:T:sha:S -->` in the summary comment, enabling stateless cross-session tracking
-- **Smart agent dispatch** — Always-on structural review agents (architecture-strategist, code-simplicity-reviewer, pattern-recognition-specialist) run on Round 1 only; rounds 2+ focus on addressing reviewer feedback
-- **Early exit** — If no new feedback exists since last round, exits with "PR up to date" message
-- **`--full` flag** — Force a complete re-review: `/review-pr 123 --full`
+- **`effort: high` on all opus-based skills and agents** — Since Claude Code v2.1.68, Opus 4.6 defaults to medium effort for Max/Team subscribers. Now explicitly set on `/work`, `/lfg`, `/architect`, `/scope`, `/issue`, `/brainstorm`, `/product-manager`, `plan-validator`, `meta-reviewer`, and `architect-specialist`
+- **WorktreeCreate/WorktreeRemove hooks** — Auto-symlinks `.env` into new worktrees when using `/worktree`; logs cleanup on removal
+- **Plugin `settings.json`** — Ships default auto-allow permissions for common `gh`, `git`, and Context7 MCP operations
+- **`/reload-plugins` documentation** — CLAUDE.md and `/evolve` now reference `/reload-plugins` as the primary way to activate plugin changes without restarting
 
 ---
 
