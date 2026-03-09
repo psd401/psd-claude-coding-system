@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2026-03-09
+
+### Added
+- **`/changelog` skill** — Auto-generate structured Keep-a-Changelog entries from git history. Reads commits since a tag, classifies into Added/Changed/Fixed categories, and optionally inserts into CHANGELOG.md. Eliminates manual changelog writing in the `/bump-version` workflow.
+- **`/deepen-plan` skill** — Parallel per-section plan research. Takes a plan file from `/architect` or `/scope` and spawns research agents simultaneously — best-practices-researcher for high-risk sections, framework-docs-researcher for medium-risk, learnings-researcher for low-risk. Produces annotated plan with research notes inline.
+- **`/setup` skill** — Per-project review agent configuration. Interactive setup creating `.claude/review-config.json` that `/review-pr` reads to determine which of 18 review/language agents to dispatch. Supports `show`, `reset`, and selective disable by number. Reduces noise for projects that don't need all 14 review agents.
+
 ## [1.26.0] - 2026-03-09
 
 ### Added
