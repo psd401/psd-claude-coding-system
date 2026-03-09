@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2026-03-09
+
+### Added
+- **`effort: high` on all opus-based skills and agents** — Since Claude Code v2.1.68, Opus 4.6 defaults to medium effort for Max/Team subscribers. Explicitly setting `effort: high` prevents silent degradation of reasoning depth on critical skills (`/work`, `/lfg`, `/brainstorm`, `/issue`, `/architect`, `/scope`, `/product-manager`) and agents (`plan-validator`, `meta-reviewer`, `architect-specialist`).
+- **WorktreeCreate/WorktreeRemove hooks** — New hook events (v2.1.50, fixed in v2.1.69) auto-symlink `.env` into new worktrees and log cleanup on removal.
+- **Plugin `settings.json`** — Ships recommended default auto-allow permissions for `gh`, `git`, and Context7 MCP tools (v2.1.49 feature).
+
+### Changed
+- **CLAUDE.md and `/evolve`** — Reference `/reload-plugins` command (v2.1.69) as primary refresh method instead of manual git pull + `/plugin install`.
+
+### Deferred (evaluation needed)
+- `/simplify` and `/batch` integration into workflows (items 7-8)
+- HTTP hooks for external notifications (item 9)
+- `InstructionsLoaded` hook for version display (item 10)
+- Auto-memory vs learning system relationship (item 14)
+- `includeGitInstructions` setting (item 15)
+- `isolation: worktree` coverage audit for review agents (item 17)
+
 ## [1.25.1] - 2026-03-02
 
 ### Changed

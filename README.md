@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.25.1-green)]()
+[![Version](https://img.shields.io/badge/Version-1.26.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.25.1
+**Version**: 1.26.0
 **Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
@@ -32,7 +32,7 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.25.1
+## What's New in v1.26.0
 
 **Iterative `/review-pr` — Multi-Round PR Feedback Handling**
 
@@ -153,7 +153,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.25.1)
+# Should show: psd-claude-coding-system (v1.26.0)
 
 # Test a command
 /evolve
