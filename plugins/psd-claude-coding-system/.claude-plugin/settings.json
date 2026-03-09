@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue *)",
+      "Bash(gh pr *)",
+      "Bash(gh repo *)",
+      "Bash(git *)",
+      "mcp__plugin_psd-claude-coding-system_context7__*"
+    ]
+  }
+}
