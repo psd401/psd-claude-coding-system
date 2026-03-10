@@ -98,6 +98,16 @@ else
 fi
 
 echo ""
+echo "=== Learning Capture Health ==="
+RECENT_COMMITS=$(git log --oneline --since="14 days ago" 2>/dev/null | wc -l | tr -d ' ')
+if [ "$TOTAL_LEARNINGS" -lt 3 ] && [ "$RECENT_COMMITS" -gt 5 ]; then
+  echo "⚠ Learning capture appears underactive — $RECENT_COMMITS commits in last 14 days but only $TOTAL_LEARNINGS learnings."
+  echo "  Verify learning-writer is functioning by running a real /work task."
+else
+  echo "OK ($TOTAL_LEARNINGS learnings, $RECENT_COMMITS recent commits)"
+fi
+
+echo ""
 echo "=== Universal Learnings ==="
 UNIVERSAL_COUNT=0
 if [ -d "$PLUGIN_DIR/docs/learnings" ]; then
@@ -126,6 +136,25 @@ echo ""
 echo "=== Plugin Summary ==="
 echo "Skills: $(find "$PLUGIN_DIR/skills" -name 'SKILL.md' -type f 2>/dev/null | wc -l | tr -d ' ')"
 echo "Agents: $(find "$PLUGIN_DIR/agents" -name '*.md' -type f 2>/dev/null | wc -l | tr -d ' ')"
+
+echo ""
+echo "=== Skill Drift Check ==="
+DEFERRAL_WORDS="consider|suggestion|optional|if needed|where reasonable|follow-up issue"
+DRIFT_FILES=""
+for skill in $(find "$PLUGIN_DIR/skills" -name 'SKILL.md' -type f 2>/dev/null); do
+  HITS=$(grep -ciE "$DEFERRAL_WORDS" "$skill" 2>/dev/null)
+  HITS=${HITS:-0}
+  if [ "$HITS" -gt 5 ]; then
+    SKILL_NAME=$(basename "$(dirname "$skill")")
+    DRIFT_FILES="$DRIFT_FILES  $SKILL_NAME: $HITS deferral phrases\n"
+  fi
+done
+if [ -n "$DRIFT_FILES" ]; then
+  echo "⚠ Behavioral drift candidates (>5 deferral phrases):"
+  printf "%s" "$DRIFT_FILES"
+else
+  echo "No skill drift detected"
+fi
 ```
 
 ## Phase 2: Decision Engine
@@ -489,14 +518,22 @@ Classification: [Plugin-level | Project-specific]
 
 ## Phase 5: Suggest Next
 
-Based on remaining staleness in the state file, suggest when to run `/evolve` again:
+Based on remaining staleness in the state file, suggest when to run `/evolve` again.
+
+**If issues were created in Phase 4.5**, list them with ready-to-run commands:
 
 ```markdown
 ### Next Steps
 
-- Run `/evolve` again after [condition] to [action]
-- Meanwhile, `/work`, `/test`, `/review-pr`, and `/lfg` continue capturing learnings automatically
+**Issues created this run:**
+- #N — [title] → `/work N`
+- #M — [title] → `/work M`
+
+Pick one to start implementing, or run `/evolve` again after [condition] to [action].
+Meanwhile, `/work`, `/test`, `/review-pr`, and `/lfg` continue capturing learnings automatically.
 ```
+
+If no issues were created, omit the issues list and just show the next evolve trigger condition.
 
 ## Success Criteria
 
