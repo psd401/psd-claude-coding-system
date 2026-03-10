@@ -78,16 +78,6 @@ for dir in "$PLUGIN_DIR/docs/learnings"/*/; do
 done
 
 echo ""
-echo "=== Learning Capture Health ==="
-RECENT_COMMITS=$(git log --oneline --since="14 days ago" 2>/dev/null | wc -l | tr -d ' ')
-if [ "$TOTAL_LEARNINGS" -lt 3 ] && [ "$RECENT_COMMITS" -gt 5 ]; then
-  echo "⚠ Learning capture appears underactive — $RECENT_COMMITS commits in last 14 days but only $TOTAL_LEARNINGS learnings."
-  echo "  Verify learning-writer is functioning by running a real /work task."
-else
-  echo "OK ($TOTAL_LEARNINGS learnings, $RECENT_COMMITS recent commits)"
-fi
-
-echo ""
 echo "=== TTL Cleanup (90 days) ==="
 CUTOFF_DATE=$(date -v-90d +"%Y-%m-%d" 2>/dev/null || date -d "90 days ago" +"%Y-%m-%d")
 EXPIRED_COUNT=0
@@ -105,6 +95,16 @@ if [ "$EXPIRED_COUNT" -gt 0 ]; then
   echo "  Remaining: $TOTAL_LEARNINGS"
 else
   echo "  No expired learnings found"
+fi
+
+echo ""
+echo "=== Learning Capture Health ==="
+RECENT_COMMITS=$(git log --oneline --since="14 days ago" 2>/dev/null | wc -l | tr -d ' ')
+if [ "$TOTAL_LEARNINGS" -lt 3 ] && [ "$RECENT_COMMITS" -gt 5 ]; then
+  echo "⚠ Learning capture appears underactive — $RECENT_COMMITS commits in last 14 days but only $TOTAL_LEARNINGS learnings."
+  echo "  Verify learning-writer is functioning by running a real /work task."
+else
+  echo "OK ($TOTAL_LEARNINGS learnings, $RECENT_COMMITS recent commits)"
 fi
 
 echo ""
@@ -142,7 +142,8 @@ echo "=== Skill Drift Check ==="
 DEFERRAL_WORDS="consider|suggestion|optional|if needed|where reasonable|follow-up issue"
 DRIFT_FILES=""
 for skill in $(find "$PLUGIN_DIR/skills" -name 'SKILL.md' -type f 2>/dev/null); do
-  HITS=$(grep -ciE "$DEFERRAL_WORDS" "$skill" 2>/dev/null || echo 0)
+  HITS=$(grep -ciE "$DEFERRAL_WORDS" "$skill" 2>/dev/null)
+  HITS=${HITS:-0}
   if [ "$HITS" -gt 5 ]; then
     SKILL_NAME=$(basename "$(dirname "$skill")")
     DRIFT_FILES="$DRIFT_FILES  $SKILL_NAME: $HITS deferral phrases\n"
@@ -150,7 +151,7 @@ for skill in $(find "$PLUGIN_DIR/skills" -name 'SKILL.md' -type f 2>/dev/null); 
 done
 if [ -n "$DRIFT_FILES" ]; then
   echo "⚠ Behavioral drift candidates (>5 deferral phrases):"
-  printf "$DRIFT_FILES"
+  printf "%s" "$DRIFT_FILES"
 else
   echo "No skill drift detected"
 fi
