@@ -4,13 +4,13 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-1.27.0-green)]()
+[![Version](https://img.shields.io/badge/Version-1.28.0-green)]()
 
 ## Overview
 
 **One unified plugin** combining battle-tested development workflows with memory-based learning and knowledge compounding.
 
-**Version**: 1.27.0
+**Version**: 1.28.0
 **Status**: Production-Ready Workflows + Memory-Based Learning
 
 ---
@@ -32,16 +32,18 @@ Peninsula School District's comprehensive Claude Code plugin for AI-assisted sof
 
 ---
 
-## What's New in v1.27.0
+## What's New in v1.28.0
 
-**Claude Code v2.1.43-2.1.71 Release Gap Adoption**
+**Compound Engineering Automations + /setup Integration**
 
 ### Key Changes
 
-- **`effort: high` on all opus-based skills and agents** — Since Claude Code v2.1.68, Opus 4.6 defaults to medium effort for Max/Team subscribers. Now explicitly set on `/work`, `/lfg`, `/architect`, `/scope`, `/issue`, `/brainstorm`, `/product-manager`, `plan-validator`, `meta-reviewer`, and `architect-specialist`
-- **WorktreeCreate/WorktreeRemove hooks** — Auto-symlinks `.env` into new worktrees when using `/worktree`; logs cleanup on removal
-- **Plugin `settings.json`** — Ships default auto-allow permissions for common `gh`, `git`, and Context7 MCP operations
-- **`/reload-plugins` documentation** — CLAUDE.md and `/evolve` now reference `/reload-plugins` as the primary way to activate plugin changes without restarting
+- **`/evolve` drift detector** — Phase 1 now scans all SKILL.md files for deferral language (`consider`, `optional`, `if needed`) and flags files with >5 hits as behavioral drift candidates
+- **`/evolve` learning health check** — Warns when <3 learnings exist despite >5 commits in the last 14 days, indicating underactive learning capture (runs post-TTL-cleanup for accuracy)
+- **`/evolve` pipeline continuation** — Phase 5 now lists issues created in the run with ready-to-run `/work #N` commands, eliminating the context switch from identification to implementation
+- **`/bump-version` cache refresh** — Prompts `/reload-plugins` after pushing the tag, preventing the recurring stale cache warning in subsequent `/evolve` runs
+- **`/review-pr` Phase 0.7** — Reads `.claude/review-config.json` (created by `/setup`) and gates agent dispatch — disabled agents are skipped, reducing token cost for scoped projects
+- **`/setup` fixes** — `show` command now exits after display (was falling through to interactive mode); agent count corrected to 20; `deployment-verification-agent` and `bug-reproduction-validator` added to config schema
 
 ---
 
@@ -152,7 +154,7 @@ The plugin automatically detects languages in changed files and invokes appropri
 
 ```bash
 /plugin list
-# Should show: psd-claude-coding-system (v1.27.0)
+# Should show: psd-claude-coding-system (v1.28.0)
 
 # Test a command
 /evolve

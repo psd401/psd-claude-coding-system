@@ -9,7 +9,7 @@ This is the **PSD Claude Coding System** - a unified Claude Code plugin for Peni
 1. **Workflow Automation** (Stable) - 19 skills + specialized agents
 2. **Memory-Based Learning** - Automatic learning capture + `/evolve` for analysis
 
-**Version**: 1.27.0
+**Version**: 1.28.0
 **Status**: ✅ Production-Ready Workflows + 🧪 Memory-Based Learning
 
 ### NEW in v1.15.0 - Compound Engineering Analysis + Implementation
@@ -72,9 +72,9 @@ plugins/psd-claude-coding-system/
   │   ├── security-audit/SKILL.md   # Security review
   │   ├── scope/SKILL.md        # Scope classification + planning
   │   ├── brainstorm/SKILL.md   # Collaborative requirements exploration (NEW v1.24.0)
-  │   ├── changelog/SKILL.md   # Auto-generate changelog entries (NEW v1.27.0)
-  │   ├── deepen-plan/SKILL.md # Parallel per-section plan research (NEW v1.27.0)
-  │   ├── setup/SKILL.md       # Per-project review agent config (NEW v1.27.0)
+  │   ├── changelog/SKILL.md   # Auto-generate changelog entries (NEW v1.28.0)
+  │   ├── deepen-plan/SKILL.md # Parallel per-section plan research (NEW v1.28.0)
+  │   ├── setup/SKILL.md       # Per-project review agent config (NEW v1.28.0)
   │   ├── worktree/SKILL.md     # Git worktree management (NEW v1.24.0)
   │   ├── swarm/SKILL.md        # Parallel agent orchestration (NEW v1.24.0)
   │   ├── bump-version/SKILL.md  # Automate version bump ritual (NEW v1.24.0)
@@ -254,9 +254,9 @@ Skills are now the primary user-facing interface. There are two types:
 - `/review-pr` - Iterative PR feedback handling with incremental detection (rounds 2+ only process new comments) + always-run learning capture
 - `/architect` - Architecture design
 - `/brainstorm` - Collaborative requirements exploration before /scope or /work (NEW v1.24.0)
-- `/changelog` - Auto-generate Keep-a-Changelog entries from git history (NEW v1.27.0)
-- `/deepen-plan` - Enhance plans with parallel per-section research (NEW v1.27.0)
-- `/setup` - Configure per-project review agent activation (NEW v1.27.0)
+- `/changelog` - Auto-generate Keep-a-Changelog entries from git history (NEW v1.28.0)
+- `/deepen-plan` - Enhance plans with parallel per-section research (NEW v1.28.0)
+- `/setup` - Configure per-project review agent activation (NEW v1.28.0)
 - `/issue` - GitHub issue creation
 - `/product-manager` - Product specifications
 - `/security-audit` - Security review

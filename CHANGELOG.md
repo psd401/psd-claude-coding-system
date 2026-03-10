@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.0] - 2026-03-09
+
+### Added
+- **`/evolve` skill drift detector** — Phase 1 scans all `SKILL.md` files for deferral language (`consider`, `optional`, `if needed`, `where reasonable`, `follow-up issue`) and flags files with >5 hits as behavioral drift candidates. Catches cross-cutting work-avoidance patterns before they affect output quality.
+- **`/evolve` learning capture health check** — After TTL cleanup, warns if <3 learnings exist despite >5 commits in last 14 days. Helps detect when learning-writer is underactive.
+- **`/evolve` issue → implementation pipeline** — Phase 5 now lists issues created in Phase 4.5 with `/work #N` commands, eliminating the manual context switch from identification to implementation.
+- **`/bump-version` cache refresh prompt** — After `git push origin vX.Y.Z`, the skill prompts to run `/reload-plugins`, preventing recurring stale cache warnings in subsequent `/evolve` runs.
+- **`deployment-verification-agent` and `bug-reproduction-validator`** added to `/setup` config schema — these conditional agents were previously omitted despite being dispatched by `/review-pr`.
+
+### Changed
+- **`/review-pr` Phase 0.7** — Now reads `.claude/review-config.json` (created by `/setup`) before agent dispatch. Agents set to `false` are skipped via `agent_enabled()` helper, making `/setup` integration functional.
+- **`/setup` `show` command** — Now calls `exit 0` after displaying config instead of falling through to interactive agent selection.
+- **`/setup` agent count** — Corrected from "14" to "20" throughout; added 2 missing context-triggered agents; renumbered language reviewers 15–18 → 17–20.
+
+### Fixed
+- **`grep -c || echo 0` double-output bug** in `/evolve` drift check — `grep -c` outputs `0` on no-match but exits 1, causing `|| echo 0` to append a second `0`, breaking arithmetic comparison with "integer expression expected". Fixed with `HITS=${HITS:-0}` pattern.
+- **`printf` format string vulnerability** in `/evolve` drift check — `printf "$DRIFT_FILES"` used variable as format string. Fixed to `printf "%s" "$DRIFT_FILES"`.
+- **Learning health check ran before TTL cleanup** — `TOTAL_LEARNINGS` was counted pre-deletion, inflating the check. Moved to after TTL cleanup block.
+- **`/deepen-plan` argument-hint** — Removed unimplemented `'clipboard'` option that was never handled in Phase 1.
+
 ## [1.27.0] - 2026-03-09
 
 ### Added
