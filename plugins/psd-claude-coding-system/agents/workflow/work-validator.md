@@ -131,20 +131,22 @@ After all agents return, compile into a structured Validation Report:
 - Schema drift: [summary or "no drift detected"]
 - Rollback plan: [summary]
 
-### Issues Requiring Fix Before PR
+### Issues Requiring Fix
 1. [Critical issue with file:line reference]
 2. [Critical issue with file:line reference]
 
-### Warnings (non-blocking)
+### Warnings (must fix)
 1. [Warning with file:line reference]
 2. [Warning with file:line reference]
+
+**All findings above must be fixed. Do not label anything as "non-blocking" or "optional."**
 ```
 
 ### Determining Overall Status
 
-- **PASS**: No critical issues from any reviewer
-- **PASS_WITH_WARNINGS**: Only non-critical warnings, no blockers
-- **FAIL**: One or more critical issues that must be fixed before PR
+- **PASS**: No issues from any reviewer
+- **PASS_WITH_WARNINGS**: Warnings found — all must be fixed before proceeding
+- **FAIL**: Critical issues found — all must be fixed before proceeding
 
 ## Failure Handling
 

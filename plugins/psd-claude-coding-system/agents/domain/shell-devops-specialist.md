@@ -213,7 +213,7 @@ echo $?  # Should be 1 (failure), actually returns 0 (success)
 - Missing timeout on long-running command
 - jq query doesn't handle null values
 
-**🟢 Suggestions (Consider for Improvement):**
+**🟢 Low Priority (Fix Before Merge):**
 - Add `set -u` for stricter undefined variable detection
 - Use `trap` cleanup for temp files
 - Add logging/debugging output

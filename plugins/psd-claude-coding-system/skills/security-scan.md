@@ -54,7 +54,7 @@ $CRITICAL_FINDINGS
 ### High Priority (🟡 Should Fix Before Merge)
 $HIGH_FINDINGS
 
-### Suggestions (🟢 Consider for Improvement)
+### Low Priority (🟢 Fix Before Merge)
 $SUGGESTIONS
 
 ### Positive Practices Observed

@@ -197,7 +197,7 @@ echo '{"count": 5}' | jq '.count += 1'  # Should be 6, actually returns 1
 - Missing validation on data transformation inputs
 - Statistical calculation errors
 
-**🟢 Suggestions (Consider for Improvement):**
+**🟢 Low Priority (Fix Before Merge):**
 - Add more test cases for edge cases
 - Improve error messages in data validation
 - Add data type documentation

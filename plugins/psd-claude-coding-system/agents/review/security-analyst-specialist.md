@@ -167,10 +167,10 @@ Positive Practices: [count]
 ---
 
 ### REQUIRED_ACTIONS
-1. Address all critical issues before merge
-2. Fix high priority issues
-3. Run security checks: `npm audit`, `npm run lint`, `npm run typecheck`
-4. Verify tests pass after fixes
+1. Fix ALL findings — critical, high priority, AND low priority
+2. Run security checks: `npm audit`, `npm run lint`, `npm run typecheck`
+3. Verify tests pass after fixes
+4. Do NOT defer any finding to a follow-up issue
 ```
 
 ## Severity Guidelines
@@ -191,13 +191,13 @@ Positive Practices: [count]
 - Missing tests for critical paths
 - Security misconfigurations
 
-**🟢 Suggestions (Consider for Improvement):**
+**🟢 Low Priority (Fix Before Merge):**
 - TypeScript `any` usage
 - Console.log statements
 - Minor performance improvements
-- Code organization suggestions
+- Code organization issues
 - Accessibility improvements
-- Documentation needs
+- Documentation gaps
 
 ## Best Practices for Feedback
 

@@ -80,6 +80,15 @@ Invoke the **work-researcher** agent to gather all pre-implementation context in
 
 **If the agent fails, proceed anyway** — missing research is not a blocker. Incorporate the Research Brief findings (learnings, test strategy, security, domain patterns, git history) into your implementation.
 
+## ANTI-DEFERRAL MANDATE
+
+**Fix everything now.** If an agent flags it, fix it. If a test fails, fix it. If a warning appears, fix it.
+
+The ONLY acceptable deferral is work that is genuinely out of scope (completely unrelated to this issue/fix). When deferring is truly justified:
+- **Create a GitHub issue** using `gh issue create` with full context
+- Never just document it in a PR comment, TODO, or existing issue — it will get lost
+- "I'll fix it later" without an issue means "it won't get fixed"
+
 ## Phase 4: Implementation
 
 Implement the solution following the Research Brief, local CLAUDE.md conventions, and type safety (no `any` types).
@@ -127,9 +136,11 @@ echo "$CHANGED_FILES"
 
 **Handle validation results:**
 - **PASS**: Proceed to Phase 6
-- **PASS_WITH_WARNINGS**: Fix the warnings, then proceed to Phase 6
-- **FAIL**: Fix critical issues identified in the report, then re-validate or proceed if fixes are applied
+- **PASS_WITH_WARNINGS**: Fix ALL warnings before proceeding. Warnings are issues — not suggestions to ignore.
+- **FAIL**: Fix ALL issues identified in the report (critical AND non-critical), then re-validate
 - **Agent failure**: Fall back to inline quality gates (tests pass, lint clean, types check) and proceed
+
+**Fix all validation findings now. If something is genuinely out of scope, create a GitHub issue with `gh issue create` — never just note it in a PR comment or TODO.**
 
 ## Phase 6: Commit & Create PR [REQUIRED — DO NOT SKIP]
 

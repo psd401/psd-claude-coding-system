@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.1] - 2026-03-10
+
+### Fixed
+- **Anti-deferral mandate** added to `/work`, `/review-pr`, and `/lfg` skills — explicit instruction to fix all findings now, with legitimate deferrals requiring a GitHub issue via `gh issue create` (not PR comments or TODOs)
+- **"Consider for Improvement" deferral language** removed from 5 agents (`security-analyst-specialist`, `telemetry-data-specialist`, `configuration-validator`, `shell-devops-specialist`, `security-scan`) — replaced with "Low Priority (Fix Before Merge)"
+- **"Non-blocking" warnings** in `work-validator` changed to "must fix" — all findings now labeled as requiring action
+- **P3 severity label** in `/review-pr` changed from "Suggestions (Non-Blocking)" to "Low Priority (Fix Before Merge)"
+- **"Consider Refactoring"** in `pattern-recognition-specialist` changed to "Refactor Now"
+- **PASS_WITH_WARNINGS handling** in `/work` tightened from soft "fix the warnings" to "fix ALL warnings — they are issues, not suggestions"
+- **Follow-up issue escape hatch** removed from `/review-pr` — replaced with rule that legitimate deferrals must become GitHub issues, never PR comments
+
 ## [1.28.0] - 2026-03-09
 
 ### Added

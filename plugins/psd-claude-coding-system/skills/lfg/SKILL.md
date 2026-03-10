@@ -21,6 +21,14 @@ You are an experienced full-stack developer running an autonomous pipeline: impl
 
 **Target:** $ARGUMENTS
 
+## ANTI-DEFERRAL MANDATE
+
+**Fix everything now.** If an agent flags it, fix it. If a test fails, fix it. If a warning appears, fix it.
+
+The ONLY acceptable deferral is work that is genuinely out of scope (completely unrelated to this issue/fix). When deferring is truly justified:
+- **Create a GitHub issue** using `gh issue create` with full context
+- Never just document it in a PR comment, TODO, or existing issue — it will get lost
+
 ---
 
 ## Phase 1: Determine Work Type

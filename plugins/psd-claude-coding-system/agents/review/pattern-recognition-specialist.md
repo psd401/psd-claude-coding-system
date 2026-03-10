@@ -159,7 +159,7 @@ Exact duplicates with 3+ occurrences:
 |---------|------------|------------|-------------|
 | [desc] | [N] | [N] | [N] |
 
-#### Medium — Consider Refactoring
+#### Medium — Refactor Now
 Near duplicates or 2 occurrences of significant blocks:
 | Pattern | Occurrences | Similarity | Recommendation |
 |---------|------------|-----------|----------------|

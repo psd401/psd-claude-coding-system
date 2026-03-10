@@ -223,6 +223,15 @@ if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$PR_NUMBER" "pr" 2>&1; then
 fi
 ```
 
+## ANTI-DEFERRAL MANDATE
+
+**Fix everything now.** If a reviewer flagged it, fix it. If an agent flags it, fix it. If a P3 item is worth mentioning, it's worth fixing.
+
+The ONLY acceptable deferral is work that is genuinely out of scope (completely unrelated to this PR's purpose). When deferring is truly justified:
+- **Create a GitHub issue** using `gh issue create` with full context
+- Never just document it in a PR comment, TODO, or existing issue — it will get lost
+- "I'll address this in a follow-up" without an issue means "it won't get addressed"
+
 ### Phase 2: Parallel Feedback Categorization (Aggressive Parallelism)
 
 Categorize feedback by type and dispatch specialized agents IN PARALLEL to handle each category.
@@ -496,13 +505,13 @@ Before addressing feedback, classify all findings from ALL agents into priority 
 - Significant code duplication (from pattern-recognition-specialist)
 - Over-engineering / YAGNI violations (from code-simplicity-reviewer)
 
-**P3 — Suggestions (Non-Blocking):**
+**P3 — Low Priority (Fix Before Merge):**
 - Code style improvements
 - Minor performance optimizations
-- Documentation suggestions
+- Documentation gaps
 - Naming improvements
 - Minor duplication (< 3 occurrences)
-- Simplification opportunities (non-critical)
+- Simplification opportunities
 ```
 
 #### Step 2: Address Feedback by Priority
@@ -510,7 +519,7 @@ Before addressing feedback, classify all findings from ALL agents into priority 
 Using synthesized agent recommendations, systematically address each comment in priority order:
 1. **P1 first** — Fix all blocking issues before anything else
 2. **P2 next** — Address must-fix items
-3. **P3 last** — Apply all P3 fixes. If a finding was worth flagging, fix it.
+3. **P3 last** — Fix ALL P3 items. If it was worth flagging, it's worth fixing. No deferring to follow-up issues.
 4. Test each change
 5. Respond to the reviewer
 
@@ -642,7 +651,8 @@ After PR is approved and merged:
 1. Delete the feature branch locally: `git branch -d feature/branch-name`
 2. Update local dev: `git checkout dev && git pull origin dev`
 3. Close related issue if not auto-closed
-4. Create follow-up issues ONLY for out-of-scope requests (unrelated to this PR's purpose)
+
+**All review findings should have been fixed in this session. If something is genuinely out of scope, create a GitHub issue with `gh issue create` — never just note it in a comment.**
 
 ## Success Criteria
 
