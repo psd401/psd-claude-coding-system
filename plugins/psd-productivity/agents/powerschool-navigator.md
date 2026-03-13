@@ -16,7 +16,7 @@ tools:
   - Read
   - Glob
   - Grep
-model: sonnet-4-6
+model: claude-sonnet-4-6
 extended-thinking: true
 ---
 

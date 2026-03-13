@@ -2,7 +2,7 @@
 name: enrollment
 description: P223 monthly enrollment automation for Peninsula School District — report generation, FTE validation, and compliance checking
 argument-hint: "[action] [school?] [date?]"
-model: sonnet-4-6
+model: claude-sonnet-4-6
 allowed-tools:
   - Read
   - Write
