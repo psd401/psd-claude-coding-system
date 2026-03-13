@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-03-13
+
+### Added
+- **P223 enrollment automation** (`/enrollment`) — complete rewrite from placeholder to 13-command workflow automating Peninsula School District's monthly state enrollment reporting
+  - 6 reference docs extracted from P223 Compliance Form, PSD Comprehensive Enrollment Reporting Manual, and 25-26 Enrollment Handbook
+  - 7 Python scripts: FTE calculator, enrollment validator, month-over-month comparison, entry/exit balancer, ALE reconciler, Running Start reconciler, validation report + EDS import generator
+  - `powerschool-navigator` agent — Claude-in-Chrome browser automation for 9 PowerSchool report types with correct parameters per school level (ES/MS/HS)
+  - `enrollment-validator` agent — 9 validation checks (headcount consistency, FTE calc, 20-day absence, entry/exit balance, RS cap, program compliance, teacher assignment, FTE override audit, non-FTE course check)
+- **Google Workspace CLI skill** (`/google-workspace`) — shared skill providing Drive, Sheets, Gmail, Calendar, Chat, and Docs access via `gws` CLI with multi-account auth support
+- **`.gitignore`** — added Python `__pycache__` and `.pyc` patterns
+
+### Changed
+- **`psd-productivity`** — 25 → 26 skills, 0 → 2 agents
+- **All version references** bumped to 2.2.0
+
+## [2.1.0] - 2026-03-13
+
+### Added
+- **23 skills migrated to `psd-productivity`** from Geoffrey personal assistant — plugin now has 25 total skills (23 new + 2 existing placeholders)
+- **Productivity** (3): `freshservice-manager`, `redrover-manager`, `legislative-tracker`
+- **Content & Document Generation** (9): `writer`, `docx`, `pptx`, `pdf`, `pdf-to-markdown`, `xlsx`, `presentation-master`, `assistant-architect`, `sop-creator`
+- **Research & Intelligence** (3): `research`, `multi-model-research`, `strategic-planning-manager`
+- **Audio & Media** (3): `elevenlabs-tts`, `local-tts`, `image-gen`
+- **Planning & Decision-Making** (2): `seven-advisors`, `skill-creator`
+- **PSD-Specific** (3): `psd-athletics`, `psd-brand-guidelines`, `psd-instructional-vision`
+
+### Changed
+- **`psd-productivity` plugin.json** — version 2.0.0 → 2.1.0, updated description and keywords
+- **marketplace.json** — version 2.0.0 → 2.1.0, updated psd-productivity entry
+- **All documentation** — CLAUDE.md, README.md, psd-productivity README updated with full skill inventory
+
 ## [2.0.0] - 2026-03-13
 
 ### Changed

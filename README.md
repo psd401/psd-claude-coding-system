@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.0.0-green)]()
+[![Version](https://img.shields.io/badge/Version-2.2.0-green)]()
 
 ## Overview
 
 **Two independently installable plugins** — one for software development workflows, one for general productivity.
 
-**Version**: 2.0.0
+**Version**: 2.2.0
 
 ---
 
@@ -50,16 +50,21 @@ AI-assisted development system with 19 skills, 42 specialized agents, memory-bas
 
 ### psd-productivity
 
-General-purpose productivity workflows for district operations. Works in both Claude Code and Claude Cowork.
+25 productivity workflows for district operations, document generation, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
 ```
 
-| Skill | Description | Status |
-|-------|-------------|--------|
-| `/enrollment` | PSD enrollment workflow | Placeholder |
-| `/chief-of-staff` | Daily briefings and priority management | Placeholder |
+| Category | Skills |
+|----------|--------|
+| **Productivity** (3) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` |
+| **Content & Docs** (9) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` |
+| **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
+| **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
+| **Planning** (2) | `/seven-advisors` · `/skill-creator` |
+| **PSD-Specific** (3) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` |
+| **Operations** (2) | `/enrollment` · `/chief-of-staff` |
 
 [Full documentation →](./plugins/psd-productivity/README.md)
 
@@ -120,8 +125,8 @@ psd-claude-plugins/
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
 │   └── psd-productivity/          # Productivity workflows
-│       ├── skills/                # Enrollment, Chief of Staff, etc.
-│       └── agents/                # Workflow-specific agents
+│       ├── skills/                # 25 productivity skills
+│       └── agents/                # Workflow-specific agents (TBD)
 ├── CLAUDE.md
 ├── CHANGELOG.md
 └── README.md

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.0.0
+**Version**: 2.2.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 19 | 42 |
-| `psd-productivity` | General productivity workflows (Cowork-friendly) | 2 (placeholder) | 0 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 26 | 2 |
 
 ### Key Changes in v2.0.0
 
@@ -54,10 +54,35 @@ psd-claude-plugins/                           # repo root
     psd-productivity/                         # productivity workflows (Cowork-friendly)
       .claude-plugin/
         plugin.json                           # name: "psd-productivity"
-      skills/
-        enrollment/SKILL.md                   # enrollment workflow (placeholder)
-        chief-of-staff/SKILL.md               # chief of staff workflow (placeholder)
-      agents/                                 # workflow-specific agents (TBD)
+      skills/                                 # 25 user-invocable skills
+        freshservice-manager/                 # Freshservice ticket management
+        redrover-manager/                     # Red Rover absence data
+        legislative-tracker/                  # WA State K-12 legislation
+        writer/                               # Content generation
+        docx/                                 # Document creation/editing
+        pptx/                                 # Presentation creation/editing
+        pdf/                                  # PDF manipulation
+        pdf-to-markdown/                      # PDF to Markdown conversion
+        xlsx/                                 # Spreadsheet creation/editing
+        presentation-master/                  # World-class presentations
+        assistant-architect/                  # AI Studio assistant JSON
+        sop-creator/                          # PSD SOP generation
+        research/                             # Multi-LLM research
+        multi-model-research/                 # LLM Council research
+        strategic-planning-manager/           # K-12 strategic planning
+        elevenlabs-tts/                       # ElevenLabs text-to-speech
+        local-tts/                            # Local MLX text-to-speech
+        image-gen/                            # Image generation
+        seven-advisors/                       # Decision council
+        skill-creator/                        # Skill creation/benchmarking
+        psd-athletics/                        # GHHS/PHS athletics schedules
+        psd-brand-guidelines/                 # PSD brand assets
+        psd-instructional-vision/             # PSD instructional framework
+        enrollment/                           # PSD enrollment workflow
+        chief-of-staff/                       # Executive support
+      agents/                                 # workflow-specific agents
+        powerschool-navigator.md              # Claude-in-Chrome PS report automation
+        enrollment-validator.md               # P223 data validation checks
   CLAUDE.md                                   # THIS FILE
   CHANGELOG.md
   README.md
@@ -143,6 +168,37 @@ psd-claude-plugins/                           # repo root
 **Validator Agents** (5) — `agents/validation/`:
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
+
+### psd-productivity Skills (26 total)
+
+| Skill | Description |
+|-------|-------------|
+| `/freshservice-manager` | Manage Freshservice tickets, approvals, and team performance reports |
+| `/redrover-manager` | Red Rover absence management data for PSD staff attendance |
+| `/legislative-tracker` | Track WA State K-12 education legislation via SOAP API |
+| `/writer` | Generate content in your authentic voice — emails, blogs, social, reports |
+| `/docx` | Document creation, editing, tracked changes, comments |
+| `/pptx` | Presentation creation, editing, layouts, speaker notes |
+| `/pdf` | PDF manipulation — extract, create, merge/split, fill forms |
+| `/pdf-to-markdown` | Convert PDF to clean Markdown |
+| `/xlsx` | Spreadsheet creation, editing, formulas, data analysis |
+| `/presentation-master` | World-class presentations (Reynolds, Duarte, Kawasaki, TED) |
+| `/assistant-architect` | Create AI Studio Assistant Architect JSON import files |
+| `/sop-creator` | Generate PSD Standard Operating Procedures |
+| `/research` | Multi-LLM parallel research with query decomposition |
+| `/multi-model-research` | Orchestrate frontier LLMs with peer review and synthesis |
+| `/strategic-planning-manager` | K-12 strategic planning (research-backed 4-stage process) |
+| `/elevenlabs-tts` | High-quality audio generation via Eleven Labs API |
+| `/local-tts` | Local text-to-speech using MLX and Kokoro |
+| `/image-gen` | Image generation using Gemini 3.1 Flash Image |
+| `/seven-advisors` | Multi-perspective decision council |
+| `/skill-creator` | Create, modify, and benchmark skills |
+| `/psd-athletics` | GHHS and PHS athletics schedules |
+| `/psd-brand-guidelines` | Official PSD brand colors, typography, logos |
+| `/psd-instructional-vision` | PSD instructional framework and pedagogical beliefs |
+| `/enrollment` | P223 monthly enrollment automation — reports, FTE validation, reconciliation |
+| `/google-workspace` | Google Drive, Sheets, Gmail, Calendar via gws CLI |
+| `/chief-of-staff` | Daily briefings and priority management |
 
 ### Memory-Based Learning System
 

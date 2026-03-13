@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
-    "version": "2.0.0",
+    "version": "2.2.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -31,12 +31,16 @@
     {
       "name": "psd-productivity",
       "source": "./plugins/psd-productivity",
-      "description": "General-purpose productivity workflows for Peninsula School District — enrollment, chief of staff, and district operations",
-      "version": "2.0.0",
+      "description": "26 productivity workflows + 2 agents — document generation, research, TTS, enrollment automation, Google Workspace, and district operations",
+      "version": "2.2.0",
       "category": "productivity",
       "keywords": [
         "productivity",
-        "enrollment",
+        "documents",
+        "research",
+        "tts",
+        "presentations",
+        "athletics",
         "operations",
         "cowork",
         "psd",

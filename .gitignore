@@ -15,6 +15,10 @@ plugins/psd-coding-system/docs/learnings/**/*.md
 # Evolve state (local per-machine, not shared)
 plugins/psd-coding-system/docs/learnings/.evolve-state.json
 
+# Python
+__pycache__/
+*.pyc
+
 # Node modules if added later
 node_modules/
 

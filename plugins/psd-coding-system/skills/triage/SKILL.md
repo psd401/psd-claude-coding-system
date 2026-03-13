@@ -34,21 +34,31 @@ if [ -z "$TICKET_ID" ] || ! [[ "$TICKET_ID" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-# Check for environment configuration
-if [ -f ~/.claude/freshservice.env ]; then
-  echo "Loading FreshService configuration..."
+# Load FreshService credentials (check multiple locations)
+# Priority: env vars (shell profile) > ~/.config/psd-productivity/.env > ~/.claude/freshservice.env
+if [ -n "$FRESHSERVICE_API_KEY" ] && [ -n "$FRESHSERVICE_DOMAIN" ]; then
+  echo "Using FreshService credentials from environment..."
+elif [ -f ~/.config/psd-productivity/.env ]; then
+  echo "Loading from ~/.config/psd-productivity/.env..."
+  set -a
+  source ~/.config/psd-productivity/.env
+  set +a
+elif [ -f ~/.claude/freshservice.env ]; then
+  echo "Loading from ~/.claude/freshservice.env..."
   source ~/.claude/freshservice.env
 else
   echo "FreshService configuration not found!"
   echo ""
-  echo "Please create ~/.claude/freshservice.env with:"
+  echo "Set credentials using one of these methods:"
   echo ""
-  echo "FRESHSERVICE_API_KEY=your_api_key_here"
-  echo "FRESHSERVICE_DOMAIN=your_domain"
+  echo "  Option A - Shell profile (~/.zshrc):"
+  echo "    export FRESHSERVICE_API_KEY=your_api_key_here"
+  echo "    export FRESHSERVICE_DOMAIN=psd401"
   echo ""
-  echo "Example:"
-  echo "FRESHSERVICE_API_KEY=abcdef123456"
-  echo "FRESHSERVICE_DOMAIN=psd401"
+  echo "  Option B - Config file (~/.config/psd-productivity/.env):"
+  echo "    mkdir -p ~/.config/psd-productivity"
+  echo "    Add: FRESHSERVICE_API_KEY=your_api_key_here"
+  echo "    Add: FRESHSERVICE_DOMAIN=psd401"
   echo ""
   exit 1
 fi
@@ -416,14 +426,14 @@ echo "  - When resolved, update FreshService ticket manually"
 
 Handle common error scenarios:
 
-1. **Missing Configuration**: Guide user to create `~/.claude/freshservice.env`
+1. **Missing Configuration**: Guide user to set env vars in shell profile or `~/.config/psd-productivity/.env`
 2. **Invalid Ticket ID**: Validate numeric format
 3. **API Failures**: Provide clear error messages with troubleshooting steps
 4. **Network Issues**: Suggest checking connectivity and credentials
 
 ## Security Notes
 
-- API key is stored in `~/.claude/freshservice.env` (user-level, not in repository)
+- API key loaded from shell profile, `~/.config/psd-productivity/.env`, or `~/.claude/freshservice.env`
 - All API communications use HTTPS
 - Input validation prevents injection attacks
 - Credentials are never logged or displayed
@@ -447,11 +457,11 @@ Handle common error scenarios:
 
 **Configuration Issues:**
 ```bash
-# Check if config file exists
-ls -la ~/.claude/freshservice.env
+# Check if config file exists (checks both locations)
+ls -la ~/.config/psd-productivity/.env ~/.claude/freshservice.env 2>/dev/null
 
-# View configuration (without exposing API key)
-grep FRESHSERVICE_DOMAIN ~/.claude/freshservice.env
+# View domain config
+grep FRESHSERVICE_DOMAIN ~/.config/psd-productivity/.env ~/.claude/freshservice.env 2>/dev/null
 ```
 
 **API Issues:**
