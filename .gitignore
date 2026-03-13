@@ -5,15 +5,15 @@
 
 # Telemetry data (don't commit personal usage data)
 # Ignore entire meta directory except .gitkeep
-plugins/psd-claude-coding-system/meta/*
-!plugins/psd-claude-coding-system/meta/.gitkeep
+plugins/psd-coding-system/meta/*
+!plugins/psd-coding-system/meta/.gitkeep
 
 # Learning files (local working data, not shared via git)
-plugins/psd-claude-coding-system/docs/learnings/**/*.md
-!plugins/psd-claude-coding-system/docs/learnings/*/.gitkeep
+plugins/psd-coding-system/docs/learnings/**/*.md
+!plugins/psd-coding-system/docs/learnings/*/.gitkeep
 
 # Evolve state (local per-machine, not shared)
-plugins/psd-claude-coding-system/docs/learnings/.evolve-state.json
+plugins/psd-coding-system/docs/learnings/.evolve-state.json
 
 # Node modules if added later
 node_modules/
@@ -23,5 +23,5 @@ node_modules/
 
 # FreshService credentials (never commit - CRITICAL SECURITY)
 *.freshservice.env
-plugins/psd-claude-coding-system/.freshservice.env
+plugins/psd-coding-system/.freshservice.env
 .freshservice.env

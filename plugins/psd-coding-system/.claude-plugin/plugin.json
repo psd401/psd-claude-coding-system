@@ -1,0 +1,28 @@
+{
+  "name": "psd-coding-system",
+  "version": "2.0.0",
+  "description": "AI-assisted development system for Peninsula School District - workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
+  "author": {
+    "name": "Kris Hagel",
+    "email": "hagelk@psd401.net",
+    "organization": "Peninsula School District"
+  },
+  "repository": "https://github.com/psd401/psd-claude-plugins",
+  "keywords": [
+    "workflow",
+    "development",
+    "agents",
+    "compound-engineering",
+    "memory-learning",
+    "context7",
+    "psd",
+    "education"
+  ],
+  "license": "MIT",
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}

@@ -1,21 +1,21 @@
 {
-  "name": "psd-claude-coding-system",
+  "name": "psd-claude-plugins",
   "owner": {
     "name": "Kris Hagel",
     "email": "hagelk@psd401.net",
     "organization": "Peninsula School District"
   },
   "metadata": {
-    "description": "Unified Claude Code plugin for Peninsula School District combining workflow automation, specialized agents, and memory-based learning",
-    "version": "1.28.1",
+    "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
+    "version": "2.0.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
     {
-      "name": "psd-claude-coding-system",
-      "source": "./plugins/psd-claude-coding-system",
+      "name": "psd-coding-system",
+      "source": "./plugins/psd-coding-system",
       "description": "AI-assisted development system with workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
-      "version": "1.28.1",
+      "version": "2.0.0",
       "category": "productivity",
       "keywords": [
         "workflow",
@@ -24,6 +24,21 @@
         "compound-engineering",
         "memory-learning",
         "context7",
+        "psd",
+        "education"
+      ]
+    },
+    {
+      "name": "psd-productivity",
+      "source": "./plugins/psd-productivity",
+      "description": "General-purpose productivity workflows for Peninsula School District — enrollment, chief of staff, and district operations",
+      "version": "2.0.0",
+      "category": "productivity",
+      "keywords": [
+        "productivity",
+        "enrollment",
+        "operations",
+        "cowork",
         "psd",
         "education"
       ]

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-03-13
+
+### Changed
+- **Marketplace rebranded** from `psd-claude-coding-system` to `psd-claude-plugins` — now a multi-plugin marketplace for Claude Code and Claude Cowork
+- **Coding plugin renamed** from `psd-claude-coding-system` to `psd-coding-system` — directory, plugin.json name, and all 87 `subagent_type` references updated
+- **Repository name** changed from `psd-claude-coding-system` to `psd-claude-plugins`
+- **Version bumping** now covers 7 locations (added `psd-productivity` plugin.json)
+
+### Added
+- **`psd-productivity` plugin** scaffolded as a new independently installable plugin for general-purpose productivity workflows, designed for both Claude Code and Claude Cowork
+- **`/enrollment` skill** (placeholder) — enrollment workflow for PSD families
+- **`/chief-of-staff` skill** (placeholder) — daily briefings, priority management, and executive support
+- **Multi-plugin marketplace architecture** — `marketplace.json` now lists two plugins that can be installed independently
+
+### Removed
+- **`psd-claude-coding-system` name** — replaced by `psd-coding-system` (shorter, cleaner)
+
 ## [1.28.1] - 2026-03-10
 
 ### Fixed

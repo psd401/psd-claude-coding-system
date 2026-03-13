@@ -26,8 +26,8 @@ The PSD Claude Coding System includes a **self-improving meta-learning system** 
 
 1. **Install the plugin** (if not already installed):
    ```bash
-   /plugin marketplace add psd401/psd-claude-coding-system
-   /plugin install psd-claude-coding-system
+   /plugin marketplace add psd401/psd-coding-system
+   /plugin install psd-coding-system
    ```
 
 2. **Use the system normally** for 1-2 weeks:
@@ -633,14 +633,14 @@ cat meta/pre-release-risks.md
 **Solution**:
 ```bash
 # Check hooks are installed
-ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/hooks/hooks.json
+ls ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/hooks/hooks.json
 
 # Verify telemetry file exists
-ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/telemetry.json
+ls ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/telemetry.json
 
 # If missing, reinstall plugin
-/plugin uninstall psd-claude-coding-system
-/plugin install psd-claude-coding-system
+/plugin uninstall psd-coding-system
+/plugin install psd-coding-system
 
 # Restart Claude Code for hooks to load
 ```
@@ -661,7 +661,7 @@ ls ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-co
 /review_pr 123
 
 # Check telemetry collection
-cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/telemetry.json
+cat ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/telemetry.json
 
 # Should show executions array with entries
 ```
@@ -685,8 +685,8 @@ cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-c
 /plugin list
 
 # If not installed
-/plugin marketplace add psd401/psd-claude-coding-system
-/plugin install psd-claude-coding-system
+/plugin marketplace add psd401/psd-coding-system
+/plugin install psd-coding-system
 
 # Verify commands available
 # (Try typing /meta and press tab for autocomplete)
@@ -752,7 +752,7 @@ cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-c
 # Solution: Restart Claude Code
 
 # After restart, test manually:
-cd ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system
+cd ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system
 echo '{"session_id":"test"}' | ./scripts/telemetry-init.sh
 ls -la meta/telemetry.json  # Should exist
 
@@ -797,7 +797,7 @@ ls -la scripts/*.sh         # Should have 'x' permission
 gh pr list --state merged --limit 5
 
 # Check telemetry for compound_learnings array:
-cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/telemetry.json | jq '.compound_learnings'
+cat ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/telemetry.json | jq '.compound_learnings'
 ```
 
 ---
@@ -828,7 +828,7 @@ cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-c
 
 **Location**: All telemetry stored locally in git-ignored `meta/` directory:
 ```
-plugins/psd-claude-coding-system/meta/
+plugins/psd-coding-system/meta/
   ├── telemetry.json           # Command execution logs
   ├── compound_history.json    # Improvement suggestions
   ├── experiments.json         # A/B test data
@@ -845,13 +845,13 @@ plugins/psd-claude-coding-system/meta/
 **Disable telemetry entirely**:
 ```bash
 # Option 1: Uninstall plugin
-/plugin uninstall psd-claude-coding-system
+/plugin uninstall psd-coding-system
 
 # Option 2: Disable hooks
 # Remove hooks/hooks.json from plugin directory
 
 # Option 3: Delete meta data
-rm -rf ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/*
+rm -rf ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/*
 ```
 
 **Continue using workflow commands without meta-learning**:
@@ -869,13 +869,13 @@ rm -rf ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claud
 **View collected data**:
 ```bash
 # View telemetry
-cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/telemetry.json | jq .
+cat ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/telemetry.json | jq .
 
 # View suggestions
-cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/compound_history.json | jq .
+cat ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/compound_history.json | jq .
 
 # View experiments
-cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-coding-system/meta/experiments.json | jq .
+cat ~/.claude/plugins/marketplaces/psd-coding-system/plugins/psd-coding-system/meta/experiments.json | jq .
 ```
 
 ## Next Steps
@@ -888,7 +888,7 @@ cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-c
 
 ## Additional Resources
 
-- [Plugin README](../plugins/psd-claude-coding-system/README.md) - Full plugin documentation
+- [Plugin README](../plugins/psd-coding-system/README.md) - Full plugin documentation
 - [CLAUDE.md](../CLAUDE.md) - System architecture and development guide
 - [Workflow Commands](../README.md#workflow-commands-18-total) - All available commands
 
@@ -896,7 +896,7 @@ cat ~/.claude/plugins/marketplaces/psd-claude-coding-system/plugins/psd-claude-c
 
 **Questions or Issues?**
 
-- File issues: [GitHub Issues](https://github.com/psd401/psd-claude-coding-system/issues)
+- File issues: [GitHub Issues](https://github.com/psd401/psd-coding-system/issues)
 - Contact: Kris Hagel (hagelk@psd401.net)
 
 ---
