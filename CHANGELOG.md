@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-03-13
+
+### Added
+- **Browser control skill** (`/browser-control`) — browser automation for authenticated web apps using Chrome DevTools MCP, replacing unreliable Claude-in-Chrome integration
+  - Connects to Brave Browser Nightly via `--remote-debugging-port=9222` to bypass PSD district MDM restrictions on Chrome remote debugging
+  - Persistent debug profile at `~/.psd-browser-automation` preserves login sessions across restarts
+  - Launch script with status check, headless mode support
+  - 30 Chrome DevTools MCP tools: navigation, clicking, form filling, screenshots, snapshots, JavaScript evaluation, network inspection
+- **Chrome DevTools MCP server** — declared in `psd-productivity` plugin.json `mcpServers` for automatic registration on plugin install
+
+### Changed
+- **`powerschool-navigator` agent** — migrated from 11 `mcp__claude-in-chrome__*` tools to 18 `mcp__chrome-devtools__*` tools + Bash
+- **`enrollment` skill** — migrated from 10 `mcp__claude-in-chrome__*` tools to 17 `mcp__chrome-devtools__*` tools, added browser launch prerequisite
+- **`psd-productivity`** — 26 → 27 skills
+- **All version references** bumped to 2.3.0
+
 ## [2.2.1] - 2026-03-13
 
 ### Fixed

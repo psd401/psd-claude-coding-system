@@ -1,18 +1,26 @@
 ---
 name: powerschool-navigator
-description: Claude-in-Chrome agent for navigating PowerSchool and generating enrollment reports. Handles Enrollment Summary, P223 Form and Audit, Student List Export, Consecutive Absence, Entry/Exit, Class Attendance Audit, Section Enrollment Audit, Student Schedule, and Bell Schedule extraction.
+description: Chrome DevTools MCP agent for navigating PowerSchool and generating enrollment reports. Handles Enrollment Summary, P223 Form and Audit, Student List Export, Consecutive Absence, Entry/Exit, Class Attendance Audit, Section Enrollment Audit, Student Schedule, and Bell Schedule extraction.
 tools:
-  - mcp__claude-in-chrome__navigate
-  - mcp__claude-in-chrome__read_page
-  - mcp__claude-in-chrome__get_page_text
-  - mcp__claude-in-chrome__computer
-  - mcp__claude-in-chrome__find
-  - mcp__claude-in-chrome__form_input
-  - mcp__claude-in-chrome__javascript_tool
-  - mcp__claude-in-chrome__tabs_context_mcp
-  - mcp__claude-in-chrome__tabs_create_mcp
-  - mcp__claude-in-chrome__read_console_messages
-  - mcp__claude-in-chrome__gif_creator
+  - mcp__chrome-devtools__navigate_page
+  - mcp__chrome-devtools__click
+  - mcp__chrome-devtools__click_at
+  - mcp__chrome-devtools__hover
+  - mcp__chrome-devtools__fill
+  - mcp__chrome-devtools__type_text
+  - mcp__chrome-devtools__fill_form
+  - mcp__chrome-devtools__press_key
+  - mcp__chrome-devtools__take_screenshot
+  - mcp__chrome-devtools__take_snapshot
+  - mcp__chrome-devtools__wait_for
+  - mcp__chrome-devtools__evaluate_script
+  - mcp__chrome-devtools__list_console_messages
+  - mcp__chrome-devtools__list_pages
+  - mcp__chrome-devtools__select_page
+  - mcp__chrome-devtools__new_page
+  - mcp__chrome-devtools__handle_dialog
+  - mcp__chrome-devtools__upload_file
+  - Bash
   - Read
   - Glob
   - Grep

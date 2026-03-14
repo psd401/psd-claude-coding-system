@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.2.1
+**Version**: 2.3.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 19 | 42 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 26 | 2 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 27 | 2 |
 
 ### Key Changes in v2.0.0
 
@@ -65,6 +65,7 @@ psd-claude-plugins/                           # repo root
         pdf-to-markdown/                      # PDF to Markdown conversion
         xlsx/                                 # Spreadsheet creation/editing
         presentation-master/                  # World-class presentations
+        browser-control/                      # Browser automation (Chrome DevTools MCP)
         assistant-architect/                  # AI Studio assistant JSON
         sop-creator/                          # PSD SOP generation
         research/                             # Multi-LLM research
@@ -81,7 +82,7 @@ psd-claude-plugins/                           # repo root
         enrollment/                           # PSD enrollment workflow
         chief-of-staff/                       # Executive support
       agents/                                 # workflow-specific agents
-        powerschool-navigator.md              # Claude-in-Chrome PS report automation
+        powerschool-navigator.md              # Chrome DevTools MCP PS report automation
         enrollment-validator.md               # P223 data validation checks
   CLAUDE.md                                   # THIS FILE
   CHANGELOG.md
@@ -198,6 +199,7 @@ psd-claude-plugins/                           # repo root
 | `/psd-instructional-vision` | PSD instructional framework and pedagogical beliefs |
 | `/enrollment` | P223 monthly enrollment automation — reports, FTE validation, reconciliation |
 | `/google-workspace` | Google Drive, Sheets, Gmail, Calendar via gws CLI |
+| `/browser-control` | Browser automation for authenticated web apps via Chrome DevTools MCP |
 | `/chief-of-staff` | Daily briefings and priority management |
 
 ### Memory-Based Learning System

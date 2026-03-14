@@ -13,16 +13,23 @@ allowed-tools:
   - Agent
   - WebFetch
   - WebSearch
-  - mcp__claude-in-chrome__navigate
-  - mcp__claude-in-chrome__read_page
-  - mcp__claude-in-chrome__get_page_text
-  - mcp__claude-in-chrome__computer
-  - mcp__claude-in-chrome__find
-  - mcp__claude-in-chrome__form_input
-  - mcp__claude-in-chrome__javascript_tool
-  - mcp__claude-in-chrome__tabs_context_mcp
-  - mcp__claude-in-chrome__tabs_create_mcp
-  - mcp__claude-in-chrome__gif_creator
+  - mcp__chrome-devtools__navigate_page
+  - mcp__chrome-devtools__click
+  - mcp__chrome-devtools__click_at
+  - mcp__chrome-devtools__hover
+  - mcp__chrome-devtools__fill
+  - mcp__chrome-devtools__type_text
+  - mcp__chrome-devtools__fill_form
+  - mcp__chrome-devtools__press_key
+  - mcp__chrome-devtools__take_screenshot
+  - mcp__chrome-devtools__take_snapshot
+  - mcp__chrome-devtools__wait_for
+  - mcp__chrome-devtools__evaluate_script
+  - mcp__chrome-devtools__list_console_messages
+  - mcp__chrome-devtools__list_pages
+  - mcp__chrome-devtools__select_page
+  - mcp__chrome-devtools__new_page
+  - mcp__chrome-devtools__handle_dialog
 extended-thinking: true
 ---
 
@@ -50,7 +57,13 @@ plugins/psd-productivity/skills/enrollment/references/
 
 ### `/enrollment reports [school] [date]`
 
-Run all required backup reports for a school on a count date using Claude-in-Chrome browser automation.
+Run all required backup reports for a school on a count date using Chrome DevTools MCP browser automation.
+
+**Prerequisites**: The debug browser must be running. Launch it with:
+```bash
+bash plugins/psd-productivity/skills/browser-control/scripts/launch-chrome.sh
+```
+The user must be logged into PowerSchool in the debug browser before running reports.
 
 **Workflow**:
 1. Read `references/school-config.md` to determine school level (ES/MS/HS) and P223 parameters
