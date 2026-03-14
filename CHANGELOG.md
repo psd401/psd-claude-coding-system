@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-03-13
+
+### Fixed
+- **`enrollment` skill** — restored 18 `mcp__chrome-devtools__*` tools to `allowed-tools` and switched browser automation from agent delegation to direct MCP tool use. The `powerschool-navigator` agent cannot access MCP tools when invoked as a subagent (MCP servers are not propagated to subagent contexts), so the enrollment skill now drives PowerSchool navigation directly. The original rate limit errors were caused by the 1M context window model variant, not the MCP tool declarations.
+
 ## [2.4.0] - 2026-03-13
 
 ### Fixed
