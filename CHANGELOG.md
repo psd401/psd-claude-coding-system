@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2026-03-13
+
+### Fixed
+- **`enrollment` skill** — removed non-functional `powerschool-navigator` agent; subagents cannot inherit Chrome DevTools MCP tools from parent session. All PowerSchool browser automation now runs directly in the main session.
+- **`enrollment` skill** — reordered report sequence: P223 Form and Audit moved to first position as the primary EDS deliverable. Added pre-flight checklist (disable Brave "Ask where to save" setting). Added proven `evaluate_script` JS patterns for all report forms.
+- **`report-checklist.md`** — added direct URLs, explicit JS field patterns, and save commands for each report type. Documented Entry/Exit auto-refresh behavior (no submit button), Class Attendance Audit radio/checkbox patterns, and Consecutive Absence multi-select picker.
+- **`browser-control/SKILL.md`** — replaced stale powerschool-navigator delegation reference with main-session automation guidance.
+
 ## [2.5.0] - 2026-03-13
 
 ### Fixed
