@@ -66,19 +66,32 @@ bash plugins/psd-productivity/skills/browser-control/scripts/launch-chrome.sh
 ```
 The user must be logged into PowerSchool in the debug browser before running reports.
 
+**Pre-flight (once per browser session)**:
+1. Open `brave://settings/downloads` — disable "Ask where to save each file before downloading"
+2. Verify user is logged into PowerSchool in the debug browser
+
 **Workflow**:
 1. Read `references/school-config.md` to determine school level (ES/MS/HS) and P223 parameters
-2. Read `references/report-checklist.md` for the required reports for that level
-3. Use Chrome DevTools MCP tools directly to navigate PowerSchool and run reports
+2. Read `references/report-checklist.md` for direct URLs and JS patterns for each report
+3. Use `evaluate_script` for all form interactions — UID-based clicks are unreliable (UIDs change between renders)
 4. Reports to generate (based on school level):
+   - **P223 Form and Audit** ⚑ PRIMARY — run first (requires FTE overrides to be confirmed)
    - Enrollment Summary (all)
-   - Student List Export (all)
+   - Student List Export (all) — downloads to `~/Downloads/student.export.text`, move immediately
    - Class Attendance Audit (all — Period 1 for ES, Periods 1-6 for MS/HS)
-   - Entry/Exit Report — current and previous month (all)
+   - Entry/Exit Report — previous month then current month (all)
    - Consecutive Absence Report (all)
    - Student Schedule Report (MS/HS only)
-   - P223 Form and Audit (all — with correct parameters per level)
-5. Report back what was generated and flag any issues
+5. Save all PDFs using: `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <path> <title_filter>`
+6. Report back what was generated and flag any issues
+
+**Key automation patterns** (see report-checklist.md for full JS snippets):
+- Report engine forms: `document.getElementById('btnSubmit').click()`
+- Report queue: submit → navigate to `detail.html?frn=<id>` → `wait_for(["Result File"])` → save PDF
+- Entry/Exit: change `#m` value → dispatch `change` event → auto-refreshes (no submit)
+- Enrollment Summary: set date input → press Tab → auto-reloads
+
+**Do NOT delegate to powerschool-navigator agent** — it cannot access Chrome DevTools MCP tools. All browser automation runs in the main session.
 
 **Parameters by level** (from school-config.md):
 - **Elementary**: 1-Day FTE window, FTE Calc Date = count date
@@ -228,7 +241,7 @@ Full monthly workflow with human checkpoints. Orchestrates all steps.
 **Workflow**:
 1. Calculate count date for the month
 2. Show pre-count checklist, confirm data cleanup done
-3. Run reports for each school (delegates to `powerschool-navigator` agent)
+3. Run reports for each school using `evaluate_script` browser automation directly in main session (do NOT delegate to powerschool-navigator — it lacks MCP access)
 4. Run validation checks on downloaded data
 5. Run ALE reconciliation
 6. Run RS reconciliation
@@ -311,3 +324,7 @@ gws drive files create \
 - **P223 is static** — does not hold historical data. Running for a previous month requires restoring FTE overrides from backup.
 - **Retain reports 4 years** after submission (OSPI audit requirement)
 - **Never auto-submit to EDS** — always generate file + validation report for human review
+- **Browser setup**: Disable "Ask where to save each file before downloading" in `brave://settings/downloads` before first run each session
+- **Student List Export**: Always downloads as `~/Downloads/student.export.text` — move and rename immediately after each school
+- **evaluate_script over UID clicks**: Use `evaluate_script` + `querySelector`/`getElementById` for all form interactions — snapshot UIDs are unreliable
+- **powerschool-navigator agent**: Cannot access MCP tools — do not delegate browser automation to it

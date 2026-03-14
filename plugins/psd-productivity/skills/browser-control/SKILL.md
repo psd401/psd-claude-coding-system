@@ -109,7 +109,7 @@ If the script reports `already_running`, the browser is ready. If `started`, wai
 
 ## PowerSchool-Specific Knowledge
 
-PowerSchool navigation is documented in the `powerschool-navigator` agent. When automating PowerSchool reports:
+When automating PowerSchool reports, run all browser automation directly in the main session — do not delegate to a subagent (subagents cannot access MCP tools). Key patterns:
 1. Verify the correct school is selected (top banner)
 2. Use the navigation paths from `plugins/psd-productivity/skills/enrollment/references/`
 3. Elementary uses 1-Day FTE window; Middle/High use 5-Day window

@@ -21,56 +21,82 @@
 
 ### Count Day Reports
 
-#### Report 1: Enrollment Summary
-- **Path**: Left Menu > Enrollment Summary
-- **Parameters**: Date = Count Date, All Active Enrollments, Scheduling/Reporting Ethnicity
+> **Pre-flight (once per session):** Disable "Ask where to save each file before downloading" at `brave://settings/downloads` — otherwise Student List Export triggers a native OS dialog on every school. Verify it's off before starting.
+
+#### Report 0: P223 Form and Audit ⚑ PRIMARY DELIVERABLE
+- **This is the report submitted to EDS. Run it first.**
+- **Path**: Data and Reporting > Reports > Compliance > P223 Form and Audit
+- **URL**: `/admin/reports/compliance/p223form.html` *(navigate via menu — URL varies)*
+- **Prerequisites**: FTE overrides must be set before running (RS, Fresh Start, ALE, part-time students)
+- **Parameters (ES)**: Report Date = Count Date, FTE Window = 1 Day, FTE Calc Date = Count Date, Calculate Elementary FTE = checked, Separate form per school = checked
+- **Parameters (MS/HS)**: Report Date = Count Date, FTE Window = 5 Day, FTE Calc Date = **blank**, Calculate Elementary FTE = checked, Separate form per school = checked
 - **Output**: PDF — save to backup folder
-- **Purpose**: Starting headcount by grade level
+- **Note**: P223 is static — does not hold historical data. If running after count day, use "Selected Students Only" with count-day selection.
+
+#### Report 1: Enrollment Summary
+- **URL**: `/admin/reports/mbaEnhancedEnrollmentSummary.html`
+- **Parameters**: Set date field to Count Date, press Tab to reload, Students = All Active
+- **JS pattern**: `document.querySelector('input[type="text"]').value = '03/02/2026'; // Tab key triggers reload`
+- **Save**: `bun save_pdf.js <folder>/<SCHOOL>_EnrollmentSummary_<date>.pdf "enrollment summary"`
 
 #### Report 2: Student List Export
-- **Path**: Start Page > Click grade level (or All) > Lower right dropdown > Export Using Template > Students
-- **Template**: "(Dist) Enrollment - Monthly Backup Student List"
-- **Parameters**: "The selected ## students"
-- **Output**: Excel — save to backup folder
-- **Purpose**: Backup list matching enrollment summary numbers
+- **Path**: Start Page > select All students > lower-right dropdown > Export Using Template > Students
+- **Template**: `(Dist) Enrollment - Monthly Backup Student List`
+- **Parameters**: "The selected N students" radio
+- **JS submit**: `document.getElementById('btnSubmit').click()`
+- **Save**: File auto-downloads to `~/Downloads/student.export.text` → `mv ~/Downloads/student.export.text <folder>/<SCHOOL>_StudentListExport_<date>.txt`
+- **Note**: No save dialog if "Ask where to save" is disabled in Brave settings (pre-flight step above)
 
 #### Report 3: Class Attendance Audit
-- **Path**: Data and Reporting > Reports > System Reports > Class Attendance Audit
-- **Parameters**:
-  - Begin Date and End Date: both = Count Date
-  - Teachers: All Teachers (highlight blue)
-  - Periods: ES = Period 1 only; MS/HS = Periods 1-6
-  - Check "Include Student Number"
-  - Header Month Date = Count Date
-- **Output**: PDF — save to backup folder
-- **Note**: Takes several minutes to run at secondary; click refresh until viewable
+- **URL**: `/admin/reports_engine/report_w_param.html?ac=reports_get_using_ID;repo_ID=PSPRE_CLASS_AUDIT`
+- **JS parameters**:
+  ```javascript
+  document.querySelectorAll('input[type="radio"]')[1].click(); // custom date range
+  document.querySelector('input[name="param_startdate"]').value = '03/02/2026';
+  document.querySelector('input[name="param_enddate"]').value = '03/02/2026';
+  document.querySelector('select[name="Param_Teachers"]').options[0].selected = true; // ALL TEACHERS
+  document.querySelector('input[name="param_cb1;1"]').checked = true; // Period 1 (ES)
+  // MS/HS: also check param_cb2;1 through param_cb6;1
+  document.getElementById('btnSubmit').click();
+  ```
+- **Poll**: Navigate to report queue detail → `wait_for(["Result File"])`
+- **Save**: Navigate to result PDF URL → `bun save_pdf.js <folder>/<SCHOOL>_ClassAttendanceAudit_<date>.pdf`
 
-#### Report 4: Entry/Exit Report
-- **Path**: System Reports > Custom Reports tab > Enrollment > Entry/Exit Report
-- **Parameters**: Show Enrolled + Show Exited, Previous Month, uncheck Pause
+#### Report 4: Entry/Exit Report (run twice — previous month then current month)
+- **URL**: `/admin/reports/CRB/enrollment/EntryExitReport.html`
+- **JS parameters**:
+  ```javascript
+  document.getElementById('pause').checked = false;
+  document.getElementById('showN').checked = true;  // Show Enrolled
+  document.getElementById('showX').checked = true;  // Show Exited
+  document.getElementById('m').value = '2';          // 2=Feb, 3=Mar, etc.
+  document.getElementById('m').dispatchEvent(new Event('change', {bubbles: true}));
+  // Report auto-refreshes — no submit button needed
+  ```
+- **Save**: `bun save_pdf.js <folder>/<SCHOOL>_EntryExit_<MonthYear>_<date>.pdf "entry"`
 - **Run twice**: Once for previous month, once for current month
-- **Validation**: Previous HC + Entries - Exits = Current HC per grade
-- **Output**: PDF — save to backup folder
+- **Validation**: Previous HC + Entries − Exits = Current HC per grade
 
 #### Report 5: Consecutive Absence Report
-- **Path**: Attendance > Consecutive Absence Report
-- **Parameters**:
-  - Attendance Codes: ALL CODES (hold Command + select all)
-  - Begin Date: 21 school days before count date
-  - End Date: Count Date
-  - Consecutive Days to Scan: 20
-- **Output**: PDF — save to backup folder
-- **Note (MS/HS)**: Must be run in two parts at term break (report is by class)
+- **URL**: `/admin/reports_engine/report_w_param.html?ac=reports_get_using_ID;repo_ID=PSPRE_ConsecAbsences`
+- **JS parameters**:
+  ```javascript
+  const codes = document.querySelector('select[name="Param_Att_Codes"]');
+  [...codes.options].forEach(o => o.selected = o.text.includes('ALL CODES'));
+  document.querySelector('input[name="param_startdate"]').value = '01/30/2026'; // ~21 school days before 03/02
+  document.querySelector('input[name="param_enddate"]').value = '03/02/2026';
+  // daysToScan defaults to 20 — verify it's set
+  document.getElementById('btnSubmit').click();
+  ```
+- **Begin date guide**: Count ~21 school days back from count date. For March 2 count: use Jan 30 (accounts for Presidents Day holiday).
+- **Poll**: Navigate to report queue detail → `wait_for(["Result File"])`
+- **Save**: Result is HTML → navigate to it → `bun save_pdf.js <folder>/<SCHOOL>_ConsecutiveAbsence_<date>.pdf`
+- **Note (MS/HS)**: Run in two parts at term break (report is by class)
 
 #### Report 6: Student Schedule Report (Secondary Only)
-- **Path**: Start Page > Select "All" or "Gr" > Lower right dropdown > Student Schedule Report
-- **Parameters**:
-  - Title: "[Month] [Year]"
-  - Students per page: 3
-  - Date: Count Date
-  - Sort: Last Name
-  - Color: No Coloring
-- **Output**: Save as PDF (right-click > Print > PDF)
+- **Path**: Start Page > Select "All" or "Gr" > lower-right dropdown > Student Schedule Report
+- **Parameters**: Title = "[Month] [Year]", 3 students/page, Date = Count Date, Sort = Last Name, No Coloring
+- **Save**: Print to PDF → `bun save_pdf.js <folder>/<SCHOOL>_StudentSchedule_<date>.pdf`
 
 ### Post-Count
 
