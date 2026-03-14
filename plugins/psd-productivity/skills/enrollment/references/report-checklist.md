@@ -23,21 +23,52 @@
 
 > **Pre-flight (once per session):** Disable "Ask where to save each file before downloading" at `brave://settings/downloads` — otherwise Student List Export triggers a native OS dialog on every school. Verify it's off before starting.
 
+> **Session health check (before first report):** Verify the PS session is active. If `getStudents.txt` or any XHR returns HTTP 302 → `/admin/pw.html`, the session has expired and you must log back in before proceeding. Quick check:
+> ```javascript
+> // In evaluate_script — returns true if session is alive
+> const r = await fetch('/admin/tech/notifications/json/activenotificationOther.json.html');
+> return r.ok && !r.redirected; // false = session expired, must re-login
+> ```
+
 #### Report 0: P223 Form and Audit ⚑ PRIMARY DELIVERABLE
 - **This is the report submitted to EDS. Run it first.**
 - **Path**: Data and Reporting > Reports > Compliance > P223 Form and Audit
-- **URL**: `/admin/reports/compliance/p223form.html` *(navigate via menu — URL varies)*
+- **URL**: `/admin/reports/compliance/p223form.html` **404s — do not use.** Navigate to `/admin/reports/statereports.html?repType=state` instead, then find the link via JS:
+  ```javascript
+  const links = [...document.querySelectorAll('a')];
+  const p223 = links.find(l => l.textContent.includes('WA P-223 Form and Audit'));
+  return p223.href; // use this URL to navigate
+  ```
+- **Form scroll**: The parameters section is below the fold in a custom scroll container — `window.scrollTo` does nothing. Use:
+  ```javascript
+  document.getElementById('content-main').scrollTop = 1200;
+  ```
 - **Prerequisites**: FTE overrides must be set before running (RS, Fresh Start, ALE, part-time students)
 - **Parameters (ES)**: Report Date = Count Date, FTE Window = 1 Day, FTE Calc Date = Count Date, Calculate Elementary FTE = checked, Separate form per school = checked
 - **Parameters (MS/HS)**: Report Date = Count Date, FTE Window = 5 Day, FTE Calc Date = **blank**, Calculate Elementary FTE = checked, Separate form per school = checked
-- **Output**: PDF — save to backup folder
+- **Output**: ZIP file downloaded to `~/Downloads/WA_P223.zip` containing `WA_P223_Form.pdf` + `WA_P223_Audit.csv` — extract and rename:
+  ```bash
+  unzip -o ~/Downloads/WA_P223.zip WA_P223_Form.pdf WA_P223_Audit.csv -d /tmp/p223 \
+    && mv /tmp/p223/WA_P223_Form.pdf <folder>/<SCHOOL>_P223Form_<date>.pdf \
+    && mv /tmp/p223/WA_P223_Audit.csv <folder>/<SCHOOL>_P223Audit_<date>.csv \
+    && rm ~/Downloads/WA_P223.zip
+  ```
+- **wait_for**: After submit, poll Report Queue. Use `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Completed Reports"` (that heading is always present and causes false positives).
 - **Note**: P223 is static — does not hold historical data. If running after count day, use "Selected Students Only" with count-day selection.
 
 #### Report 1: Enrollment Summary
 - **URL**: `/admin/reports/mbaEnhancedEnrollmentSummary.html`
-- **Parameters**: Set date field to Count Date, press Tab to reload, Students = All Active
-- **JS pattern**: `document.querySelector('input[type="text"]').value = '03/02/2026'; // Tab key triggers reload`
-- **Save**: `bun save_pdf.js <folder>/<SCHOOL>_EnrollmentSummary_<date>.pdf "enrollment summary"`
+- **Parameters**: Set date field to Count Date, Students = All Active
+- **JS pattern**: Tab key does NOT reliably trigger reload. The datepicker has a `lastVal` guard — must clear it first:
+  ```javascript
+  const input = document.querySelector('input.psDateWidget');
+  const data = window.jQuery(input).data('datepicker');
+  data.lastVal = null; // REQUIRED — onSelect skips if date already equals lastVal
+  input.value = '03/02/2026';
+  data.settings.onSelect.call(input, '03/02/2026', data);
+  ```
+- **wait_for**: Use `["Total In Grade"]` — this text only appears in the loaded data table, not in empty/loading states.
+- **Save**: `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_EnrollmentSummary_<date>.pdf "enrollment summary"`
 
 #### Report 2: Student List Export
 - **Path**: Start Page > select All students > lower-right dropdown > Export Using Template > Students
@@ -59,8 +90,8 @@
   // MS/HS: also check param_cb2;1 through param_cb6;1
   document.getElementById('btnSubmit').click();
   ```
-- **Poll**: Navigate to report queue detail → `wait_for(["Result File"])`
-- **Save**: Navigate to result PDF URL → `bun save_pdf.js <folder>/<SCHOOL>_ClassAttendanceAudit_<date>.pdf`
+- **Poll**: Navigate to report queue → `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Result File"` or `"Completed Reports"` (causes false positives)
+- **Save**: Navigate to result PDF URL → `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_ClassAttendanceAudit_<date>.pdf`
 
 #### Report 4: Entry/Exit Report (run twice — previous month then current month)
 - **URL**: `/admin/reports/CRB/enrollment/EntryExitReport.html`
@@ -89,8 +120,8 @@
   document.getElementById('btnSubmit').click();
   ```
 - **Begin date guide**: Count ~21 school days back from count date. For March 2 count: use Jan 30 (accounts for Presidents Day holiday).
-- **Poll**: Navigate to report queue detail → `wait_for(["Result File"])`
-- **Save**: Result is HTML → navigate to it → `bun save_pdf.js <folder>/<SCHOOL>_ConsecutiveAbsence_<date>.pdf`
+- **Poll**: Navigate to report queue → `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Result File"` or `"Completed Reports"` (causes false positives)
+- **Save**: Result is HTML → navigate to it → `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_ConsecutiveAbsence_<date>.pdf`
 - **Note (MS/HS)**: Run in two parts at term break (report is by class)
 
 #### Report 6: Student Schedule Report (Secondary Only)

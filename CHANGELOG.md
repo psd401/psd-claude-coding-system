@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] - 2026-03-14
+
+### Fixed
+- **`enrollment` skill — `report-checklist.md`** — corrected 5 broken/missing automation patterns discovered during live DES run:
+  - **P223 URL**: `/admin/reports/compliance/p223form.html` 404s — replaced with `statereports.html?repType=state` + JS link finder
+  - **P223 form scroll**: `window.scrollTo` has no effect; must use `document.getElementById('content-main').scrollTop = 1200`
+  - **P223 output**: documented ZIP download + bash extract/rename command for `WA_P223_Form.pdf` and `WA_P223_Audit.csv`
+  - **Enrollment Summary date trigger**: Tab key pattern does not work — jQuery datepicker `onSelect` skips if `lastVal === date`; correct pattern clears `data.lastVal = null` then calls `data.settings.onSelect.call(input, date, data)`
+  - **`wait_for` false positives**: `"Completed Reports"` and `"Result File"` match static DOM elements before reports finish; replaced with `["Download Completed", "Download Pdf"]` for queue polls and `["Total In Grade"]` for Enrollment Summary
+  - **Session health check**: added pre-flight JS snippet to detect expired PS sessions before starting reports
+
 ## [2.5.1] - 2026-03-13
 
 ### Fixed
