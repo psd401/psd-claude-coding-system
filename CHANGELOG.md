@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.4] - 2026-03-15
+
+### Fixed
+- **`/review-pr`, `/security-audit`, `/test`** (psd-coding-system 2.0.2) — changed `model: claude-sonnet-4-6` → `model: claude-opus-4-6` + `effort: high` to fix API 400 errors caused by Claude Code v2.1.68+ unconditionally sending the `effort` parameter to all model invocations. Sonnet 4.6 does not support `effort`; Opus 4.6 does. (GitHub issue #30795)
+- **`/enrollment`, `/browser-control`, `/chief-of-staff`, `/google-workspace`** (psd-productivity 2.5.3) — same model fix applied to all four skills that had `model: claude-sonnet-4-6` in frontmatter.
+- **CLAUDE.md** — added "Model Selection Rules for Skills" section documenting the constraint: never explicitly specify `model: claude-sonnet-4-6` in skill frontmatter while Claude Code default is Opus 4.6. Lightweight skills without a `model:` field are safe (they inherit the default).
+
 ## [2.5.3] - 2026-03-15
 
 ### Changed

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.5.3
+**Version**: 2.5.4
 **Status**: Production-Ready
 
 ### Plugins
@@ -378,3 +378,13 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - **opus-4-6**: Architecture, planning, meta-review, product-manager
 - **extended-thinking: true**: Enabled on all skills/agents
 - **memory: project**: Enabled on 5 key agents
+
+### Model Selection Rules for Skills
+
+**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-6` with `effort: high`. Never specify `model: claude-sonnet-4-6` in skill frontmatter while the Claude Code default is Opus 4.6.
+
+**Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. Opus 4.6 supports effort; Sonnet 4.6 does not. Skills specifying sonnet receive this unsupported parameter → API error. GitHub issue #30795 (open as of 2026-03-15).
+
+**Lightweight skills** (changelog, triage, bump-version, etc.) that don't specify a model inherit the default (currently Opus 4.6) and are safe.
+
+**If you want to use Sonnet in a skill**: Remove the `model:` field entirely and let it inherit the default. Do NOT explicitly specify `model: claude-sonnet-4-6` until issue #30795 is resolved.

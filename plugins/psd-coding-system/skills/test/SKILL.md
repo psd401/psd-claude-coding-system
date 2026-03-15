@@ -2,7 +2,8 @@
 name: test
 description: Comprehensive testing command for running, writing, and validating tests
 argument-hint: "[issue number, PR number, or test scope]"
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:

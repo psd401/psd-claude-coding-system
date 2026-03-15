@@ -2,7 +2,7 @@
 
 **26 productivity workflows + 2 agents for Peninsula School District**
 
-Version: 2.2.0
+Version: 2.5.3
 Author: Kris Hagel (hagelk@psd401.net)
 
 ---
