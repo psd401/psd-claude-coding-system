@@ -84,10 +84,7 @@ Invoke the **work-researcher** agent to gather all pre-implementation context in
 
 **Fix everything now.** If an agent flags it, fix it. If a test fails, fix it. If a warning appears, fix it.
 
-The ONLY acceptable deferral is work that is genuinely out of scope (completely unrelated to this issue/fix). When deferring is truly justified:
-- **Create a GitHub issue** using `gh issue create` with full context
-- Never just document it in a PR comment, TODO, or existing issue — it will get lost
-- "I'll fix it later" without an issue means "it won't get fixed"
+There is no deferral. If an agent flags it, fix it now. Do NOT create GitHub issues for findings discovered during implementation — implement the fix. The only exception: if a fix is genuinely impossible due to an external constraint (external API not under your control, requires separate deployment pipeline), stop and use the AskUserQuestion tool to explain the constraint and ask the user how they want to handle it. Do not add TODOs. Do not create GitHub issues.
 
 ## Phase 4: Implementation
 
@@ -140,7 +137,7 @@ echo "$CHANGED_FILES"
 - **FAIL**: Fix ALL issues identified in the report (critical AND non-critical), then re-validate
 - **Agent failure**: Fall back to inline quality gates (tests pass, lint clean, types check) and proceed
 
-**Fix all validation findings now. If something is genuinely out of scope, create a GitHub issue with `gh issue create` — never just note it in a PR comment or TODO.**
+**Fix all validation findings now. Do not create GitHub issues for findings. If truly blocked by an external constraint, stop and use the AskUserQuestion tool to explain the constraint and ask how to proceed.**
 
 ## Phase 6: Commit & Create PR [REQUIRED — DO NOT SKIP]
 

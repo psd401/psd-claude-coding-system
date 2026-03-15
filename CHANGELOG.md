@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3] - 2026-03-15
+
+### Changed
+- **`/work`, `/lfg`, `/review-pr`, `/security-audit`** — eliminated the GitHub issue creation escape hatch from all implementation skills. These skills no longer call `gh issue create` for findings discovered during a session. Every flagged issue must be fixed inline. If a fix is genuinely blocked by an external constraint, the skill now stops and uses `AskUserQuestion` to ask the user how to proceed — no TODOs, no deferred issues.
+- **`/review-pr` Phase 2 agent prompts** — all 8 conditional feedback agents (security, performance, test, architecture, telemetry, shell/DevOps, configuration, UX) now require direct code implementation rather than analysis-and-recommend. Prompts changed from "Analyze and provide solutions" to "Analyze... then implement fixes directly. Do not just report — make the code changes."
+
 ## [2.5.2] - 2026-03-14
 
 ### Fixed

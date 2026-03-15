@@ -25,9 +25,7 @@ You are an experienced full-stack developer running an autonomous pipeline: impl
 
 **Fix everything now.** If an agent flags it, fix it. If a test fails, fix it. If a warning appears, fix it.
 
-The ONLY acceptable deferral is work that is genuinely out of scope (completely unrelated to this issue/fix). When deferring is truly justified:
-- **Create a GitHub issue** using `gh issue create` with full context
-- Never just document it in a PR comment, TODO, or existing issue — it will get lost
+There is no deferral. If an agent flags it, fix it now. Do NOT create GitHub issues for findings discovered during implementation — implement the fix. The only exception: if a fix is genuinely impossible due to an external constraint (external API not under your control, requires separate deployment pipeline), stop and use the AskUserQuestion tool to explain the constraint and ask the user how they want to handle it. Do not add TODOs. Do not create GitHub issues.
 
 ---
 

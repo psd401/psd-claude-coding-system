@@ -122,7 +122,8 @@ echo "Security audit completed and posted to PR #$ARGUMENTS"
 
 ### Step 3: Fix All Findings
 
-After posting the review comment, fix every finding:
+After posting the review comment, fix every finding. Do NOT create GitHub issues for any findings — every critical, high, and low priority finding gets a code fix in this session. If a finding cannot be fixed due to an external constraint outside this codebase, stop and use the AskUserQuestion tool to explain the constraint and ask the user how they want to handle it. Do not add TODOs. No issue creation.
+
 1. **Critical issues** — Fix immediately, these block merge
 2. **High priority** — Fix all of them
 3. **Low priority** — Fix all of them

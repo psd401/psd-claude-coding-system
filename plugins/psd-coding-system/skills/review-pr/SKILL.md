@@ -227,10 +227,7 @@ fi
 
 **Fix everything now.** If a reviewer flagged it, fix it. If an agent flags it, fix it. If a P3 item is worth mentioning, it's worth fixing.
 
-The ONLY acceptable deferral is work that is genuinely out of scope (completely unrelated to this PR's purpose). When deferring is truly justified:
-- **Create a GitHub issue** using `gh issue create` with full context
-- Never just document it in a PR comment, TODO, or existing issue — it will get lost
-- "I'll address this in a follow-up" without an issue means "it won't get addressed"
+There is no deferral. Fix everything flagged. Do NOT create GitHub issues for review findings. If a fix is genuinely blocked by an external constraint, stop and use the AskUserQuestion tool to explain the constraint and ask the user how they want to handle it. Do not add TODOs. No GitHub issues from review runs.
 
 ### Phase 2: Parallel Feedback Categorization (Aggressive Parallelism)
 
@@ -359,42 +356,42 @@ On **Round 1**, invoke these 3 agents for structural code quality. On **rounds 2
 If security feedback exists:
 - subagent_type: "psd-coding-system:review:security-analyst-specialist"
 - description: "Address security feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for security feedback: $SECURITY_FEEDBACK"
+- prompt: "Analyze the security feedback: $SECURITY_FEEDBACK. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If performance feedback exists:
 - subagent_type: "psd-coding-system:quality:performance-optimizer"
 - description: "Address performance feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for performance feedback: $PERFORMANCE_FEEDBACK"
+- prompt: "Analyze the performance feedback: $PERFORMANCE_FEEDBACK. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If test feedback exists:
 - subagent_type: "psd-coding-system:quality:test-specialist"
 - description: "Address testing feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for testing feedback: $TEST_FEEDBACK"
+- prompt: "Analyze the testing feedback: $TEST_FEEDBACK. Then implement fixes directly in the codebase — write the missing tests, fix the failing ones. Do not just report — make the code changes."
 
 If architecture feedback exists:
 - subagent_type: "psd-coding-system:domain:architect-specialist"
 - description: "Address architecture feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for architecture feedback: $ARCHITECTURE_FEEDBACK"
+- prompt: "Analyze the architecture feedback: $ARCHITECTURE_FEEDBACK. Then implement the refactoring directly in the codebase. Do not just report — make the code changes."
 
 If telemetry/data feedback exists:
 - subagent_type: "psd-coding-system:validation:telemetry-data-specialist"
 - description: "Address telemetry/data pipeline feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for telemetry/data feedback: $TELEMETRY_DATA_FEEDBACK. Validate jq queries, regex patterns, and aggregation logic."
+- prompt: "Analyze the telemetry/data feedback: $TELEMETRY_DATA_FEEDBACK. Validate jq queries, regex patterns, and aggregation logic. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If shell/DevOps feedback exists:
 - subagent_type: "psd-coding-system:domain:shell-devops-specialist"
 - description: "Address shell/DevOps feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for shell/DevOps feedback: $SHELL_DEVOPS_FEEDBACK. Check exit codes, JSON parsing, hook integration."
+- prompt: "Analyze the shell/DevOps feedback: $SHELL_DEVOPS_FEEDBACK. Check exit codes, JSON parsing, hook integration. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If configuration feedback exists:
 - subagent_type: "psd-coding-system:validation:configuration-validator"
 - description: "Address configuration consistency feedback for PR #$ARGUMENTS"
-- prompt: "Analyze and provide solutions for configuration feedback: $CONFIG_FEEDBACK. Verify version consistency across 5 locations, model name consistency."
+- prompt: "Analyze the configuration feedback: $CONFIG_FEEDBACK. Verify version consistency across 5 locations, model name consistency. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If UX feedback exists or UI files changed:
 - subagent_type: "psd-coding-system:domain:ux-specialist"
 - description: "Address UX/usability feedback for PR #$ARGUMENTS"
-- prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK"
+- prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 #### Conditional Context-Based Agents
 
@@ -652,7 +649,7 @@ After PR is approved and merged:
 2. Update local dev: `git checkout dev && git pull origin dev`
 3. Close related issue if not auto-closed
 
-**All review findings should have been fixed in this session. If something is genuinely out of scope, create a GitHub issue with `gh issue create` — never just note it in a comment.**
+**All review findings must be fixed in this session. Do not create GitHub issues for findings. If blocked by an external constraint, stop and use the AskUserQuestion tool to explain the constraint and ask how to proceed.**
 
 ## Success Criteria
 
