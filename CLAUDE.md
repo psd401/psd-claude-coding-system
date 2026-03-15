@@ -333,19 +333,28 @@ git push origin main
 
 ### Version Management
 
-**CRITICAL**: Always bump version numbers when making changes!
+**CRITICAL**: There are THREE independent version tracks. Never mix them.
 
-**Version bumping locations** (update ALL):
-1. `plugins/psd-coding-system/.claude-plugin/plugin.json` — `"version"`
-2. `plugins/psd-productivity/.claude-plugin/plugin.json` — `"version"` (if changed)
-3. `.claude-plugin/marketplace.json` — `metadata.version` AND each plugin's version
-4. `CLAUDE.md` — `**Version**: X.Y.Z`
-5. `README.md` — badge + `**Version**: X.Y.Z`
-6. `plugins/psd-coding-system/README.md` — `Version: X.Y.Z`
-7. **CHANGELOG.md** — Add new version section at top
+| Track | Files | When to bump |
+|-------|-------|--------------|
+| **Marketplace** | `.claude-plugin/marketplace.json` → `metadata.version`; `CLAUDE.md` → `**Version**`; `README.md` badge + text | Every release |
+| **psd-coding-system** | `plugins/psd-coding-system/.claude-plugin/plugin.json` → `"version"`; `marketplace.json` → `plugins[name=psd-coding-system].version`; `plugins/psd-coding-system/README.md` → `Version:` | Only when psd-coding-system skills/agents change |
+| **psd-productivity** | Same pattern for psd-productivity files | Only when psd-productivity skills/agents change |
+
+Each plugin version tracks breaking changes for users of *that specific plugin* independently. Do not copy the marketplace version into a plugin's version field.
+
+**Version bumping locations per release:**
+1. `.claude-plugin/marketplace.json` — `metadata.version` — **always**
+2. `CLAUDE.md` — `**Version**: X.Y.Z` — **always** (marketplace version)
+3. `README.md` — badge + `**Version**: X.Y.Z` — **always** (marketplace version)
+4. `CHANGELOG.md` — Add new version section at top — **always**
+5. `plugins/psd-coding-system/.claude-plugin/plugin.json` — **only if coding system changed**
+6. `marketplace.json` → `plugins[name=psd-coding-system].version` — **only if coding system changed**
+7. `plugins/psd-coding-system/README.md` — `Version:` — **only if coding system changed**
+8. Same 3 files for psd-productivity — **only if productivity plugin changed**
 
 **Complete release workflow:**
-1. Update all version locations
+1. Update all applicable version locations (ask which plugins changed)
 2. Add CHANGELOG.md entry
 3. Commit: `git commit -m "chore: Bump version to X.Y.Z ([reason])"`
 4. Push: `git push origin main`
