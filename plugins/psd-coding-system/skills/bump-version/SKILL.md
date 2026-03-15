@@ -1,6 +1,6 @@
 ---
 name: bump-version
-description: Automate the 6-file version bump ritual — increment, patch, changelog, commit, tag, push
+description: Automate the version bump ritual — three independent tracks (marketplace, psd-coding-system, psd-productivity)
 argument-hint: "[patch|minor|major]"
 model: claude-sonnet-4-6
 context: fork
@@ -17,72 +17,104 @@ extended-thinking: true
 
 # Bump Version Command
 
-You automate the version bump ritual for the PSD Claude Coding System plugin. Every release requires updating 6 files in the exact same pattern — this skill eliminates that manual work.
+You automate the version bump ritual for the PSD Plugin Marketplace. There are **three independent version tracks** — never conflate them.
 
 **Bump type:** $ARGUMENTS
+
+## Version Track Reference
+
+| Track | Files | When to bump |
+|-------|-------|--------------|
+| **Marketplace** | `.claude-plugin/marketplace.json` → `metadata.version`; `CLAUDE.md` → `**Version**`; root `README.md` | Every release |
+| **psd-coding-system** | `plugins/psd-coding-system/.claude-plugin/plugin.json`; `marketplace.json` → `plugins[name=psd-coding-system].version`; `plugins/psd-coding-system/README.md` | Only when coding system skills/agents changed |
+| **psd-productivity** | `plugins/psd-productivity/.claude-plugin/plugin.json`; `marketplace.json` → `plugins[name=psd-productivity].version`; `plugins/psd-productivity/README.md` | Only when productivity skills/agents changed |
 
 ## Phase 1: Determine Bump Type
 
 ```bash
 BUMP_TYPE="$ARGUMENTS"
 
-# Validate bump type
 case "$BUMP_TYPE" in
   patch|minor|major) echo "Bump type: $BUMP_TYPE" ;;
   *)
-    echo "Invalid bump type: '$BUMP_TYPE'"
-    echo "Usage: /bump-version [patch|minor|major]"
-    echo ""
-    echo "  patch (1.23.0 → 1.23.1) — bug fixes"
-    echo "  minor (1.23.0 → 1.24.0) — new features"
-    echo "  major (1.23.0 → 2.0.0)  — breaking changes"
-    exit 1
+    echo "Invalid or missing bump type"
     ;;
 esac
 ```
 
 If the argument is empty or invalid, use AskUserQuestion to ask which bump type they want.
 
-## Phase 2: Read Current Version
+## Phase 2: Determine Which Plugins Changed
+
+Use AskUserQuestion to ask:
+- Did **psd-coding-system** skills or agents change in this release?
+- Did **psd-productivity** skills or agents change in this release?
+
+The marketplace version always bumps. Plugin versions only bump for their own changes.
+
+## Phase 3: Read Current Versions
 
 ```bash
-PLUGIN_JSON="plugins/psd-coding-system/.claude-plugin/plugin.json"
-CURRENT_VERSION=$(grep -o '"version": *"[^"]*"' "$PLUGIN_JSON" | head -1 | sed 's/.*"version": *"//;s/"//')
-echo "Current version: $CURRENT_VERSION"
+# Marketplace version (always bumps)
+MARKETPLACE_VERSION=$(jq -r '.metadata.version' .claude-plugin/marketplace.json)
+echo "Marketplace current: $MARKETPLACE_VERSION"
 
-# Parse semver components
-MAJOR=$(echo "$CURRENT_VERSION" | cut -d. -f1)
-MINOR=$(echo "$CURRENT_VERSION" | cut -d. -f2)
-PATCH=$(echo "$CURRENT_VERSION" | cut -d. -f3)
-
-# Calculate new version
-case "$BUMP_TYPE" in
-  patch) NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))" ;;
-  minor) NEW_VERSION="$MAJOR.$((MINOR + 1)).0" ;;
-  major) NEW_VERSION="$((MAJOR + 1)).0.0" ;;
-esac
-
-echo "New version: $NEW_VERSION"
+# Plugin versions (only if those plugins changed)
+CODING_VERSION=$(jq -r '.version' plugins/psd-coding-system/.claude-plugin/plugin.json)
+PRODUCTIVITY_VERSION=$(jq -r '.version' plugins/psd-productivity/.claude-plugin/plugin.json)
+echo "psd-coding-system current: $CODING_VERSION"
+echo "psd-productivity current: $PRODUCTIVITY_VERSION"
 ```
 
-## Phase 3: Update All 6 Locations
+Calculate new versions using the bump type:
+```bash
+bump_version() {
+  local version="$1" type="$2"
+  local major minor patch
+  major=$(echo "$version" | cut -d. -f1)
+  minor=$(echo "$version" | cut -d. -f2)
+  patch=$(echo "$version" | cut -d. -f3)
+  case "$type" in
+    patch) echo "$major.$minor.$((patch + 1))" ;;
+    minor) echo "$major.$((minor + 1)).0" ;;
+    major) echo "$((major + 1)).0.0" ;;
+  esac
+}
 
-Use the Edit tool with `replace_all: true` to update version strings across all 6 files:
+NEW_MARKETPLACE=$(bump_version "$MARKETPLACE_VERSION" "$BUMP_TYPE")
+# Only calculate if those plugins changed:
+# NEW_CODING=$(bump_version "$CODING_VERSION" "$BUMP_TYPE")
+# NEW_PRODUCTIVITY=$(bump_version "$PRODUCTIVITY_VERSION" "$BUMP_TYPE")
+```
 
-1. **`plugins/psd-coding-system/.claude-plugin/plugin.json`** — `"version": "X.Y.Z"`
-2. **`.claude-plugin/marketplace.json`** — `metadata.version` AND `plugins[0].version` (2 occurrences)
-3. **`CLAUDE.md`** — `**Version**: X.Y.Z`
-4. **`README.md`** — badge URL, `**Version**: X.Y.Z`, and any other occurrences
-5. **`plugins/psd-coding-system/README.md`** — `Version: X.Y.Z`
-6. **`CHANGELOG.md`** — Add new section at top (see Phase 4)
+## Phase 4: Update Files
 
-For files 1-5, use Edit with `replace_all: true` replacing `$CURRENT_VERSION` with `$NEW_VERSION`.
+Read each file before editing (required by Edit tool).
 
-**Important:** Read each file first before editing (required by Edit tool).
+### Always update (marketplace track):
 
-## Phase 4: Update CHANGELOG
+1. **`.claude-plugin/marketplace.json`** — `metadata.version` only (use specific context to avoid matching plugin version lines)
+2. **`CLAUDE.md`** — `**Version**: X.Y.Z`
+3. **`README.md`** — badge and `**Version**: X.Y.Z` occurrences
+4. **`CHANGELOG.md`** — Add new section at top (see Phase 5)
 
-Use AskUserQuestion to ask the user for a brief description of what changed in this release. Then add a new CHANGELOG entry at the top:
+### Only if psd-coding-system changed:
+
+5. **`plugins/psd-coding-system/.claude-plugin/plugin.json`** — `"version": "X.Y.Z"`
+6. **`.claude-plugin/marketplace.json`** — `plugins[name=psd-coding-system].version` (use surrounding context to target correctly)
+7. **`plugins/psd-coding-system/README.md`** — `Version: X.Y.Z`
+
+### Only if psd-productivity changed:
+
+8. **`plugins/psd-productivity/.claude-plugin/plugin.json`** — `"version": "X.Y.Z"`
+9. **`.claude-plugin/marketplace.json`** — `plugins[name=psd-productivity].version`
+10. **`plugins/psd-productivity/README.md`** — `Version: X.Y.Z`
+
+**CRITICAL for marketplace.json edits:** The file has three version strings. Use sufficient surrounding context in Edit calls to uniquely target each one — never use `replace_all: true` on marketplace.json.
+
+## Phase 5: Update CHANGELOG
+
+Use AskUserQuestion to ask for a brief description of what changed. Add entry at top of CHANGELOG.md:
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
@@ -97,11 +129,9 @@ Use AskUserQuestion to ask the user for a brief description of what changed in t
 - [Bug fixes if any]
 ```
 
-Use the current date (run `date +%Y-%m-%d` to get it).
+Run `date +%Y-%m-%d` for today's date.
 
-## Phase 5: Update Skill/Agent Counts (if changed)
-
-Check if the skill or agent count has changed since the last version:
+## Phase 6: Update Skill/Agent Counts (if changed)
 
 ```bash
 SKILL_COUNT=$(find plugins/psd-coding-system/skills -name 'SKILL.md' -type f | wc -l | tr -d ' ')
@@ -110,52 +140,39 @@ echo "Skills: $SKILL_COUNT"
 echo "Agents: $AGENT_COUNT"
 ```
 
-If counts differ from what's in CLAUDE.md, update count references. If unchanged, skip this step.
+If counts differ from CLAUDE.md, update them. Otherwise skip.
 
-## Phase 6: Commit, Tag, Push
+## Phase 7: Commit, Tag, Push
 
 ```bash
-# Stage all 6 files
+# Stage changed files
 git add \
-  plugins/psd-coding-system/.claude-plugin/plugin.json \
   .claude-plugin/marketplace.json \
   CLAUDE.md \
   README.md \
-  plugins/psd-coding-system/README.md \
   CHANGELOG.md
+  # + plugin-specific files if those plugins changed
 
-# Commit
-git commit -m "chore: Bump version to $NEW_VERSION — [brief reason]"
+git commit -m "chore: Bump version to $NEW_MARKETPLACE — [brief reason]"
 
-# Tag
-git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION - [brief summary]"
+git tag -a "v$NEW_MARKETPLACE" -m "Release v$NEW_MARKETPLACE - [brief summary]"
 
-# Push commit and tag
 git push origin HEAD
-git push origin "v$NEW_VERSION"
+git push origin "v$NEW_MARKETPLACE"
 ```
 
-After pushing, instruct the user to refresh the plugin cache so the cached version matches the repo:
-
-```
-Run `/reload-plugins` to refresh the plugin cache.
-```
-
-## Phase 7: Summary
+## Phase 8: Summary
 
 ```markdown
-### Version Bumped: v$CURRENT_VERSION → v$NEW_VERSION
+### Release v$NEW_MARKETPLACE
 
-| File | Status |
-|------|--------|
-| plugin.json | ✅ Updated |
-| marketplace.json | ✅ Updated (2 occurrences) |
-| CLAUDE.md | ✅ Updated |
-| README.md | ✅ Updated |
-| plugins/README.md | ✅ Updated |
-| CHANGELOG.md | ✅ Updated |
+| Track | Old | New | Updated |
+|-------|-----|-----|---------|
+| Marketplace | $MARKETPLACE_VERSION | $NEW_MARKETPLACE | ✅ |
+| psd-coding-system | $CODING_VERSION | $NEW_CODING or (unchanged) | ✅ / — |
+| psd-productivity | $PRODUCTIVITY_VERSION | $NEW_PRODUCTIVITY or (unchanged) | ✅ / — |
 
-**Tag:** v$NEW_VERSION
+**Tag:** v$NEW_MARKETPLACE
 **Pushed:** ✅
 **Cache:** Run `/reload-plugins` to activate
 ```
