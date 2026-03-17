@@ -1,7 +1,8 @@
 ---
 name: evolve
 description: Auto-evolve the plugin — analyzes learnings, checks releases, compares competition, contributes patterns
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:

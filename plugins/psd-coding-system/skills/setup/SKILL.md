@@ -2,7 +2,8 @@
 name: setup
 description: Configure which review agents activate for this project during /review-pr
 argument-hint: "[show|reset]"
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:

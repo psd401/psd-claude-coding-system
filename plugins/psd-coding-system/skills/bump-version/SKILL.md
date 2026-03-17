@@ -2,7 +2,8 @@
 name: bump-version
 description: Automate the version bump ritual — three independent tracks (marketplace, psd-coding-system, psd-productivity)
 argument-hint: "[patch|minor|major]"
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:

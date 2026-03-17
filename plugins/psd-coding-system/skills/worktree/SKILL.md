@@ -2,7 +2,8 @@
 name: worktree
 description: Parallel development using git worktrees — work on multiple branches simultaneously
 argument-hint: "[branch-name or issue-number] [optional: base-branch]"
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:

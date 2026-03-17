@@ -2,7 +2,8 @@
 name: swarm
 description: Orchestrate parallel agent teams using Claude Code's experimental Agent Teams feature
 argument-hint: "[task description or workflow to parallelize]"
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:

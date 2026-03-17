@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.5.4] - 2026-03-15
+## [2.5.5] - 2026-03-17
+
+### Fixed
+- **`/clean-branch`, `/bump-version`, `/triage`, `/evolve`, `/setup`, `/worktree`, `/changelog`, `/swarm`** (psd-coding-system 2.0.3) — completed the sonnet→opus fix missed in v2.5.4. All 8 remaining skills with `model: claude-sonnet-4-6` + `context: fork` were also failing due to the same Claude Code v2.1.68+ effort parameter regression. Zero `model: claude-sonnet-4-6` entries remain in any SKILL.md.
+
+## [2.5.4] - 2026-03-17
 
 ### Fixed
 - **`/review-pr`, `/security-audit`, `/test`** (psd-coding-system 2.0.2) — changed `model: claude-sonnet-4-6` → `model: claude-opus-4-6` + `effort: high` to fix API 400 errors caused by Claude Code v2.1.68+ unconditionally sending the `effort` parameter to all model invocations. Sonnet 4.6 does not support `effort`; Opus 4.6 does. (GitHub issue #30795)

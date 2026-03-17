@@ -2,7 +2,8 @@
 name: changelog
 description: Auto-generate a Keep-a-Changelog entry from recent git history
 argument-hint: "[since tag/commit, e.g. v1.25.1]"
-model: claude-sonnet-4-6
+model: claude-opus-4-6
+effort: high
 context: fork
 agent: general-purpose
 allowed-tools:
