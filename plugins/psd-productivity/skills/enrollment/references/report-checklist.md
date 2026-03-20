@@ -116,9 +116,12 @@
   [...codes.options].forEach(o => o.selected = o.text.includes('ALL CODES'));
   document.querySelector('input[name="param_startdate"]').value = '01/30/2026'; // ~21 school days before 03/02
   document.querySelector('input[name="param_enddate"]').value = '03/02/2026';
-  // daysToScan defaults to 20 — verify it's set
+  // CRITICAL: daysToScan defaults to 3 in some school contexts, not 20.
+  // ALWAYS explicitly set it to 20:
+  document.querySelector('input[name="daysToScan"]').value = '20';
   document.getElementById('btnSubmit').click();
   ```
+- **CRITICAL**: The `daysToScan` field defaults to 3 (not 20) in some school contexts. ALWAYS explicitly set it to 20 via JS. After running, verify the report header says "Occurrences of 20 consecutive absences" not "Occurrences of 3 consecutive absences". If wrong, re-run with the explicit JS override.
 - **Begin date guide**: Count ~21 school days back from count date. For March 2 count: use Jan 30 (accounts for Presidents Day holiday).
 - **Poll**: Navigate to report queue → `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Result File"` or `"Completed Reports"` (causes false positives)
 - **Save**: Result is HTML → navigate to it → `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_ConsecutiveAbsence_<date>.pdf`

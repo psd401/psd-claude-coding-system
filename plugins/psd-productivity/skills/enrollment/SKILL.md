@@ -75,14 +75,18 @@ The user must be logged into PowerSchool in the debug browser before running rep
 1. Read `references/school-config.md` to determine school level (ES/MS/HS) and P223 parameters
 2. Read `references/report-checklist.md` for direct URLs and JS patterns for each report
 3. Use `evaluate_script` for all form interactions — UID-based clicks are unreliable (UIDs change between renders)
-4. Reports to generate (based on school level):
-   - **P223 Form and Audit** ⚑ PRIMARY — run first (requires FTE overrides to be confirmed)
-   - Enrollment Summary (all)
-   - Student List Export (all) — downloads to `~/Downloads/student.export.text`, move immediately
-   - Class Attendance Audit (all — Period 1 for ES, Periods 1-6 for MS/HS)
-   - Entry/Exit Report — previous month then current month (all)
-   - Consecutive Absence Report (all)
-   - Student Schedule Report (MS/HS only)
+4. Reports to generate — **IN THIS ORDER, DO NOT SKIP ANY**:
+   **STEP 1 [REQUIRED]**: P223 Form and Audit ⚑ PRIMARY DELIVERABLE
+   - This is the report submitted to EDS. It MUST be generated first.
+   - Navigate to state reports page, find P223 link via JS, set parameters per school level
+   - If P223 fails, STOP and report the error. Do not continue to other reports.
+   **STEP 2**: Enrollment Summary (all)
+   **STEP 3**: Entry/Exit Report — previous month then current month (all)
+   **STEP 4**: Consecutive Absence Report (all) — ALWAYS verify daysToScan=20
+   **STEP 5**: Class Attendance Audit (all — Period 1 for ES, Periods 1-6 for MS/HS)
+   **STEP 6**: Student List Export (all) — downloads to `~/Downloads/student.export.text`, move immediately
+   **STEP 7**: Section Enrollment Audit (all)
+   **STEP 8** (MS/HS only): Student Schedule Report
 5. Save all PDFs using: `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <path> <title_filter>`
 6. Report back what was generated and flag any issues
 
@@ -239,18 +243,66 @@ uv run scripts/validation_report.py --school-data schools.json \
 
 Full monthly workflow with human checkpoints. Orchestrates all steps.
 
-**Workflow**:
-1. Calculate count date for the month
-2. Show pre-count checklist, confirm data cleanup done
-3. Run reports for each school using `evaluate_script` browser automation directly in main session (do NOT delegate to powerschool-navigator — it lacks MCP access)
-4. Run validation checks on downloaded data
-5. Run ALE reconciliation
-6. Run RS reconciliation
-7. Generate comprehensive validation report + EDS import
-8. Present results with human review checklist
-9. **STOP — Human reviews, signs, uploads to EDS**
-10. After confirmation: update internal spreadsheets (ANNAVG, CNTRL, One Pager)
-11. Generate Board/Cabinet notification email
+**CRITICAL — NEVER STOP**: When running the full monthly workflow, you MUST process every school without pausing, stopping, or asking for confirmation between schools. If you encounter an error at one school, log it and continue to the next school. Report all errors at the end. The only acceptable reason to stop is if the PowerSchool session expires (HTTP 302 to pw.html).
+
+After completing each school, immediately output a one-line status and proceed to the next school. Do not summarize, do not ask if the user wants to continue, do not pause for any reason.
+
+**Context management** (prevents mid-run stops from context window pressure):
+- Do NOT take full page snapshots (`take_snapshot`) unless actively debugging a failure. Use `evaluate_script` to extract only the data needed (headcount numbers, student names, report status).
+- Use `take_screenshot` with `filePath` for archival — screenshots don't consume context.
+- Avoid reading full `wait_for` snapshot results — they are 50KB+ and fill the context window. Only check the returned status, not the DOM content.
+- When a report result is predictable (e.g., Entry/Exit with 0 rows), save screenshot and move on without inspecting the DOM.
+
+**Execution model — completion loop, not step list**:
+
+This workflow uses a completion-driven loop. It does NOT run a list of steps and hope to finish. It defines DONE and loops until DONE is achieved.
+
+DONE = every school in SCHOOLS has all required reports saved to the backup folder.
+
+SCHOOLS = [AES, DES, EES, HHES, MCES, PIE, PES, SWES, VES, VOY, GMS, HRMS, KPMS, Kopa, GHHS, PHS, HBHS]
+
+REQUIRED_REPORTS_ES = [P223, EnrollmentSummary, EntryExitPrev, EntryExitCurr, ConsecutiveAbsence, ClassAttendanceAudit, StudentListExport, SectionEnrollmentAudit]
+
+REQUIRED_REPORTS_MS_HS = REQUIRED_REPORTS_ES + [StudentScheduleReport]
+
+**Phase 1: District-Level Batch (run once)**
+1. Switch to District Office context in PowerSchool
+2. Run P223 Form and Audit with "Separate form per school" checked → one ZIP for all schools
+3. Extract and rename per-school PDFs/CSVs from the ZIP
+4. Test: Run Enrollment Summary at district level (if per-school breakdown available, use it; otherwise fall back to per-school in Phase 2)
+5. Test: Run Consecutive Absence at district level (if it covers all schools, use it; otherwise fall back to per-school in Phase 2)
+
+**Phase 2: Per-School Reports (completion loop)**
+```
+Loop:
+  1. Check backup folder — which schools have all required reports?
+  2. Build REMAINING = SCHOOLS minus completed schools
+  3. If REMAINING is empty → DONE. Go to Phase 3.
+  4. Pick next school from REMAINING
+  5. Switch to that school in PowerSchool
+  6. Run all MISSING reports for that school (skip any already saved from Phase 1)
+  7. After each report, save to backup folder
+  8. After all reports for this school, output one-line status:
+     ✓ [SCHOOL] — HC: [N], Issues: [none/description] ([completed]/[total] schools done)
+  9. GOTO step 1
+```
+
+This loop NEVER stops until step 3 is satisfied. There is no "pause and ask" between schools. There is no summary after each school. There is no stopping at natural boundaries. The only exit condition is DONE.
+
+If a report fails: log the error, skip it, continue to next report.
+If a school fails entirely: log it, continue to next school.
+If the session expires: re-authenticate and resume from current school.
+Failed reports/schools are retried in the next pass of the loop.
+
+**Phase 3: Post-Reports**
+1. Run validation checks on downloaded data
+2. Run ALE reconciliation
+3. Run RS reconciliation
+4. Generate comprehensive validation report + EDS import
+5. Present results with human review checklist
+6. **STOP — Human reviews, signs, uploads to EDS**
+7. After confirmation: update internal spreadsheets (ANNAVG, CNTRL, One Pager)
+8. Generate Board/Cabinet notification email
 
 ### `/enrollment status`
 

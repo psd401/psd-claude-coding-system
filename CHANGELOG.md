@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.6] - 2026-03-20
+
+### Fixed
+- **`/enrollment` skill — speed & reliability overhaul** (psd-productivity 2.5.4):
+  - **P223 never skipped**: Report order now strictly numbered STEP 1–8 with P223 as `[REQUIRED]` first — if P223 fails, execution stops immediately instead of silently continuing with backup reports
+  - **Anti-stopping mandate**: Added completion-driven loop (Ralph-Loop pattern) that defines DONE and loops until all 17 schools are processed — replaces linear step list that invited stopping at school boundaries
+  - **Context window pressure**: Added context management rules — no `take_snapshot` unless debugging, use `evaluate_script` for data extraction, `take_screenshot` with `filePath` for archival (prevents 50KB+ DOM snapshots from filling context)
+  - **daysToScan=3 bug**: Consecutive Absence `daysToScan` field defaults to 3 in some school contexts — added explicit JS override to force 20 and post-run header verification
+  - **District-level batching**: Restructured `/enrollment run` into Phase 1 (district batch: P223 + Enrollment Summary + Consecutive Absence at District Office level) → Phase 2 (per-school completion loop) → Phase 3 (post-reports) — estimated 50% time reduction pending live validation
+  - **BUILD-PLAN.md**: Added Phase 7 documenting root causes, fixes, and district-level batching items needing live testing
+
 ## [2.5.5] - 2026-03-17
 
 ### Fixed

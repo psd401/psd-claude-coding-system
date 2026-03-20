@@ -52,6 +52,28 @@
 - Requires live PowerSchool session + Google Workspace auth to test end-to-end
 - Email generation for Board/Cabinet notification handled by SKILL.md orchestration
 
+### Phase 7: Speed & Reliability Improvements — IN PROGRESS (March 2026)
+
+**Problem**: March 2026 run completed 10/17 schools, stopped mid-run, skipped P223 entirely, daysToScan defaulted to 3.
+
+**Root causes addressed**:
+1. **Mid-run stops**: Context window pressure from 50KB+ `take_snapshot`/`wait_for` results. Fixed with context management rules — use `evaluate_script` for data extraction, `take_screenshot` with `filePath` for archival.
+2. **P223 skipped**: Report order was advisory, not enforced. Fixed with strict numbered ordering and "DO NOT SKIP" language.
+3. **daysToScan=3**: Field defaults vary by school context. Fixed with explicit JS override (`input[name="daysToScan"].value = '20'`) and post-run verification.
+4. **Completion model**: Replaced linear step list with completion-driven loop (Ralph-Loop pattern) — defines DONE and loops until achieved.
+
+**District-level batching (needs live validation)**:
+- P223 Form and Audit can potentially run at District Office level with "Separate form per school" → one ZIP for all schools
+- Enrollment Summary and Consecutive Absence may also work at district level
+- If validated, eliminates ~50% of per-school work (from ~2 hours to ~45-60 minutes)
+- SKILL.md updated with Phase 1 (district batch) → Phase 2 (per-school loop) → Phase 3 (post-reports) structure
+
+**Still needs live testing**:
+- [ ] Does P223 at District Office with "Separate form per school" produce individual school P223s?
+- [ ] Does Enrollment Summary at District Office show per-school breakdown?
+- [ ] Does Consecutive Absence at District Office run across all schools?
+- [ ] Multi-tab parallelization within Phase 2 (secondary optimization)
+
 ## What's Ready to Test
 
 | Command | Requires | Status |
