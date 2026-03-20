@@ -91,14 +91,23 @@ Convert the input URL to embed format:
 
 ### Step 5: Export Thumbnail
 
-Try to export the first slide as a PNG thumbnail:
-```bash
-gws drive files export --params '{"fileId": "PRESENTATION_ID", "mimeType": "image/png"}' --output /Users/hagelk/non-ic-code/psd401.ai/public/images/thumbnails/{slug}.png
-```
+Auto-generate the thumbnail using the Slides API thumbnail endpoint:
 
-If the export fails (permissions, published-only URL, etc.), inform the user:
+1. Extract the first slide's `objectId` from the presentation JSON fetched in Step 2 (it's `slides[0].objectId`)
+2. Call the thumbnail API:
+```bash
+gws slides presentations pages getThumbnail --params '{"presentationId": "PRESENTATION_ID", "pageObjectId": "FIRST_SLIDE_OBJECT_ID"}' --format json
 ```
-Could not auto-export thumbnail. Please manually save the first slide as:
+3. Parse the `contentUrl` from the JSON response
+4. Download it with curl:
+```bash
+curl -sL -o /Users/hagelk/non-ic-code/psd401.ai/public/images/thumbnails/{slug}.png "CONTENT_URL"
+```
+5. Verify the file was created and is a valid PNG using `file` command
+
+If any step fails (permissions, auth, etc.), inform the user:
+```
+Could not auto-generate thumbnail. Please manually save the first slide as:
 /Users/hagelk/non-ic-code/psd401.ai/public/images/thumbnails/{slug}.png
 ```
 
