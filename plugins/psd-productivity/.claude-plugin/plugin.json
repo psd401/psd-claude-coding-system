@@ -1,7 +1,7 @@
 {
   "name": "psd-productivity",
-  "version": "2.5.4",
-  "description": "27 productivity workflows + 2 agents for Peninsula School District — P223 enrollment automation, Google Workspace CLI, document generation, research, TTS, and district operations",
+  "version": "2.5.5",
+  "description": "28 productivity workflows + 2 agents for Peninsula School District — P223 enrollment automation, Google Workspace CLI, document generation, research, TTS, and district operations",
   "author": {
     "name": "Kris Hagel",
     "email": "hagelk@psd401.net",

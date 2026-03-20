@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.7] - 2026-03-20
+
+### Added
+- **`/slides-to-site` skill** (psd-productivity 2.5.5) — converts Google Slides presentations into psd401.ai presentation pages. Reads full slide content via `gws slides`, collects metadata interactively, generates properly formatted markdown with frontmatter, exports thumbnails, and supports batch mode with commit-and-push to trigger Amplify deploy.
+
 ## [2.5.6] - 2026-03-20
 
 ### Fixed

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.5.6
+**Version**: 2.5.7
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 19 | 42 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 27 | 2 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 28 | 2 |
 
 ### Key Changes in v2.0.0
 
@@ -80,6 +80,7 @@ psd-claude-plugins/                           # repo root
         psd-brand-guidelines/                 # PSD brand assets
         psd-instructional-vision/             # PSD instructional framework
         enrollment/                           # PSD enrollment workflow
+        slides-to-site/                       # Google Slides → psd401.ai pages
         chief-of-staff/                       # Executive support
       agents/                                 # workflow-specific agents
         powerschool-navigator.md              # Chrome DevTools MCP PS report automation
@@ -170,7 +171,7 @@ psd-claude-plugins/                           # repo root
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
 
-### psd-productivity Skills (26 total)
+### psd-productivity Skills (28 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -200,6 +201,7 @@ psd-claude-plugins/                           # repo root
 | `/enrollment` | P223 monthly enrollment automation — reports, FTE validation, reconciliation |
 | `/google-workspace` | Google Drive, Sheets, Gmail, Calendar via gws CLI |
 | `/browser-control` | Browser automation for authenticated web apps via Chrome DevTools MCP |
+| `/slides-to-site` | Convert Google Slides to psd401.ai presentation pages |
 | `/chief-of-staff` | Daily briefings and priority management |
 
 ### Memory-Based Learning System
