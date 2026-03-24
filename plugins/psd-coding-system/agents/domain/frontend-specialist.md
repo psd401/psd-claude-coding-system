@@ -249,10 +249,10 @@ mkdir -p components/NewComponent
 touch components/NewComponent/{index.tsx,NewComponent.tsx,NewComponent.module.css,NewComponent.test.tsx}
 
 # Check bundle size
-npm run build && npm run analyze
+bun run build && bun run analyze
 
 # Run type checking
-npm run typecheck || tsc --noEmit
+bun run typecheck || tsc --noEmit
 ```
 
 ## Best Practices

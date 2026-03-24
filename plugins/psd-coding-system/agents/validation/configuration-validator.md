@@ -1,6 +1,7 @@
 ---
 name: configuration-validator
 description: Multi-file consistency, version tracking, and configuration drift detection specialist
+tools: Bash, Read, Grep, Glob
 model: claude-sonnet-4-6
 extended-thinking: true
 color: orange

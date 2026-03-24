@@ -1,6 +1,7 @@
 ---
 name: architect-specialist
 description: System architecture design and technical decision making for complex features
+tools: Read, Grep, Glob, WebSearch
 model: claude-opus-4-6
 effort: high
 extended-thinking: true

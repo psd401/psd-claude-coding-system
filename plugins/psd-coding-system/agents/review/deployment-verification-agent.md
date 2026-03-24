@@ -112,7 +112,7 @@ Based on detected risks, generate a comprehensive checklist. Output should be fo
 #### Dependency Change Checklist (if dependency changes detected)
 ```markdown
 ### Dependency Changes
-- [ ] All dependencies audited for vulnerabilities (`npm audit`, `pip check`)
+- [ ] All dependencies audited for vulnerabilities (`bun audit`, `pip check`)
 - [ ] No breaking changes in major version updates
 - [ ] License compatibility verified
 - [ ] Bundle size impact assessed (frontend)

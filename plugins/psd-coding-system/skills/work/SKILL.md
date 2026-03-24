@@ -109,11 +109,11 @@ Part of #$ISSUE_NUMBER"
 
 ```bash
 # Run tests appropriate to the project
-npm test || yarn test || pytest || cargo test || go test ./...
+bun test || npm test || yarn test || pytest || cargo test || go test ./...
 
 # Run quality checks
-npm run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null
-npm run lint 2>/dev/null || true
+bun run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null
+bun run lint 2>/dev/null || true
 ```
 
 ## Phase 5: Validation

@@ -103,9 +103,9 @@ Part of #$ISSUE_NUMBER"
 Run tests as you go to catch issues early:
 
 ```bash
-npm test || yarn test || pytest || cargo test || go test ./...
-npm run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null
-npm run lint 2>/dev/null || true
+bun test || npm test || yarn test || pytest || cargo test || go test ./...
+bun run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null
+bun run lint 2>/dev/null || true
 ```
 
 ## Phase 5: Thorough Testing (Task-Delegated)
