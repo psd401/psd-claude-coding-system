@@ -32,7 +32,7 @@ if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
 fi
 
 # Check existing test coverage
-npm run test:coverage || yarn test:coverage
+bun run test:coverage
 
 # Identify test files
 find . -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" | head -20
@@ -43,28 +43,28 @@ find . -name "*.test.ts" -o -name "*.test.tsx" -o -name "*.spec.ts" | head -20
 #### Run All Tests
 ```bash
 # Unit tests
-npm run test:unit || npm test
+bun run test:unit || bun test
 
 # Integration tests
-npm run test:integration
+bun run test:integration
 
 # E2E tests (if applicable)
-npm run test:e2e || npx cypress run
+bun run test:e2e || bunx cypress run
 
 # Coverage report
-npm run test:coverage
+bun run test:coverage
 ```
 
 #### Run Specific Tests
 ```bash
 # Test a specific file
-npm test -- path/to/file.test.ts
+bun test -- path/to/file.test.ts
 
 # Test with watch mode for development
-npm test -- --watch
+bun test -- --watch
 
 # Test with debugging
-npm test -- --inspect
+bun test -- --inspect
 ```
 
 ### Phase 3: Write Missing Tests
@@ -133,19 +133,19 @@ Identify missing test coverage for these UX aspects and recommend specific test 
 # These MUST pass before PR can merge:
 
 # 1. All tests pass
-npm test || exit 1
+bun test || exit 1
 
 # 2. Coverage threshold met (usually 80%)
-npm run test:coverage -- --coverage-threshold=80
+bun run test:coverage -- --coverage-threshold=80
 
 # 3. No type errors
-npm run typecheck || tsc --noEmit
+bun run typecheck || tsc --noEmit
 
 # 4. Linting passes
-npm run lint
+bun run lint
 
 # 5. No security vulnerabilities
-npm audit --audit-level=moderate
+bun audit --audit-level=moderate
 ```
 
 ### Phase 4.5: Fix & Retry Loop (Self-Healing)
@@ -179,7 +179,7 @@ RETRY=0
 
 while [ $RETRY -lt $MAX_RETRIES ]; do
   # Run only the failing test(s), not the full suite
-  npm test -- --testPathPattern="[failing test file]" 2>&1
+  bun test -- --testPathPattern="[failing test file]" 2>&1
   EXIT_CODE=$?
 
   if [ $EXIT_CODE -eq 0 ]; then
@@ -241,22 +241,22 @@ Always dispatch the learning-writer agent with a session summary. The agent hand
 ### Common Test Commands
 ```bash
 # Run all tests
-npm test
+bun test
 
 # Run with coverage
-npm run test:coverage
+bun run test:coverage
 
 # Run specific suite
-npm run test:unit
-npm run test:integration
-npm run test:e2e
+bun run test:unit
+bun run test:integration
+bun run test:e2e
 
 # Debug tests
-npm test -- --inspect
-node --inspect-brk ./node_modules/.bin/jest
+bun test -- --inspect
+bun --inspect-brk ./node_modules/.bin/jest
 
 # Update snapshots
-npm test -- -u
+bun test -- -u
 ```
 
 ## When to Use This Command

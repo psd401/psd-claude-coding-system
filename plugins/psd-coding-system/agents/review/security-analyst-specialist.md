@@ -168,7 +168,7 @@ Positive Practices: [count]
 
 ### REQUIRED_ACTIONS
 1. Fix ALL findings — critical, high priority, AND low priority
-2. Run security checks: `npm audit`, `npm run lint`, `npm run typecheck`
+2. Run security checks: `bun audit`, `bun run lint`, `bun run typecheck`
 3. Verify tests pass after fixes
 4. Do NOT defer any finding to a follow-up issue
 ```

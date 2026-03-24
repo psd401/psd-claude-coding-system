@@ -1,6 +1,7 @@
 ---
 name: telemetry-data-specialist
 description: Data pipeline correctness, metrics accuracy, and statistical validation specialist
+tools: Bash, Read, Grep, Glob
 model: claude-sonnet-4-6
 extended-thinking: true
 color: purple
