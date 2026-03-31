@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-03-31
+
+### Added
+- **`/n8n` skill — comprehensive n8n workflow automation manager** (psd-productivity 2.6.0):
+  - **Three-layer architecture**: n8n native Instance MCP (workflow discovery/execution), czlonkowski/n8n-mcp (1,396 node docs + 2,709 templates), and 24 custom Bun/JS scripts for full REST API CRUD
+  - **24 scripts**: n8n_client.js (shared HTTP client with cursor-based pagination), health_check.js, 7 workflow management scripts (list/get/create/update/delete/activate/deactivate), validate_workflow.js (catches duplicate node names and broken connections), deploy_workflow.js (validate + create + auto-inject settings), trigger_workflow.js (webhook POST), 3 execution scripts (list/get/retry), 3 credential scripts (list/schema/create), 2 tag scripts, 2 variable scripts, run_audit.js, n8n-mcp-proxy.sh (dynamic MCP proxy reading host from .env)
+  - **Workflow builder protocol**: natural language → design → generate JSON → validate → deploy → test → activate
+  - **4 reference documents**: workflow JSON spec (connection model, node format), node catalog (15+ common nodes with JSON snippets), PSD integration map (Freshservice, PowerSchool, Google Workspace, Red Rover, Slack credential configs), 7 PSD workflow templates (equipment request, absence digest, student intake, report scheduler, health monitor)
+  - **Safety guardrails**: confirm before destructive actions, enforce unique node names, tag convention (psd-production/staging/template), no direct production edits, webhook authentication required
+  - **Server URL never hardcoded** — all scripts and MCP proxy read N8N_HOST from environment/secrets for easy migration
+- **`secrets.js` — JavaScript secrets manager** (psd-productivity 2.6.0):
+  - Created `plugins/psd-productivity/scripts/secrets.js` as JS counterpart to secrets.py
+  - Fixes 18 existing broken freshservice-manager and redrover-manager scripts that referenced non-existent secrets.js
+  - Priority chain: environment variables → `~/Library/Mobile Documents/.../Geoffrey/secrets/.env`
+  - Service-specific namespaces: `SECRETS.freshservice`, `SECRETS.redrover`, `SECRETS.n8n`, `SECRETS.openai`, etc.
+  - CLI mode: `bun secrets.js` shows availability of all known secrets
+
+### Fixed
+- **`secrets.py` ENV_FILE path** — corrected from `~/.config/psd-productivity/.env` (didn't exist) to actual location at `~/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env`
+- **`secrets.py` KNOWN_SECRETS** — added N8N_HOST, N8N_API_KEY, N8N_MCP_TOKEN, RED_ROVER_USERNAME, RED_ROVER_PASSWORD
+
+### Changed
+- **`plugin.json`** (psd-productivity) — added n8n-instance and n8n-docs MCP servers, updated description and skill count (28→29)
+
 ## [2.5.8] - 2026-03-20
 
 ### Improved

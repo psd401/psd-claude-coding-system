@@ -1,7 +1,7 @@
 {
   "name": "psd-productivity",
-  "version": "2.5.6",
-  "description": "28 productivity workflows + 2 agents for Peninsula School District — P223 enrollment automation, Google Workspace CLI, document generation, research, TTS, and district operations",
+  "version": "2.6.0",
+  "description": "29 productivity workflows + 2 agents for Peninsula School District — P223 enrollment automation, n8n workflow management, Google Workspace CLI, document generation, research, TTS, and district operations",
   "author": {
     "name": "Kris Hagel",
     "email": "hagelk@psd401.net",
@@ -26,6 +26,21 @@
       "type": "stdio",
       "command": "bunx",
       "args": ["chrome-devtools-mcp@latest", "--browserUrl=http://127.0.0.1:9222"]
+    },
+    "n8n-instance": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["plugins/psd-productivity/skills/n8n-manager/scripts/n8n-mcp-proxy.sh"]
+    },
+    "n8n-docs": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "n8n-mcp"],
+      "env": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true"
+      }
     }
   }
 }

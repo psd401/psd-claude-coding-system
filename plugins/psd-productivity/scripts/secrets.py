@@ -34,6 +34,11 @@ KNOWN_SECRETS = [
     "GOOGLE_CLIENT_SECRET",
     "ELEVENLABS_API_KEY",
     "RED_ROVER_API_KEY",
+    "RED_ROVER_USERNAME",
+    "RED_ROVER_PASSWORD",
+    "N8N_HOST",
+    "N8N_API_KEY",
+    "N8N_MCP_TOKEN",
 ]
 
 # Optional: 1Password vault references (fallback only)
@@ -49,10 +54,15 @@ VAULT_MAP = {
     "GOOGLE_CLIENT_SECRET": "op://PSD/Google-Workspace/client-secret",
     "ELEVENLABS_API_KEY": "op://PSD/ElevenLabs/api-key",
     "RED_ROVER_API_KEY": "op://PSD/RedRover/api-key",
+    "RED_ROVER_USERNAME": "op://PSD/RedRover/username",
+    "RED_ROVER_PASSWORD": "op://PSD/RedRover/password",
+    "N8N_HOST": "op://PSD/n8n/host",
+    "N8N_API_KEY": "op://PSD/n8n/api-key",
+    "N8N_MCP_TOKEN": "op://PSD/n8n/mcp-token",
 }
 
-# Where the .env file lives (NOT in a project directory — Claude Code won't auto-read it)
-ENV_FILE = Path.home() / ".config" / "psd-productivity" / ".env"
+# Where the .env file lives (Geoffrey's iCloud secrets directory)
+ENV_FILE = Path.home() / "Library" / "Mobile Documents" / "com~apple~CloudDocs" / "Geoffrey" / "secrets" / ".env"
 
 # Cache
 _secrets_cache: dict[str, str] = {}
