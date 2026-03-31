@@ -117,6 +117,13 @@ const SECRETS = {
     };
   },
 
+  get documenso() {
+    return {
+      host: requireSecret('DOCUMENSO_HOST'),
+      apiKey: requireSecret('DOCUMENSO_API_KEY'),
+    };
+  },
+
   get openai() {
     return { apiKey: requireSecret('OPENAI_API_KEY') };
   },
@@ -158,6 +165,7 @@ if (require.main === module) {
     'ELEVENLABS_API_KEY',
     'RED_ROVER_USERNAME', 'RED_ROVER_PASSWORD', 'RED_ROVER_API_KEY',
     'N8N_HOST', 'N8N_API_KEY', 'N8N_MCP_TOKEN',
+    'DOCUMENSO_HOST', 'DOCUMENSO_API_KEY',
   ];
 
   console.log('Secret availability:');

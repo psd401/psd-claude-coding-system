@@ -39,6 +39,8 @@ KNOWN_SECRETS = [
     "N8N_HOST",
     "N8N_API_KEY",
     "N8N_MCP_TOKEN",
+    "DOCUMENSO_HOST",
+    "DOCUMENSO_API_KEY",
 ]
 
 # Optional: 1Password vault references (fallback only)
@@ -59,6 +61,8 @@ VAULT_MAP = {
     "N8N_HOST": "op://PSD/n8n/host",
     "N8N_API_KEY": "op://PSD/n8n/api-key",
     "N8N_MCP_TOKEN": "op://PSD/n8n/mcp-token",
+    "DOCUMENSO_HOST": "op://PSD/Documenso/host",
+    "DOCUMENSO_API_KEY": "op://PSD/Documenso/api-key",
 }
 
 # Where the .env file lives (Geoffrey's iCloud secrets directory)

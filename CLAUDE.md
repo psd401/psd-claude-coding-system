@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.6.0
+**Version**: 2.7.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -82,6 +82,7 @@ psd-claude-plugins/                           # repo root
         enrollment/                           # PSD enrollment workflow
         slides-to-site/                       # Google Slides → psd401.ai pages
         n8n-manager/                          # n8n workflow automation management
+        documenso-manager/                    # Document signing (Documenso)
         chief-of-staff/                       # Executive support
       agents/                                 # workflow-specific agents
         powerschool-navigator.md              # Chrome DevTools MCP PS report automation
@@ -172,7 +173,7 @@ psd-claude-plugins/                           # repo root
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
 
-### psd-productivity Skills (29 total)
+### psd-productivity Skills (30 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -204,6 +205,7 @@ psd-claude-plugins/                           # repo root
 | `/browser-control` | Browser automation for authenticated web apps via Chrome DevTools MCP |
 | `/slides-to-site` | Convert Google Slides to psd401.ai presentation pages |
 | `/n8n` | Build, deploy, and manage n8n workflow automations — CRUD, executions, credentials, PSD integrations |
+| `/documenso` | Document signing — create envelopes, manage recipients/fields, distribute, download signed PDFs, templates |
 | `/chief-of-staff` | Daily briefings and priority management |
 
 ### Memory-Based Learning System

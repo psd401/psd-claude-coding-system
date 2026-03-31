@@ -1,7 +1,7 @@
 {
   "name": "psd-productivity",
-  "version": "2.6.0",
-  "description": "29 productivity workflows + 2 agents for Peninsula School District — P223 enrollment automation, n8n workflow management, Google Workspace CLI, document generation, research, TTS, and district operations",
+  "version": "2.7.0",
+  "description": "30 productivity workflows + 2 agents for Peninsula School District — P223 enrollment automation, n8n workflow management, Documenso document signing, Google Workspace CLI, document generation, research, TTS, and district operations",
   "author": {
     "name": "Kris Hagel",
     "email": "hagelk@psd401.net",
@@ -41,6 +41,11 @@
         "LOG_LEVEL": "error",
         "DISABLE_CONSOLE_OUTPUT": "true"
       }
+    },
+    "documenso": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["plugins/psd-productivity/skills/documenso-manager/scripts/documenso-mcp-proxy.sh"]
     }
   }
 }

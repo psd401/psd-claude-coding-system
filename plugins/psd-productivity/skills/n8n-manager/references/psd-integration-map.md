@@ -13,6 +13,7 @@
 | Red Rover | HTTP Request | httpBasicAuth | Basic Auth (username:password) | `https://connect.redroverk12.com/api/v1` |
 | Slack | Slack node | slackOAuth2Api | OAuth2 Bot Token | Built-in |
 | Email (SMTP) | Send Email node | smtp | SMTP credentials | PSD SMTP server |
+| Documenso | HTTP Request (or community node `documenso/n8n-node`) | httpHeaderAuth | `Authorization: api_xxx` (NOT Bearer) | `http://${DOCUMENSO_HOST}/api/v2` |
 | n8n Forms | Form Trigger | (none) | Built-in, no auth needed | Self-hosted form pages |
 
 ## Freshservice Integration
@@ -75,6 +76,39 @@ Forms are self-hosted by n8n. Use the Form Trigger node to create forms and the 
 - **Production URL**: Active when workflow is published
 - **Hidden fields**: Pre-populate via URL query parameters
 - **File uploads**: Supported via the File field type
+
+## Documenso Integration
+
+### Authentication
+```
+Header: Authorization: api_xxxxxxxxxxxxxxxx
+```
+**NOT Bearer** — the `api_` prefix is part of the key itself. Do not add `Bearer` prefix.
+
+### Common Endpoints (for n8n HTTP Request nodes)
+| Operation | Method | Path |
+|-----------|--------|------|
+| List envelopes | GET | `/envelope?page=1&perPage=20&status=PENDING` |
+| Get envelope | GET | `/envelope/{envelopeId}` |
+| Create envelope | POST | `/envelope/create` (multipart/form-data) |
+| Distribute | POST | `/envelope/distribute` |
+| Download signed PDF | GET | `/envelope/item/{itemId}/download?version=signed` |
+| Use template | POST | `/envelope/use` |
+
+### Webhook Events (for n8n Webhook Trigger)
+Configure in Documenso Settings > Webhooks:
+- `DOCUMENT_COMPLETED` — all signatories finished
+- `DOCUMENT_SIGNED` — individual signature completed
+- `DOCUMENT_SENT` — distributed to recipients
+- `DOCUMENT_REJECTED` — recipient declined
+
+Secret sent in `X-Documenso-Secret` header for verification.
+
+### Community Node
+Official n8n community node: `documenso/n8n-node` (GitHub). 7 resources, 35 operations, 7 trigger events. Install via n8n Settings > Community Nodes.
+
+### Key n8n Workflow Pattern
+HR template → Documenso distribute → webhook on DOCUMENT_COMPLETED → n8n downloads signed PDF → stores to Google Drive → closes Freshservice ticket.
 
 ## Credential Setup Checklist
 

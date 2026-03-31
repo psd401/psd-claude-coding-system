@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-03-31
+
+### Added
+- **`/documenso` skill — document signing manager** (psd-productivity 2.7.0):
+  - **Two-layer architecture**: official Documenso SDK MCP server for document/template discovery + 23 custom Bun/JS scripts for full v2 REST API CRUD
+  - **23 scripts**: documenso_client.js (shared HTTP client with `api_xxx` auth), health_check.js, 6 envelope management scripts (list/get/create/update/delete/duplicate), 4 distribution scripts (distribute/redistribute/download/audit-log), 6 recipient & field scripts (add/update/remove for both), 4 template & folder scripts (list/get/use-template, list/create folder), documenso-mcp-proxy.sh
+  - **Envelope builder protocol**: natural language → design recipients/fields → create with PDF upload → place signature fields → distribute for signing → track → download signed PDF
+  - **4 reference documents**: API reference (v2 endpoints, 11 field types, 5 recipient roles, 13 webhook events), envelope lifecycle (states, field positioning guide with percentage coordinates), 8 PSD signing template patterns (employment contract, coaching stipend, vendor MOU, board acknowledgement, field trip permission, media release, facility use, substitute agreement), end-to-end PSD signing workflows with n8n integration patterns
+  - **Safety guardrails**: never auto-distribute (sends real emails), confirm before delete, field coordinate validation (rejects >100%), status-aware operations
+  - **n8n integration**: added Documenso to n8n-manager's PSD integration map with auth method, webhook events, community node reference, and key workflow pattern (HR template → sign → webhook → Google Drive)
+  - **Server URL never hardcoded** — all scripts read DOCUMENSO_HOST from environment/secrets
+  - **API gotchas documented**: auth is NOT Bearer (literal `api_xxx`), field coordinates are percentages (0-100) not pixels, `fieldMeta.type` must be lowercase, `placeholder` field is required, batch endpoints use `data` key not named arrays
+
+### Changed
+- **`secrets.js`** — added `SECRETS.documenso` namespace (host, apiKey)
+- **`secrets.py`** — added DOCUMENSO_HOST, DOCUMENSO_API_KEY to KNOWN_SECRETS and VAULT_MAP
+- **`plugin.json`** (psd-productivity) — added Documenso MCP server, updated description and skill count (29→30)
+- **n8n integration map** — added Documenso section with auth, endpoints, webhook events, community node info
+
 ## [2.6.0] - 2026-03-31
 
 ### Added
