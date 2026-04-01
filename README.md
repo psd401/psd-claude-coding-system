@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.7.0-green)]()
+[![Version](https://img.shields.io/badge/Version-2.8.0-green)]()
 
 ## Overview
 
 **Two independently installable plugins** — one for software development workflows, one for general productivity.
 
-**Version**: 2.7.0
+**Version**: 2.8.0
 
 ---
 
@@ -59,7 +59,7 @@ AI-assisted development system with 19 skills, 42 specialized agents, memory-bas
 | Category | Skills |
 |----------|--------|
 | **Productivity** (3) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` |
-| **Content & Docs** (9) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` |
+| **Content & Docs** (10) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` |
 | **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
 | **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
 | **Planning** (2) | `/seven-advisors` · `/skill-creator` |

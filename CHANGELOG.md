@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-04-01
+
+### Added
+- **`/pdf-builder` skill — branded PSD PDF generator** (psd-productivity 2.8.0):
+  - **Branded letterhead system**: PSD horizontal logo, Pacific (#25424C) color bar, district address/phone/website, Sea Glass (#6CA18A) accent lines, page-aware footer with page numbers
+  - **Font system**: Inter Regular/Bold (Google Fonts) for body/form fields, Josefin Sans Bold for headings — clean, legible form typography separate from brand display fonts
+  - **3 scripts**: `generate_pdf.py` (core generator with JSON spec + template modes), `letterhead.py` (letterhead module), `install_fonts.py` (one-time font downloader from Google Fonts CDN)
+  - **8 built-in templates**: permission-slip, employment-agreement, contractor-agreement, policy-acknowledgment, field-trip-waiver, board-resolution, leave-request, generic-form
+  - **7 section types**: heading, paragraph, field_row (labeled input boxes), checkbox_group, table, signature_block (multi-signer), spacer, divider
+  - **Documenso field manifest**: every PDF outputs a `.fields.json` with percentage coordinates (0-100) that map directly to Documenso's `add_fields` API — automatic reportlab-to-Documenso coordinate conversion
+  - **10 field types**: TEXT, DATE, NAME, EMAIL, NUMBER, SIGNATURE, INITIALS, CHECKBOX, DROPDOWN, MULTILINE_TEXT — all with correct Documenso outer/inner type mapping
+  - **Dual-mode operation**: interactive via `/pdf-builder` in Claude + scriptable via `uv run generate_pdf.py --json/--template` for n8n automation
+  - **Template data variables**: `{{variable}}` substitution in paragraph text + pre-filled field values
+  - **Multi-page support**: page 1 letterhead + continuation page headers with document title
+  - **4 reference docs**: coordinate-system.md (reportlab↔Documenso conversion), field-manifest-spec.md (JSON schema), document-layouts.md (page structure, sizing), n8n-integration.md (complete workflow pattern)
+  - **n8n workflow pattern**: webhook → build spec → generate PDF → create Documenso envelope → add fields from manifest → distribute
+
 ## [2.7.0] - 2026-03-31
 
 ### Added

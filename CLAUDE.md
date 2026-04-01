@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.7.0
+**Version**: 2.8.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 19 | 42 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 28 | 2 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 29 | 2 |
 
 ### Key Changes in v2.0.0
 
@@ -62,6 +62,7 @@ psd-claude-plugins/                           # repo root
         docx/                                 # Document creation/editing
         pptx/                                 # Presentation creation/editing
         pdf/                                  # PDF manipulation
+        pdf-builder/                          # Branded PDF generation with Documenso field mapping
         pdf-to-markdown/                      # PDF to Markdown conversion
         xlsx/                                 # Spreadsheet creation/editing
         presentation-master/                  # World-class presentations
@@ -173,7 +174,7 @@ psd-claude-plugins/                           # repo root
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
 
-### psd-productivity Skills (30 total)
+### psd-productivity Skills (31 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -184,6 +185,7 @@ psd-claude-plugins/                           # repo root
 | `/docx` | Document creation, editing, tracked changes, comments |
 | `/pptx` | Presentation creation, editing, layouts, speaker notes |
 | `/pdf` | PDF manipulation — extract, create, merge/split, fill forms |
+| `/pdf-builder` | Branded PSD PDF generation with Documenso field coordinate mapping |
 | `/pdf-to-markdown` | Convert PDF to clean Markdown |
 | `/xlsx` | Spreadsheet creation, editing, formulas, data analysis |
 | `/presentation-master` | World-class presentations (Reynolds, Duarte, Kawasaki, TED) |
