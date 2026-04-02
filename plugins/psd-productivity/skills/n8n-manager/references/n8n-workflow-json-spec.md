@@ -156,6 +156,58 @@ Common AI connection types:
 5. **Empty `parameters: {}`** is valid — many nodes have sensible defaults
 6. **Tags in workflow creation** use `[{ "name": "tag-name" }]` — the server resolves names to IDs
 
+## API Deployment Gotchas
+
+When creating or updating workflows via the n8n REST API:
+
+### Shell Escaping (CRITICAL)
+
+**Never use `bun -e "..."` to update Code nodes or expressions.** The shell strips `$` characters, breaking `$input`, `$json`, `$('Node Name')`, and expression syntax `={{ $json.field }}`. Always write update scripts to a `.js` file, then run with `bun script.js`.
+
+Regex `replace()` in fix scripts can double `$` references (since `$` is a backreference character in replacement strings). After any bulk fix, verify no `$$` exists in the deployed code.
+
+### Read-Only Fields on POST
+
+`active` and `tags` are read-only when creating workflows via `POST /workflows`. Strip them before deploying or you'll get a 400 error.
+
+### Settings Accumulation on PUT
+
+When you GET a workflow, `settings` may contain server-added properties (`callerPolicy`, `availableInMCP`, `binaryMode`). When PUTting updates, only send the properties you intend: `{ executionOrder: 'v1', errorWorkflow: 'wf-id' }`. Extra properties cause 400 errors.
+
+### Activation Endpoint
+
+Use `POST /workflows/{id}/activate` to activate (not `PATCH` with `{active: true}`). Deactivate with `POST /workflows/{id}/deactivate`.
+
+### Resource Locator Format (`__rl`)
+
+The `executeWorkflow` node's `workflowId` and other resource-referencing parameters require the resource locator format:
+
+```json
+{
+  "workflowId": {
+    "__rl": true,
+    "value": "workflow-id-string",
+    "mode": "id"
+  }
+}
+```
+
+A bare string like `"workflowId": "abc123"` causes "No information about the workflow to execute found". This applies to `fileId`, `folderId`, `documentId`, and `sheetName` parameters as well.
+
+### HTTP Request Body Serialization
+
+`specifyBody: 'keypair'` with `contentType: 'application/json'` sometimes produces malformed JSON. Reliable approach:
+
+```json
+{
+  "contentType": "raw",
+  "rawContentType": "application/json",
+  "body": "={\"envelopeId\": \"{{ $json.id }}\"}"
+}
+```
+
+The `=` prefix enables expression evaluation in raw body strings.
+
 ## Minimal Valid Workflow Example
 
 ```json

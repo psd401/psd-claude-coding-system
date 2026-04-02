@@ -168,6 +168,30 @@ Checkbox 2: positionX=5, positionY=65, width=3, height=2
 Checkbox 3: positionX=5, positionY=70, width=3, height=2
 ```
 
+## Pre-filled ReadOnly Fields
+
+Use `fieldMeta.text` with `readOnly: true` to create display-only fields that show data to signers without requiring them to type anything. Common for form data collected via n8n forms before signing.
+
+### How It Works
+
+1. Create a TEXT field via the API with `fieldMeta.text` set to the pre-filled value
+2. Set `fieldMeta.readOnly: true` to prevent signer editing
+3. Assign the field to any recipient (typically the first signer) — it's visible to all
+4. Optionally set `fieldMeta.fontSize` to control text size (default is large)
+
+### Known Signing Preview Bug (#2669)
+
+Pre-filled readOnly TEXT fields may show text overflowing past the field border in the browser signing preview. This is a CSS rendering bug — the signing page uses `25cqw` (container query width) for font sizing, but `container-type: inline-size` is missing on the field container, causing the font size to be calculated from the viewport width instead of the field width.
+
+**The final signed PDF renders correctly** — it uses the Konva canvas renderer which properly respects field width minus 12px padding.
+
+**Workaround**: Accept the signing preview overflow. Keep the PDF template box border visible so the document looks clean even with the preview issue. Filed as [documenso/documenso#2669](https://github.com/documenso/documenso/issues/2669).
+
+### Pre-fill + readOnly Caveats
+
+- Bug #2512: clicking a pre-filled (non-readOnly) field clears its value and shows the label. `readOnly: true` prevents this.
+- Same email for multiple recipients may cause Documenso to skip signing emails (deduplication). Use different emails for each signer.
+
 ## Common Mistakes
 
 1. **Using pixels instead of percentages** — positionX=500 is invalid (max 100)

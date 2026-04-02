@@ -129,7 +129,7 @@ For documents that don't fit a template, build a JSON spec with sections:
 |------|-------------|----------------|
 | `heading` | Josefin Sans Bold title | `text`, `level` (1=18pt, 2=14pt, 3=11pt) |
 | `paragraph` | Inter Regular body text (auto-wrapped) | `text`, `fontSize`, `lineHeight` |
-| `field_row` | Horizontal row of labeled input boxes | `fields[]` with `label`, `type`, `width` (0-1 fraction), `value` |
+| `field_row` | Horizontal row of labeled input boxes | `fields[]` with `label`, `type`, `width` (0-1 fraction), `value`, `height` (points, default 22) |
 | `checkbox_group` | Vertical checkbox list | `label`, `items[]` with `label`, `checked`, `required` |
 | `table` | Data table with alternating rows | `headers[]`, `rows[][]` |
 | `signature_block` | Signing zone with role labels | `signers[]` with `role`, `fields[]`, `anchor` ("flow" or "bottom") |
@@ -179,6 +179,27 @@ Webhook (receives form data)
   → HTTP Request (POST /api/v2/envelope/field/create-many)
   → HTTP Request (POST /api/v2/envelope/distribute)
 ```
+
+### Template Server Pattern (Recommended for n8n)
+
+Instead of running `uv run generate_pdf.py` on the n8n server (which requires Python + uv), generate the PDF locally once and serve it via an n8n webhook workflow:
+
+1. **Generate locally**: `uv run generate_pdf.py --spec spec.json -o template.pdf`
+2. **Base64 encode**: The PDF is embedded as a base64 string in an n8n Code node
+3. **Serve via webhook**: `GET /webhook/psd-template?name=classified-evaluation`
+4. **n8n workflow downloads it**: HTTP Request node fetches the template before creating Documenso envelope
+
+**Why not Google Drive?** The n8n Google Drive v3 download node has a bug — it calls the export API instead of files.get, causing errors for uploaded PDFs. The template server pattern avoids this entirely.
+
+**Multi-template support**: The Code node contains a `templates` object with named entries. Add new templates by adding entries. The query parameter `?name=` selects which template to serve.
+
+**Custom field height example** (for large text areas like comments):
+```json
+{"type": "field_row", "fields": [
+  {"label": "Comments", "type": "TEXT", "width": 1.0, "height": 160}
+]}
+```
+The `height` property on individual fields defaults to 22pt. Set it higher for textarea-like boxes.
 
 ## Branding Details
 

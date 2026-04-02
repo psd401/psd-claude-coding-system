@@ -179,34 +179,40 @@ class PDFBuilder:
             w = f.get("width", 1.0 / len(fields))
             field_widths.append(w * total_width)
 
+        # Use per-field height if specified, otherwise default
+        # For the row layout, use the tallest field's height
+        row_height = max(f.get("height", FIELD_BOX_HEIGHT) for f in fields)
+
         # Move down: label height + box height + padding
-        y -= (FIELD_LABEL_SIZE + FIELD_BOX_HEIGHT + 6)
+        y -= (FIELD_LABEL_SIZE + row_height + 6)
 
         # y is now at the bottom of the field box
         box_y = y
         for i, (field, fw) in enumerate(zip(fields, field_widths)):
+            fh = field.get("height", FIELD_BOX_HEIGHT)
+
             # Label above the box
             c.setFont("Inter", FIELD_LABEL_SIZE)
             c.setFillColor(PACIFIC)
-            c.drawString(x, box_y + FIELD_BOX_HEIGHT + 3, field.get("label", ""))
+            c.drawString(x, box_y + fh + 3, field.get("label", ""))
 
             # Draw input box
             c.setStrokeColor(LIGHT_GRAY)
             c.setLineWidth(0.75)
-            c.rect(x, box_y, fw, FIELD_BOX_HEIGHT, fill=0, stroke=1)
+            c.rect(x, box_y, fw, fh, fill=0, stroke=1)
 
             # Pre-filled value (if any)
             value = field.get("value", "")
             if value:
                 c.setFont("Inter", 9)
                 c.setFillColor(PACIFIC)
-                c.drawString(x + 4, box_y + 6, str(value))
+                c.drawString(x + 4, box_y + fh - 14, str(value))
 
             # Register field in manifest
             field_type = field.get("type", "TEXT")
             field_name = self._slugify(field.get("label", f"field_{i}"))
             self._add_field(
-                field_name, field_type, x, box_y, fw, FIELD_BOX_HEIGHT,
+                field_name, field_type, x, box_y, fw, fh,
                 self.current_page,
                 label=field.get("label", ""),
                 required=field.get("required", True),
@@ -444,7 +450,9 @@ class PDFBuilder:
             lines = max(1, len(text) // 75 + 1)
             return lines * section.get("lineHeight", 14) + 12
         elif st == "field_row":
-            return FIELD_LABEL_SIZE + FIELD_BOX_HEIGHT + 6 + FIELD_GAP
+            fields = section.get("fields", [])
+            row_h = max((f.get("height", FIELD_BOX_HEIGHT) for f in fields), default=FIELD_BOX_HEIGHT)
+            return FIELD_LABEL_SIZE + row_h + 6 + FIELD_GAP
         elif st == "checkbox_group":
             items = section.get("items", [])
             label_h = 18 if section.get("label") else 0

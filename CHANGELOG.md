@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1] - 2026-04-01
+
+### Added
+- **n8n-manager**: Community Edition limitations section, Code node sandbox restrictions (complete available/unavailable list), Form Trigger branding guide (iframe workaround, CSS variables, deactivation cycle), Google Sheets gotchas (auto-map pitfalls, schema format), Google Drive known issues (download bug, template server workaround), API deployment gotchas (shell escaping, `__rl` format, settings stripping, body serialization), 3 new workflow templates (Document Completion Router, Asset Server, Error Notification Handler), expanded tag convention
+- **documenso-manager**: Field pre-filling section (`fieldMeta.text` + `readOnly` pattern with examples), webhook ID mismatch warning (numeric vs `envelope_xxxxx`), `envelopeItems` naming documentation, webhook management UI-only note, signing preview CSS bug #2669 documentation, same-email deduplication warning
+- **pdf-builder**: Custom `height` property on `field_row` fields (for textarea-sized boxes), Template Server pattern section (base64-embedded webhook serving), critical n8n gotchas in integration guide (sandbox, shell escaping, form URLs, hidden fields, resource locator format)
+
+### Changed
+- **pdf-builder/generate_pdf.py**: `field_row` now supports per-field `height` property (default 22pt, configurable per field)
+
 ## [2.8.0] - 2026-04-01
 
 ### Added

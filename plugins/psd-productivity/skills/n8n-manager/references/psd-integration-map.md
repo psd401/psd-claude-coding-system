@@ -68,13 +68,17 @@ All Google integrations use OAuth2 credentials configured in the n8n UI. The cre
 2. OAuth2 consent screen configured
 3. Client ID and Client Secret
 
+### Google Drive Download Bug
+
+The Google Drive v3 node's "download" operation calls the **export** API, not `files.get`. This causes `"Export only supports Docs Editors files"` errors for uploaded binary files like PDFs. **Workaround**: Serve files via a webhook "template server" pattern (base64-embedded in a Code node) or use an HTTP Request node with `?alt=media&supportsAllDrives=true`. Shared drives also require `supportsAllDrives=true` and `driveId` in options.
+
 ## n8n Forms (No External System)
 
 Forms are self-hosted by n8n. Use the Form Trigger node to create forms and the Form node for multi-page forms.
 
 - **Test URL**: Available during development (visible in node settings)
 - **Production URL**: Active when workflow is published
-- **Hidden fields**: Pre-populate via URL query parameters
+- **Hidden fields**: Do NOT auto-populate from URL query parameters. Data is in `formQueryParameters` object instead.
 - **File uploads**: Supported via the File field type
 
 ## Documenso Integration
@@ -103,6 +107,16 @@ Configure in Documenso Settings > Webhooks:
 - `DOCUMENT_REJECTED` — recipient declined
 
 Secret sent in `X-Documenso-Secret` header for verification.
+
+**CRITICAL**: Webhook management is **UI only** — no API endpoint to create/list/delete webhooks.
+
+### Webhook ID Mismatch
+
+Documenso webhooks send a **numeric** `id` (e.g., `13`) which is the internal `documentId`. The API endpoints require the **string** format `envelope_xxxxx`. Calling `GET /envelope/13` returns 400.
+
+**Workaround**: Search by title using `GET /envelope?query={title}` to find the string ID, then use that for subsequent API calls.
+
+Also: the items array in the envelope response is `envelopeItems` (not `items`). Item IDs are string format: `envelope_item_xxxxx`.
 
 ### Community Node
 Official n8n community node: `documenso/n8n-node` (GitHub). 7 resources, 35 operations, 7 trigger events. Install via n8n Settings > Community Nodes.

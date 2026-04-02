@@ -37,6 +37,8 @@
 
 ## Envelope Item Endpoints (PDFs within envelope)
 
+**CRITICAL**: In the envelope GET response, the items array field is called `envelopeItems` (NOT `items`). Item IDs are string format: `envelope_item_xxxxx`.
+
 | Method | Path | Purpose |
 |--------|------|---------|
 | POST | `/envelope/item/create-many` | Add documents to envelope |
@@ -111,9 +113,10 @@
 | `label` | string | No | Display label |
 | `placeholder` | string | **Yes** | Placeholder text (can be empty string `""`) |
 | `required` | boolean | No | Must be filled |
-| `readOnly` | boolean | No | Cannot be edited |
-| `fontSize` | number | No | Font size |
-| `textAlign` | string | No | Text alignment |
+| `readOnly` | boolean | No | Cannot be edited by signer. Use with `text` to create pre-filled display fields. |
+| `fontSize` | number | No | Font size for rendered text |
+| `textAlign` | string | No | Text alignment (`"left"`, `"center"`, `"right"`) |
+| `text` | string | No | **Pre-fill value** — sets the field's text content when creating. Signer sees this value. Combine with `readOnly: true` for display-only fields. |
 
 ## Template Endpoints
 
@@ -151,6 +154,10 @@
 ## Webhook Events
 
 Configure in Documenso Settings > Webhooks. Secret sent in `X-Documenso-Secret` header.
+
+**CRITICAL**: Webhook management is **UI only** — there is no API endpoint to programmatically create, list, or delete webhooks.
+
+**CRITICAL — Webhook ID Mismatch**: The webhook payload `id` field is a **numeric** internal documentId (e.g., `123`). The API endpoints require the **string** format `envelope_xxxxx`. Calling `GET /envelope/123` returns 400. Bridge the gap by searching: `GET /envelope?query={title}` to find the string ID.
 
 | Event | When |
 |-------|------|

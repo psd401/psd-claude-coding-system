@@ -117,6 +117,52 @@ function onFormSubmit(e) {
 
 **Credentials needed**: Freshservice API, SMTP
 
+## Template 8: Document Completion Router
+
+**Trigger**: Webhook (single endpoint for all Documenso DOCUMENT_COMPLETED events)
+**Flow**: Receive webhook → extract document info → switch by title prefix → dispatch to handler sub-workflow
+
+**Nodes**:
+1. `Documenso Webhook` (webhook) — path: `documenso-completed`, method: POST, `responseMode: 'onReceived'` (respond immediately)
+2. `Extract Document Info` (code) — parse webhook payload, determine document type from title prefix
+3. `Route by Document Type` (switch) — routes by `documentType` field: "evaluation" → handler, unknown → log
+4. `Handle Evaluation` (executeWorkflow) — calls the ESS handler sub-workflow. **Must use `__rl` format for workflowId.**
+5. `Log Unknown Document` (code) — logs unhandled document types for review
+
+**Key pattern**: One Documenso webhook → one router → many handler sub-workflows. Add new document types by adding cases to the Switch node and creating handler workflows.
+
+**Credentials needed**: None (webhook is unauthenticated; Documenso secret verification optional)
+
+## Template 9: Asset Server (Logo/Template)
+
+**Trigger**: Webhook (GET request serves binary assets)
+**Flow**: Receive GET request → Code node outputs base64-embedded binary → Respond with binary + Content-Type header
+
+**Nodes**:
+1. `Asset Request` (webhook) — path: `psd-template`, method: GET, `responseMode: 'responseNode'`
+2. `Serve Asset` (code) — contains base64-embedded assets in a lookup object, selected by `$input.first().json.query.name`
+3. `Respond` (respondToWebhook) — `respondWith: 'binary'`, sets `Content-Type` (image/png or application/pdf) and `Cache-Control: public, max-age=86400`
+
+**Multi-asset pattern**: The Code node contains a `templates` object with named entries. URL: `/webhook/psd-template?name=classified-evaluation`. Add new templates by adding entries to the templates object.
+
+**Use cases**: Serve logos for form branding (avoids `<img>` sanitization), serve PDF templates (avoids Google Drive download bugs), serve any static asset without filesystem dependencies.
+
+**Credentials needed**: None
+
+## Template 10: Error Notification Handler
+
+**Trigger**: Error Trigger (fires when another workflow fails)
+**Flow**: Receive error data → format message → POST to Google Chat webhook
+
+**Nodes**:
+1. `Workflow Error` (errorTrigger) — receives error data from failed workflows
+2. `Format Error Message` (code) — extracts workflow name, error message, execution ID, timestamp. **No optional chaining (`?.`)** — use `|| {}` fallback. **No `$http` or `fetch()`** — format data only.
+3. `Send to Google Chat` (httpRequest) — POST to Google Chat webhook URL with `{ "text": "..." }` body
+
+**Setup**: Set `errorWorkflow` in each production workflow's `settings` to this workflow's ID. Community Edition has no instance-level error workflow setting.
+
+**Credentials needed**: Google Chat incoming webhook URL (no OAuth needed)
+
 ## Tag Convention
 
 All PSD workflows should be tagged:
@@ -131,3 +177,6 @@ All PSD workflows should be tagged:
 | `psd-google` | Google Workspace integrations |
 | `psd-redrover` | Red Rover integrations |
 | `psd-monitoring` | Health/status monitoring |
+| `psd-ess` | Employee Support Services |
+| `psd-documenso` | Documenso signing integrations |
+| `psd-infrastructure` | Shared services (logo, template, error handler, router) |

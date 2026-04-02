@@ -164,11 +164,68 @@ return [{ json: fieldPayload }];
 }
 ```
 
-## Environment Requirements
+## Recommended: Template Server Pattern
+
+Instead of requiring `uv` on the n8n server, generate the PDF locally once and serve it via a webhook workflow:
+
+1. Generate locally: `uv run generate_pdf.py --spec spec.json -o template.pdf`
+2. Base64-encode the PDF and embed it in an n8n Code node
+3. The n8n workflow serves it via `GET /webhook/psd-template?name={template-name}`
+4. Other workflows download the template via HTTP Request node before creating Documenso envelopes
+
+**Why not Google Drive?** The n8n Google Drive v3 download node calls the export API instead of `files.get`, causing `"Export only supports Docs Editors files"` errors for uploaded PDFs. The template server avoids this entirely.
+
+## Critical n8n Gotchas
+
+### Shell Escaping (CRITICAL)
+
+**Never use `bun -e "..."` to update n8n Code nodes.** The shell strips `$` characters, breaking `$input`, `$json`, `$('Node Name')`, and expressions like `={{ $json.field }}`. Always write update scripts to a `.js` file first, then run with `bun script.js`. After running, verify the deployed code still contains `$input` and no `$$`.
+
+### Code Node Sandbox Restrictions
+
+The n8n Code node runs in an isolated VM. These are **not available**:
+- `fetch()` — use HTTP Request node instead
+- `URLSearchParams` — use `encodeURIComponent()` + string concatenation
+- `$http` — does not exist
+- `require()` — blocked by default
+- Optional chaining `?.` — causes `Unexpected token '.'`. Use `|| {}` fallback.
+
+### HTTP Request Body Serialization
+
+The n8n HTTP Request node's `keypair` body mode can produce malformed JSON. Use raw mode instead:
+```json
+{
+  "contentType": "raw",
+  "rawContentType": "application/json",
+  "body": "={\"envelopeId\": \"{{ $json.id }}\"}"
+}
+```
+
+### Form Trigger URL Format
+
+Form URLs are `/form/{webhookId}` — NOT `/form/{path}`. The custom `path` parameter does not control the form URL. Get the `webhookId` from the workflow API response.
+
+### Form Hidden Fields
+
+Hidden fields do NOT auto-populate from URL query parameters. Data is in `$json.formQueryParameters`:
+```javascript
+var email = form['Supervisor Email'] || form.formQueryParameters.supervisorEmail || '';
+```
+
+### Resource Locator Format
+
+All resource-referencing parameters need the `__rl` format:
+```json
+{ "__rl": true, "value": "resource-id", "mode": "id" }
+```
+
+## Environment Requirements (Execute Command approach)
+
+If using Execute Command instead of the Template Server pattern:
 
 - `uv` must be installed on the n8n server
 - Font files must exist in `scripts/fonts/` (run `install_fonts.py` once)
-- `DOCUMENSO_HOST` environment variable must be set
+- `DOCUMENSO_HOST` environment variable must be set (Community Edition has no env vars — hardcode in nodes)
 - Documenso API key configured as an n8n credential
 
 ## Example: Complete Permission Slip Workflow

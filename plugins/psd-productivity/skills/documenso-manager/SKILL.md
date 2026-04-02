@@ -109,6 +109,39 @@ bun distribute_envelope.js <id>
 ### Step 7: Track
 Check status and download signed PDF when complete.
 
+## Field Pre-filling (ReadOnly Fields)
+
+Pre-fill TEXT fields with values via the API so signers see data without needing to type it:
+
+- **`fieldMeta.text`** — set this property when creating fields to pre-fill the value
+- **`fieldMeta.readOnly: true`** — prevents signers from editing the pre-filled value. Also works around Documenso bug #2512 where clicking a pre-filled field clears its value.
+- **`fieldMeta.fontSize`** — controls rendered text size (e.g., `9` for smaller text)
+- Pre-filled fields are assigned to a specific recipient but visible to all signers
+- **Known bug (#2669)**: In the signing preview, pre-filled text may overflow the field border due to a CSS `25cqw` font-sizing issue. The final signed PDF renders correctly (uses Konva path which respects field width). Workaround: accept the preview overflow and keep the PDF box border for clean appearance.
+
+### Example: Pre-filled readOnly TEXT field
+
+```json
+{
+  "type": "TEXT",
+  "identifier": 0,
+  "page": 1,
+  "positionX": 8.82,
+  "positionY": 15.84,
+  "width": 23.53,
+  "height": 2.78,
+  "fieldMeta": {
+    "type": "text",
+    "label": "Employee Name",
+    "text": "Jane Smith",
+    "readOnly": true,
+    "required": false,
+    "fontSize": 9,
+    "placeholder": ""
+  }
+}
+```
+
 ## Safety Guardrails
 
 ### Always confirm before:
@@ -133,6 +166,11 @@ Check status and download signed PDF when complete.
 - **Envelope ≠ Document** — an envelope can contain multiple PDFs
 - **PDF upload requires multipart/form-data** — not JSON body
 - **`DOCUMENSO_HOST` will change** — never hardcode the URL
+- **Webhook management is UI only** — no API endpoint to create/list/delete webhooks. Must configure in Documenso Settings → Webhooks.
+- **Webhook ID mismatch** — webhook payload `id` is numeric (internal documentId). API endpoints require string format `envelope_xxxxx`. Bridge via search: `GET /envelope?query={title}`.
+- **Items array is `envelopeItems`** — not `items`. Item IDs are string format: `envelope_item_xxxxx`.
+- **Same email for multiple recipients** may cause Documenso to skip sending signing emails (deduplication). Use different emails for testing.
+- **Distribute endpoint** — use raw JSON body with explicit `Content-Type: application/json` header. The n8n HTTP Request node's keypair body mode can produce malformed JSON.
 
 ## Recipient Roles Quick Reference
 

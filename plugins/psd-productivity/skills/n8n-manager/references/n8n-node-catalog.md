@@ -53,6 +53,24 @@ Creates a web form. n8n hosts the form page automatically.
 
 **Field types**: text, textarea, number, email, password, date, dropdown, checkbox, hidden, file
 
+#### Form Trigger Branding & Customization
+
+**Form URL**: The production form URL is `/form/{webhookId}` — NOT `/form/{path}`. The custom `path` parameter does not control the form URL. Get the `webhookId` from the workflow API response (it's on the node object).
+
+**Logo/Images**: n8n's HTML sanitizer strips `src` from `<img>` tags, `data:` URIs, and CSS `url()`. The workaround is:
+1. Serve images via a webhook workflow (e.g., PSD - Logo Server)
+2. Embed in Custom HTML fields using `<iframe src="https://host/webhook/logo" width="320" height="120" frameborder="0" scrolling="no"></iframe>`
+3. `frameborder="0"` attribute works (CSS `border:none` gets stripped)
+
+**Custom CSS**: Set via `parameters.options.customCss` on the form trigger node. Key variables:
+- `:root { --container-width: 900px !important; }` — controls form width (default 448px)
+- `.container { width: 900px !important; max-width: 95% !important; }` — backup selector
+- **CRITICAL**: CSS changes require workflow deactivate/reactivate to take effect (n8n caches the form template)
+
+**Hidden fields**: Do NOT auto-populate from URL query parameters. Data from `?key=value` is available in `$json.formQueryParameters`, not in the hidden field value. Use fallback: `form['Field'] || form.formQueryParameters.fieldName || ''`
+
+**Attribution**: Set `parameters.appendAttribution = false` to remove "Form automated with n8n" label
+
 ### Schedule Trigger (`n8n-nodes-base.scheduleTrigger`)
 Runs on a schedule (cron-style).
 
@@ -118,6 +136,28 @@ Run JavaScript or Python. JavaScript is native; Python uses Pyodide (WebAssembly
 ```
 
 **CRITICAL**: Code node must return `[{ json: {...} }]` format. Missing this causes silent failures.
+
+#### Code Node Sandbox Restrictions
+
+The Code node runs in an isolated task runner VM. Many standard JavaScript globals are **not available**:
+
+**Not available:**
+- `fetch()` — use HTTP Request node instead
+- `URLSearchParams` — use `encodeURIComponent()` + manual string concatenation
+- `$http` — does not exist (not a real n8n built-in)
+- `require()` — blocked by default (configurable via `NODE_FUNCTION_ALLOW_BUILTIN`)
+- `import` — not supported
+- `process`, `eval()`, `new Function()`, `__proto__` — blocked for security
+- Optional chaining `?.` — causes `Unexpected token '.'` in some versions. Use `|| {}` fallback pattern.
+
+**Available:**
+- `$input.first().json` — current node input data
+- `$('Node Name').first().json` — reference another node's output
+- `encodeURIComponent()` — URL encoding
+- `JSON.stringify()` / `JSON.parse()` — JSON operations
+- `Math`, `Date`, `String`, `Array`, `Object` — standard JS built-ins
+- `Buffer.from()` — binary data handling (zero-filled by default)
+- `console.log()` — only if `CODE_ENABLE_STDOUT` is enabled on the server
 
 ### Set (`n8n-nodes-base.set`)
 Set or modify data fields.
@@ -278,6 +318,20 @@ Send email via SMTP.
   }
 }
 ```
+
+#### Google Sheets Gotchas
+
+- **`autoMapInputData` creates duplicate columns** if JSON keys don't match sheet headers exactly (whitespace, encoding differences). Always use a Code node before the Sheets node to format JSON keys matching headers precisely.
+- **`defineBelow` mode** requires a full `schema` array with `id`, `displayName`, `type`, and boolean flags alongside the `value` object. Missing schema causes "Could not get parameter" errors.
+- **"Column names were updated after the node's setup"** error means headers have trailing spaces or were modified. Re-type headers in the sheet to remove hidden characters.
+- **Update operation (v4.5)** uses `matchingColumns` array in the `columns` parameter, not the old `lookupColumn`/`lookupValue` pattern.
+- **Best practice**: Use a Code node to format data with exact column header keys, then use `autoMapInputData` mode.
+
+### Google Drive Known Issues
+
+- **v3 download operation calls the export API**, not `files.get`. This causes `"Export only supports Docs Editors files"` errors for uploaded binary files (PDFs, images).
+- **Workaround**: Don't use the Google Drive download node for binary files. Serve templates via a webhook "template server" pattern (base64-embedded in a Code node), or use an HTTP Request node with `?alt=media&supportsAllDrives=true`.
+- **Shared drives** require `supportsAllDrives=true` parameter and `driveId` in the options object. Without these, shared drive files return 403.
 
 ### Gmail (`n8n-nodes-base.gmail`)
 

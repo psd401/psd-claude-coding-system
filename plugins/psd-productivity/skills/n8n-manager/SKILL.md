@@ -26,6 +26,15 @@ extended-thinking: true
 
 All scripts use `bun` and read credentials from `secrets.js` (env vars → Geoffrey .env).
 
+## Community Edition Limitations
+
+PSD runs n8n Community Edition. These features are **not available**:
+
+- **No Settings → Variables** — environment variables are enterprise/pro only. All config values (API keys, URLs, folder IDs) must be hardcoded directly in workflow node parameters.
+- **No instance-level error workflow** — must set `errorWorkflow` in each workflow's `settings` object individually.
+- **Credentials API returns 403** — credential listing/reading is restricted. Get credential IDs from the user via the n8n UI.
+- **No source control / Git integration** — workflows must be managed via API or UI exports.
+
 ## Command Reference
 
 ### Workflow Management
@@ -139,8 +148,16 @@ Returns the workflow ID and editor URL.
 - **No "run workflow" API endpoint** — workflows must have a Webhook/Schedule/Form trigger to execute. Use `trigger_workflow.js` to POST to webhook URLs.
 - **Python in Code nodes uses Pyodide** (WebAssembly CPython) — not native Python. Standard library only, slower performance.
 - **5-minute timeout** on native instance MCP executions.
-- **Source control is enterprise-only** — no Git integration in Community Edition.
 - **Credential IDs are instance-specific** — workflows from other instances need credential re-mapping.
+- **Code node sandbox restrictions** — no `fetch()`, `URLSearchParams`, `$http`, optional chaining `?.`, or `require()`. Use HTTP Request node for HTTP calls. Use `encodeURIComponent()` for URL encoding. See `references/n8n-node-catalog.md` for the complete list.
+- **Form Trigger URLs use `webhookId` UUID** — not the custom `path` parameter. The URL is `/form/{webhookId}`, not `/form/{path}`. Get the `webhookId` from the workflow API response.
+- **Form hidden fields don't populate from query params** — data is available in `$json.formQueryParameters`, not the hidden field value. Use fallback: `form['Field'] || form.formQueryParameters.fieldName || ''`.
+- **Form custom CSS requires deactivate/reactivate** — n8n caches the form template. Changes to `customCss` in options won't appear until the workflow is toggled off then on.
+- **Form width** — controlled by CSS variable `--container-width` (default 448px). Override in custom CSS: `:root { --container-width: 900px !important; }`.
+- **Form branding** — `<img>` tags are sanitized (src stripped). Use `<iframe frameborder="0">` with a webhook-served image instead. CSS `url()` is also stripped.
+- **Webhook paths don't support route parameters** — `path: "template/:name"` returns 404. Use query parameters instead: `path: "psd-template"` with `?name=value`.
+- **Google Drive v3 download bug** — the download operation calls the export API, causing "Export only supports Docs Editors files" for uploaded PDFs. Use the template server pattern or HTTP Request with `?alt=media&supportsAllDrives=true`.
+- **Google Sheets auto-map pitfall** — `autoMapInputData` creates duplicate columns if JSON keys don't match headers exactly (including whitespace). Use a Code node to format keys before the Sheets node.
 
 ## PSD Systems Quick Reference
 
@@ -161,4 +178,4 @@ See `references/psd-integration-map.md` for full details including workspace IDs
 | `references/n8n-workflow-json-spec.md` | Workflow JSON structure, connection model, expression syntax |
 | `references/n8n-node-catalog.md` | Common nodes with JSON snippets (Webhook, Form, HTTP, Code, IF, Slack, Google) |
 | `references/psd-integration-map.md` | PSD systems → n8n nodes, credentials, auth methods, endpoints |
-| `references/psd-workflow-templates.md` | 7 pre-built PSD workflow patterns with node configs |
+| `references/psd-workflow-templates.md` | 10 pre-built PSD workflow patterns with node configs |
