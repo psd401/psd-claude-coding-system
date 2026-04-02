@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.2] - 2026-04-02
+
+### Added
+- **n8n-manager**: Naming convention table for workflows, envelopes, templates, and Drive files. Multi-page form data merge warning with code example in node catalog.
+- **documenso-manager**: Envelope naming convention documentation (title prefix pattern used by router for dispatching).
+- **pdf-builder**: Duplicate field label warning (same label produces same manifest slug, losing one field's position). Spacer page break tip (~80pt after signatures pushes next section to new page).
+
 ## [2.8.1] - 2026-04-01
 
 ### Added

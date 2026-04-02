@@ -134,8 +134,18 @@ Returns the workflow ID and editor URL.
 - **Deleting** credentials (warn: workflows using them will break)
 
 ### Naming conventions:
+
 - Node names must be **unique and descriptive** — e.g., "Fetch Freshservice Tickets" not "HTTP Request"
 - Connections use node **NAMES as keys, NOT IDs** — duplicate names break wiring silently
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Department workflows | `{Dept} - {Document Type}` | `ESS - Classified Performance Evaluation` |
+| Infrastructure workflows | `PSD - {Service Name}` | `PSD - Logo Server`, `PSD - Template Server` |
+| Router workflows | `{System} - {Function} Router` | `Documenso - Document Completion Router` |
+| Documenso envelopes | `{Document Type} - {Name} - {Year}` | `Central Leadership Evaluation - Jane Smith - 2025-2026` |
+| PDF templates (server) | `{type-slug}` | `classified-evaluation`, `central-leadership` |
+| Google Drive files | `{Document Type} - {Name} - {Year}.pdf` | Matches envelope title |
 
 ### Production safety:
 - Never edit an active production workflow directly

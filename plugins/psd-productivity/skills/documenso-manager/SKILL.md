@@ -80,6 +80,17 @@ When building a signing workflow from natural language:
 - Read `references/documenso-envelope-lifecycle.md` for field positioning
 - Check existing templates via `list_templates.js`
 
+### Naming Convention
+
+Envelope titles follow the pattern: `{Document Type} - {Person Name} - {Year}`
+
+Examples:
+- `Performance Evaluation - Jane Smith - 2025-2026`
+- `Central Leadership Evaluation - John Doe - 2025-2026`
+- `Leave Request - Jane Smith - 2025-2026`
+
+This pattern is critical — the Document Completion Router uses the title prefix to dispatch to the correct handler workflow.
+
 ### Step 2: Design
 Present the envelope to the user:
 - Document: PDF source and title

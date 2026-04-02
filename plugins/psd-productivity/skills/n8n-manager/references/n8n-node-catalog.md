@@ -53,6 +53,24 @@ Creates a web form. n8n hosts the form page automatically.
 
 **Field types**: text, textarea, number, email, password, date, dropdown, checkbox, hidden, file
 
+#### Multi-Page Forms: Data is NOT Merged
+
+Each Form page node has its own separate output. `$('Form Trigger Name').first().json` only contains page 1 data. Ratings or fields from pages 2+ are in their respective Form node outputs.
+
+**You must explicitly merge data from all pages** in downstream Code nodes:
+```javascript
+var page1 = $('Evaluation Form').first().json;
+var page2 = $('Criteria 1-3 Ratings').first().json;
+var page3 = $('Criteria 4-6 Ratings').first().json;
+var form = {};
+var pages = [page1, page2, page3];
+for (var p = 0; p < pages.length; p++) {
+  for (var key in pages[p]) {
+    if (pages[p].hasOwnProperty(key)) form[key] = pages[p][key];
+  }
+}
+```
+
 #### Form Trigger Branding & Customization
 
 **Form URL**: The production form URL is `/form/{webhookId}` — NOT `/form/{path}`. The custom `path` parameter does not control the form URL. Get the `webhookId` from the workflow API response (it's on the node object).

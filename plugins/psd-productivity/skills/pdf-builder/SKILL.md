@@ -136,6 +136,10 @@ For documents that don't fit a template, build a JSON spec with sections:
 | `spacer` | Vertical whitespace | `height` (points) |
 | `divider` | Horizontal line | `color`, `weight` |
 
+**CRITICAL — Duplicate field labels**: Field labels are slugified to create manifest field names. Two fields with the same label (e.g., both "Position") produce the same slug, causing the manifest `positions` object to only keep the last one. Use unique labels (e.g., "Team Member Position", "Evaluator Position") or deduplicate manually in downstream code.
+
+**Spacer for page breaks**: A spacer of ~80pt after a signature block reliably pushes the next section to a new page. Use this to separate reference appendices from the evaluation content.
+
 ### Field Types for `field_row` and `signature_block`
 
 | Type | Documenso Mapping | Use |
