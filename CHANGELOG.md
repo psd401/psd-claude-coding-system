@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-04-02
+
+### Added
+- **`/docusign` skill — DocuSign migration and export manager** (psd-productivity 2.9.0):
+  - JWT authentication with RSA-SHA256 signing, token caching, auto-refresh, base URI discovery
+  - Token bucket rate limiter for 3,000 calls/hour API limit
+  - Template operations: list, get, export as Documenso JSON, download PDFs with field coordinate mapping
+  - Envelope operations: list/search, get, download signed PDFs, download audit trails/certificates
+  - PowerForm operations: list, get with migration hints
+  - Account inventory export (templates, PowerForms, groups, brands, envelope stats by year)
+  - Bulk download with checkpointing for 55K+ envelopes (~18 hours), resume, retry, progress reporting
+  - 20-day migration plan, DocuSign→Documenso mapping guide, JWT setup guide
+  - 13 scripts, 3 reference docs, no npm dependencies
+
 ## [2.8.2] - 2026-04-02
 
 ### Added
