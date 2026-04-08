@@ -578,9 +578,9 @@ git push
 ### Phase 5: Quality Checks
 ```bash
 # Ensure all checks pass
-npm run lint
-npm run typecheck
-npm test
+bun run lint
+bun run typecheck
+bun test
 
 # Verify CI/CD status
 gh pr checks $PR_NUMBER --watch

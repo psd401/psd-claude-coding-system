@@ -371,30 +371,29 @@ jobs:
     strategy:
       matrix:
         node-version: [16, 18, 20]
-    
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v1
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      
-      - run: npm ci
-      - run: npm run test:unit -- --coverage
-      - run: npm run test:integration
-      
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run test:unit -- --coverage
+      - run: bun run test:integration
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage/coverage-final.json
-  
+
   e2e:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: cypress-io/github-action@v5
         with:
-          start: npm start
+          start: bun start
           wait-on: 'http://localhost:3000'
           browser: chrome
 ```
@@ -404,13 +403,13 @@ jobs:
 ### Coverage Quality Gates
 ```bash
 # Check coverage thresholds
-npm run test:coverage:check || {
+bun run test:coverage:check || {
   echo "Coverage below threshold!"
   exit 1
 }
 
 # Mutation testing
-npm run test:mutation
+bun run test:mutation
 SCORE=$(jq '.mutationScore' reports/mutation.json)
 if (( $(echo "$SCORE < 80" | bc -l) )); then
   echo "Mutation score below 80%: $SCORE"

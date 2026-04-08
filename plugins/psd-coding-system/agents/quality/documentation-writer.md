@@ -53,8 +53,8 @@ Brief description (1-2 sentences)
 
 ## Quick Start
 \`\`\`bash
-npm install
-npm run dev
+bun install
+bun run dev
 \`\`\`
 
 ## Installation
@@ -194,16 +194,16 @@ Frequently asked questions
 
 ```bash
 # Generate TypeDoc
-npx typedoc --out docs/api src
+bunx typedoc --out docs/api src
 
 # Generate OpenAPI spec
-npx swagger-jsdoc -d swaggerDef.js -o openapi.json
+bunx swagger-jsdoc -d swaggerDef.js -o openapi.json
 
 # Generate markdown from code
-npx documentation build src/** -f md -o API.md
+bunx documentation build src/** -f md -o API.md
 
 # Build documentation site
-npm run docs:build
+bun run docs:build
 ```
 
 ### Phase 5: Quality Checks

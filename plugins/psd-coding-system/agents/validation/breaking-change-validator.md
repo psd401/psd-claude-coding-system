@@ -384,7 +384,7 @@ Based on dependency analysis, auto-generate migration steps:
   - Verify all tests pass
 
 ### Phase 3: Testing (1 hour)
-- [ ] Run full test suite: `npm test`
+- [ ] Run full test suite: `bun test`
 - [ ] Manual testing:
   - [ ] Upload PDF document
   - [ ] Upload CSV file
@@ -392,7 +392,7 @@ Based on dependency analysis, auto-generate migration steps:
   - [ ] Verify parse output matches expected format
 
 ### Phase 4: Code Review (30 min)
-- [ ] Run linter: `npm run lint`
+- [ ] Run linter: `bun run lint`
 - [ ] Check for any remaining references: `rg "oldParser"`
 - [ ] Update documentation if needed
 - [ ] Create PR with migration details
