@@ -81,6 +81,19 @@ PSD runs n8n Community Edition. These features are **not available**:
 | `/n8n var-create <key> <val>` | `bun create_variable.js <key> <val>` | Create variable |
 | `/n8n audit` | `bun run_audit.js` | Security audit |
 
+### Folder & Organization (MCP-based)
+
+| Command | Script | Description |
+|---------|--------|-------------|
+| `/n8n folders` | `bun manage_folders.js list` | List all folders |
+| `/n8n folders search <query>` | `bun manage_folders.js search <query>` | Search folders by name |
+| `/n8n folders map` | `bun manage_folders.js map` | Map workflows to suggested folders |
+| `/n8n folders organize` | `bun manage_folders.js organize` | Full organization report |
+| `/n8n folders ensure-tags` | `bun manage_folders.js ensure-tags` | Create standard PSD tags |
+| `/n8n folders tag <wfId> <tagId>` | `bun manage_folders.js tag <wfId> <tagId>` | Add tag to workflow |
+
+**Note:** Folder creation must be done in the n8n UI. The public API does not support it. Use `manage_folders.js organize` to see which folders need to be created. New workflows can be placed in folders automatically via the MCP `create_workflow_from_code` tool with `folderId`.
+
 ## Workflow Builder Protocol
 
 When building a workflow from a natural language description:
@@ -146,6 +159,33 @@ Returns the workflow ID and editor URL.
 | Documenso envelopes | `{Document Type} - {Name} - {Year}` | `Central Leadership Evaluation - Jane Smith - 2025-2026` |
 | PDF templates (server) | `{type-slug}` | `classified-evaluation`, `central-leadership` |
 | Google Drive files | `{Document Type} - {Name} - {Year}.pdf` | Matches envelope title |
+
+### Folder structure:
+
+| n8n Folder | Contains |
+|------------|----------|
+| ESS Evaluations | Employee evaluation workflows |
+| ESS Timesheets | Centralized timesheet workflows (no per-department timesheets) |
+| ESS Compliance | COI disclosures, attestations, policy acknowledgments |
+| PSD Infrastructure | Router, completion handlers, error handler |
+| PSD Servers | Template server, logo server |
+
+- Every workflow must be in a folder, never root
+- Workflow name prefix must match folder category (`ESS -`, `PSD -`, `Documenso -`)
+- Create folders in the UI before placing workflows in them
+
+### Standard tags:
+
+| Tag | Purpose |
+|-----|---------|
+| `psd-production` | All active production workflows |
+| `psd-ess` | ESS workflows |
+| `psd-google` | Uses Google credentials |
+| `psd-infrastructure` | Router, handlers, servers |
+| `psd-evaluations` | Employee evaluations |
+| `psd-timesheets` | Timesheet workflows |
+| `psd-compliance` | Compliance and disclosures |
+| `psd-documenso` | Uses Documenso for signing |
 
 ### Production safety:
 - Never edit an active production workflow directly
