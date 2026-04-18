@@ -1,6 +1,6 @@
 {
   "name": "psd-productivity",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "description": "32 productivity workflows + 2 agents for Peninsula School District — DocuSign migration/export, PDF Builder, P223 enrollment automation, n8n workflow management, Documenso document signing, Google Workspace CLI, document generation, research, TTS, and district operations",
   "author": {
     "name": "Kris Hagel",

@@ -275,9 +275,21 @@ class PDFBuilder:
         if col_count == 0:
             return y
 
-        col_width = area["width"] / col_count
-        row_height = 18
+        # Support custom column widths as fractions (e.g., [0.1, 0.1, 0.1, 0.35, 0.35])
+        # Falls back to equal widths if not specified
+        col_widths_spec = section.get("col_widths", None)
+        if col_widths_spec and len(col_widths_spec) == col_count:
+            col_widths = [w * area["width"] for w in col_widths_spec]
+        else:
+            col_widths = [area["width"] / col_count] * col_count
+
+        row_height = section.get("row_height", 18)
         x_start = area["x"]
+
+        # Compute column x positions
+        col_x = [x_start]
+        for w in col_widths[:-1]:
+            col_x.append(col_x[-1] + w)
 
         # Headers
         if headers:
@@ -287,7 +299,7 @@ class PDFBuilder:
             c.setFont("Inter-Bold", 8)
             c.setFillColor(HexColor("#FFFFFF"))
             for i, header in enumerate(headers):
-                c.drawString(x_start + i * col_width + 4, y + 5, str(header))
+                c.drawString(col_x[i] + 4, y + 5, str(header))
 
         # Rows
         c.setFont("Inter", 9)
@@ -299,14 +311,15 @@ class PDFBuilder:
             if r_idx % 2 == 1:
                 c.setFillColor(TABLE_ALT_BG)
                 c.rect(x_start, y, area["width"], row_height, fill=1, stroke=0)
-            # Cell borders
+            # Cell borders — draw individual cell borders for custom widths
             c.setStrokeColor(LIGHT_GRAY)
             c.setLineWidth(0.5)
-            c.rect(x_start, y, area["width"], row_height, fill=0, stroke=1)
+            for i in range(col_count):
+                c.rect(col_x[i], y, col_widths[i], row_height, fill=0, stroke=1)
             # Cell text
             c.setFillColor(PACIFIC)
             for i, cell in enumerate(row):
-                c.drawString(x_start + i * col_width + 4, y + 5, str(cell))
+                c.drawString(col_x[i] + 4, y + 5, str(cell))
 
         return y - FIELD_GAP
 

@@ -276,10 +276,14 @@ def _draw_page1_header(canvas, title=None, department=None):
     logo_center_y = logo_y + (LOGO_HEIGHT / 2)
     block_top_y = logo_center_y + (total_block_height / 2)
 
-    canvas.setFont("Inter", font_size)
     canvas.setFillColor(PACIFIC)
 
     for i, (text, icon_fn) in enumerate(lines):
+        # Use bold font for the department line (last line when department is present)
+        if department and i == len(lines) - 1:
+            canvas.setFont("Inter-Bold", font_size)
+        else:
+            canvas.setFont("Inter", font_size)
         text_y = block_top_y - (i * line_spacing)
         # Draw text right-aligned
         canvas.drawRightString(text_right, text_y, text)

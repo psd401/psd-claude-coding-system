@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.0] - 2026-04-17
+
+### Added
+- **n8n-manager: MCP-based folder management** (psd-productivity 2.10.0):
+  - `n8n_mcp_client.js` — shared MCP client for n8n's native MCP server (JSON-RPC, bearer token auth)
+  - `list_folders.js` — list folders via MCP `search_folders` tool
+  - `manage_folders.js` — folder/tag management: list, search, organize report, ensure standard tags, tag workflows
+  - 8 standard PSD tags: `psd-production`, `psd-ess`, `psd-google`, `psd-infrastructure`, `psd-evaluations`, `psd-timesheets`, `psd-compliance`, `psd-documenso`
+  - Folder structure conventions: ESS Evaluations, ESS Timesheets, ESS Compliance, PSD Infrastructure, PSD Servers
+  - Organization audit report: missing folders, missing tags, naming compliance
+  - Auto-discovers projectId from workflow shared field (MCP search_projects returns personal projects)
+- **pdf-builder: custom table column widths** — `col_widths` property (fractional array) for non-uniform table columns
+- **pdf-builder: custom table row height** — `row_height` property on table sections
+- **letterhead: bold department name** — department line in contact block now renders in Inter-Bold
+
+### Changed
+- **n8n-manager SKILL.md** — added folder & organization command reference, folder structure table, standard tags table, folder creation note (UI only — public API limitation)
+
 ## [2.9.0] - 2026-04-02
 
 ### Added
