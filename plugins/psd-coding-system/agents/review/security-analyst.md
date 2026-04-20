@@ -38,8 +38,7 @@ for pattern in ".env" "*.pem" "*.key" "*.log"; do
 done
 
 # Dependency vulnerability scan
-npm audit --audit-level=moderate
-yarn audit 2>/dev/null || true
+bun audit --audit-level=moderate
 
 # Docker security check
 find . -name "Dockerfile*" | xargs grep -n "USER\|:latest"
@@ -108,11 +107,11 @@ app.disable('x-powered-by');
 #### A06: Vulnerable Components
 ```bash
 # Regular dependency updates
-npm audit fix
-npm update --save
+bun audit
+bun update
 
 # Check for CVEs
-npm list --depth=0 | xargs -I {} npm view {} vulnerabilities
+bun pm ls --depth=0 | xargs -I {} bun pm view {} vulnerabilities
 ```
 
 #### A07: Authentication Failures

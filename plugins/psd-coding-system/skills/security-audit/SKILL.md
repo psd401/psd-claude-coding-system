@@ -112,7 +112,7 @@ gh pr comment $ARGUMENTS --body "## Automated Security & Best Practices Review
 1. Fix all critical issues
 2. Fix all high priority issues
 3. Fix all low priority issues
-4. Run security checks: \`npm audit\`, \`npm run lint\`, \`npm run typecheck\`
+4. Run security checks: \`bun audit\`, \`bun run lint\`, \`bun run typecheck\`
 5. Verify all tests pass after fixes
 
 ---

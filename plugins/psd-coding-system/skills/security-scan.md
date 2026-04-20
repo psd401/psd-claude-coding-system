@@ -63,7 +63,7 @@ $POSITIVE_FINDINGS
 ### Required Actions
 1. Address all 🔴 critical issues before merge
 2. Consider 🟡 high priority fixes
-3. Run tests after fixes: \`npm run test\`, \`npm run lint\`, \`npm run typecheck\`
+3. Run tests after fixes: \`bun run test\`, \`bun run lint\`, \`bun run typecheck\`
 
 ---
 *Automated security review by security-analyst-specialist agent*"

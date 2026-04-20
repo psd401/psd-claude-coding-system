@@ -14,7 +14,7 @@ if [ -f "package.json" ]; then
   elif grep -q "\"mocha\"" package.json; then
     TEST_FRAMEWORK="mocha"
   else
-    TEST_FRAMEWORK="npm"
+    TEST_FRAMEWORK="bun"
   fi
 elif [ -f "Cargo.toml" ]; then
   TEST_FRAMEWORK="cargo"
@@ -34,16 +34,16 @@ echo "Detected test framework: $TEST_FRAMEWORK"
 ```bash
 case "$TEST_FRAMEWORK" in
   jest)
-    npm test || yarn test
+    bun test || npm test || yarn test
     ;;
   vitest)
-    npm run test || yarn test
+    bun run test || yarn test
     ;;
   mocha)
-    npm test || yarn test
+    bun test || npm test || yarn test
     ;;
   npm)
-    npm test
+    bun test
     ;;
   cargo)
     cargo test
@@ -55,8 +55,8 @@ case "$TEST_FRAMEWORK" in
     pytest
     ;;
   *)
-    echo "Unknown test framework, attempting npm test..."
-    npm test
+    echo "Unknown test framework, attempting bun test..."
+    bun test
     ;;
 esac
 ```
@@ -67,7 +67,7 @@ esac
 # Run unit tests
 case "$TEST_FRAMEWORK" in
   jest|vitest)
-    npm run test:unit || npx jest --testPathPattern=unit
+    bun run test:unit || npx jest --testPathPattern=unit
     ;;
   cargo)
     cargo test --lib
@@ -83,7 +83,7 @@ esac
 # Run integration tests
 case "$TEST_FRAMEWORK" in
   jest|vitest)
-    npm run test:integration || npx jest --testPathPattern=integration
+    bun run test:integration || npx jest --testPathPattern=integration
     ;;
   cargo)
     cargo test --test integration
@@ -99,7 +99,7 @@ esac
 # Run e2e tests
 case "$TEST_FRAMEWORK" in
   jest|vitest)
-    npm run test:e2e || npx jest --testPathPattern=e2e
+    bun run test:e2e || npx jest --testPathPattern=e2e
     ;;
   cargo)
     cargo test --test e2e
@@ -118,10 +118,10 @@ esac
 ```bash
 case "$TEST_FRAMEWORK" in
   jest)
-    npm run test:coverage || npx jest --coverage
+    bun run test:coverage || npx jest --coverage
     ;;
   vitest)
-    npm run test:coverage || npx vitest --coverage
+    bun run test:coverage || npx vitest --coverage
     ;;
   cargo)
     cargo tarpaulin --out Html
@@ -142,13 +142,13 @@ echo "✓ Coverage report generated"
 ```bash
 # Type checking
 if [ -f "tsconfig.json" ]; then
-  npm run typecheck || npx tsc --noEmit
+  bun run typecheck || npx tsc --noEmit
   echo "✓ Type checking passed"
 fi
 
 # Linting
 if [ -f ".eslintrc" ] || [ -f ".eslintrc.json" ] || grep -q "eslint" package.json; then
-  npm run lint || npx eslint .
+  bun run lint || npx eslint .
   echo "✓ Linting passed"
 elif [ -f "Cargo.toml" ]; then
   cargo clippy
@@ -161,7 +161,7 @@ fi
 
 # Formatting check
 if [ -f ".prettierrc" ] || grep -q "prettier" package.json; then
-  npm run format:check || npx prettier --check .
+  bun run format:check || npx prettier --check .
   echo "✓ Format check passed"
 elif [ -f "Cargo.toml" ]; then
   cargo fmt --check

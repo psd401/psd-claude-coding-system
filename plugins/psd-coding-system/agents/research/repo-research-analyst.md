@@ -216,16 +216,16 @@ project/
 ### Development Workflow
 ```bash
 # Install
-npm install
+bun install
 
 # Dev server
-npm run dev
+bun run dev
 
 # Tests
-npm test
+bun test
 
 # Build
-npm run build
+bun run build
 ```
 
 ### Dependency Highlights
