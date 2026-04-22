@@ -164,12 +164,22 @@ class PDFBuilder:
         return y - 8
 
     def _draw_field_row(self, c, area, y, section):
-        """Draw a row of labeled input boxes. Returns new y position."""
+        """Draw a row of labeled input boxes. Returns new y position.
+
+        Options:
+          showLabels: bool (default True) — render labels above fields
+          rowGap: int (default FIELD_GAP) — vertical gap after the row
+          gap: int (default FIELD_GAP) — horizontal gap between fields
+        """
         fields = section.get("fields", [])
         if not fields:
             return y
 
-        total_gap = FIELD_GAP * (len(fields) - 1)
+        show_labels = section.get("showLabels", True)
+        h_gap = section.get("gap", FIELD_GAP)
+        row_gap = section.get("rowGap", FIELD_GAP)
+
+        total_gap = h_gap * (len(fields) - 1)
         total_width = area["width"] - total_gap
         x = area["x"]
 
@@ -183,18 +193,20 @@ class PDFBuilder:
         # For the row layout, use the tallest field's height
         row_height = max(f.get("height", FIELD_BOX_HEIGHT) for f in fields)
 
-        # Move down: label height + box height + padding
-        y -= (FIELD_LABEL_SIZE + row_height + 6)
+        # Move down: label height (if shown) + box height + padding
+        label_reserve = (FIELD_LABEL_SIZE + 4) if show_labels else 0
+        y -= (label_reserve + row_height + 2)
 
         # y is now at the bottom of the field box
         box_y = y
         for i, (field, fw) in enumerate(zip(fields, field_widths)):
             fh = field.get("height", FIELD_BOX_HEIGHT)
 
-            # Label above the box
-            c.setFont("Inter", FIELD_LABEL_SIZE)
-            c.setFillColor(PACIFIC)
-            c.drawString(x, box_y + fh + 3, field.get("label", ""))
+            # Label above the box (optional)
+            if show_labels:
+                c.setFont("Inter", FIELD_LABEL_SIZE)
+                c.setFillColor(PACIFIC)
+                c.drawString(x, box_y + fh + 3, field.get("label", ""))
 
             # Draw input box
             c.setStrokeColor(LIGHT_GRAY)
@@ -219,9 +231,9 @@ class PDFBuilder:
                 placeholder=field.get("placeholder", ""),
             )
 
-            x += fw + FIELD_GAP
+            x += fw + h_gap
 
-        return box_y - FIELD_GAP
+        return box_y - row_gap
 
     def _draw_checkbox_group(self, c, area, y, section):
         """Draw a vertical list of checkboxes. Returns new y position."""
