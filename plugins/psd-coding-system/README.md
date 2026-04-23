@@ -14,7 +14,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 12 skills + 44 specialized agents
+1. **Workflow Automation** - 13 skills + 44 specialized agents
 2. **Memory-Based Learning** - Automatic learning capture via `/work`, `/test`, `/review-pr`, `/lfg`
 3. **Knowledge Evolution** - `/evolve` auto-analyzes learnings, checks releases, compares plugins, contributes patterns
 
@@ -44,6 +44,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 |---------|-------------|---------|
 | `/work` | Implement solutions with auto reviews | `/work 347` or `/work "add logging"` |
 | `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn | `/lfg 347` or `/lfg "add caching"` |
+| `/debug` | Structured root-cause analysis: reproduce → hypothesize → test → verify → fix | `/debug 347` or `/debug "TypeError in auth flow"` |
 | `/architect` | System architecture via architect-specialist | `/architect 347` |
 | `/test` | Comprehensive testing with coverage validation | `/test auth` |
 | `/review-pr` | Iterative PR feedback (incremental on rounds 2+) | `/review-pr 123` |
@@ -177,7 +178,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ### Capturing Learnings
 
-Learnings are captured automatically by `/work`, `/test`, `/review-pr`, and `/lfg` via the learning-writer agent.
+Learnings are captured automatically by `/work`, `/test`, `/review-pr`, `/lfg`, and `/debug` via the learning-writer agent.
 
 To analyze accumulated learnings and improve the plugin:
 

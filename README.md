@@ -18,7 +18,7 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 ### psd-coding-system
 
-AI-assisted development system with 19 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
+AI-assisted development system with 20 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
 
 ```bash
 /plugin install psd-coding-system
@@ -119,7 +119,7 @@ psd-claude-plugins/
 │   └── marketplace.json           # Lists both plugins
 ├── plugins/
 │   ├── psd-coding-system/         # Development workflows
-│   │   ├── skills/                # 19 user-invocable skills
+│   │   ├── skills/                # 20 user-invocable skills
 │   │   ├── agents/                # 44 specialized agents
 │   │   ├── hooks/                 # PostToolUse syntax validation
 │   │   ├── scripts/               # Hook scripts

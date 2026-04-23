@@ -13,7 +13,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 19 | 44 |
+| `psd-coding-system` | AI-assisted development workflows | 20 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 29 | 2 |
 
 ### Key Changes in v2.0.0
@@ -36,7 +36,7 @@ psd-claude-plugins/                           # repo root
     psd-coding-system/                        # development workflows
       .claude-plugin/
         plugin.json                           # name: "psd-coding-system"
-      skills/                                 # 19 user-invocable skills
+      skills/                                 # 20 user-invocable skills
       agents/                                 # 44 specialized agents
         review/                               # 16 code review specialists
         domain/                               # 7 domain specialists
@@ -115,12 +115,13 @@ psd-claude-plugins/                           # repo root
 - Each plugin ships its own agents
 - `enabledPlugins` in `.claude/settings.json` allows selective enabling/disabling
 
-### psd-coding-system Skills (19 total)
+### psd-coding-system Skills (20 total)
 
 | Skill | Description |
 |-------|-------------|
 | `/work` | Implement solutions with auto reviews + learning capture |
 | `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn |
+| `/debug` | Structured root-cause analysis: reproduce → hypothesize → test → verify → fix → learn |
 | `/test` | Comprehensive testing with self-healing retry loop + learning capture |
 | `/review-pr` | Iterative PR feedback (rounds 2+ process only new comments) + learning capture |
 | `/architect` | Architecture design |
@@ -215,13 +216,13 @@ psd-claude-plugins/                           # repo root
 
 **Architecture**: Implement → Detect patterns → Capture learnings → Review → Improve
 
-1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr`, `/lfg` always invoke learning-writer agent
+1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr`, `/lfg`, `/debug` always invoke learning-writer agent
 2. **Cross-Session Memory** — 5 agents have `memory: project` for persistent knowledge
 3. **On-Demand Analysis** — `/evolve` auto-picks highest-value action
 
 **Data Flow**:
 ```
-/work, /test, /review-pr, /lfg (always-run)
+/work, /test, /review-pr, /lfg, /debug (always-run)
   └── learning-writer agent
         ├── Deduplicates against docs/learnings/
         └── Writes docs/learnings/{category}/{date}-{slug}.md
