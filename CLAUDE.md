@@ -242,6 +242,7 @@ The `psd-coding-system` plugin configures a Context7 MCP server providing live f
 
 **PostToolUse Hook** (`scripts/post-edit-validate.sh`):
 - Runs after Edit or Write tool calls (matcher: `Edit|Write`)
+- `if` conditional (v2.1.85): only fires for `.ts/.tsx/.py/.json` files — skips `.md`, `.sh`, `.yaml`, etc.
 - Validates file syntax: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
 - Non-blocking, 10s timeout
 
@@ -262,13 +263,14 @@ Located at `.claude-plugin/marketplace.json`. Lists all independently installabl
 
 ### hooks.json Format (CRITICAL)
 
-Hook definitions must be wrapped in a `"hooks"` array inside each event entry:
+Hook definitions must be wrapped in a `"hooks"` array inside each event entry. The `if` field (v2.1.85) adds conditional execution:
 ```json
 {
   "hooks": {
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
+        "if": "tool_input.file_path matches '\\.(?:ts|tsx|py|json)$'",
         "hooks": [
           { "type": "command", "command": "...", "timeout": 10 }
         ]
@@ -366,7 +368,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 2. Add CHANGELOG.md entry
 3. Commit: `git commit -m "chore: Bump version to X.Y.Z ([reason])"`
 4. Push: `git push origin main`
-5. Tag: `git tag -a vX.Y.Z -m "Release summary..."`
+5. Tag: `claude plugin tag vX.Y.Z` (v2.1.118 — validates version consistency before tagging)
 6. Push tag: `git push origin vX.Y.Z`
 
 ### Git Workflow
@@ -382,17 +384,31 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - Only PostToolUse hook runs automatically (syntax validation)
 
 ### Model Selection Strategy
-- **sonnet-4-6**: Default for skills, agents, and coding tasks
-- **opus-4-6**: Architecture, planning, meta-review, product-manager
+- **sonnet-4-6**: Default for agents and lightweight coding tasks
+- **opus-4-6**: All skills that specify `model:` in frontmatter
+- **effort: high**: Default for most skills/agents
+- **effort: xhigh**: Heavy-lifting skills: `/architect`, `/product-manager`, `/lfg`, `/evolve`, meta-reviewer agent (v2.1.111)
 - **extended-thinking: true**: Enabled on all skills/agents
 - **memory: project**: Enabled on 5 key agents
 
 ### Model Selection Rules for Skills
 
-**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-6` with `effort: high`. Never specify `model: claude-sonnet-4-6` in skill frontmatter while the Claude Code default is Opus 4.6.
+**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-6` with `effort: high` (or `xhigh` for heavy-lifting skills). Never specify `model: claude-sonnet-4-6` in skill frontmatter while the Claude Code default is Opus 4.6.
 
 **Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. Opus 4.6 supports effort; Sonnet 4.6 does not. Skills specifying sonnet receive this unsupported parameter → API error. GitHub issue #30795 (open as of 2026-03-15).
 
 **Lightweight skills** (changelog, triage, bump-version, etc.) that don't specify a model inherit the default (currently Opus 4.6) and are safe.
 
 **If you want to use Sonnet in a skill**: Remove the `model:` field entirely and let it inherit the default. Do NOT explicitly specify `model: claude-sonnet-4-6` until issue #30795 is resolved.
+
+### Adopted Claude Code Features
+
+| Feature | Version | Adopted On | Scope |
+|---------|---------|------------|-------|
+| `effort:` frontmatter | v2.1.68 | All skills/agents | `high` default, `xhigh` on 5 heavy-lifters |
+| `initialPrompt:` agent auto-submit | v2.1.83 | 4 agents | learning-writer, work-researcher, meta-reviewer, work-validator |
+| `paths:` file access scoping | v2.1.84 | 5 skills | enrollment, pdf-builder, documenso, docusign, n8n |
+| `if` hook conditionals | v2.1.85 | PostToolUse hook | Only fires for .ts/.tsx/.py/.json files |
+| `keep-coding-instructions:` | v2.1.94 | 7 skills | writer, sop-creator, presentation-master, seven-advisors, chief-of-staff, assistant-architect, strategic-planning-manager |
+| `effort: xhigh` | v2.1.111 | 5 skills/agents | architect, product-manager, lfg, evolve, meta-reviewer |
+| `claude plugin tag` | v2.1.118 | bump-version skill | Replaces manual git tag in release workflow |

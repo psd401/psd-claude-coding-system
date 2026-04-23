@@ -12,6 +12,7 @@ triggers:
   - "presentation for"
   - "slides for"
 allowed-tools: Read, Write, Bash, WebSearch, Skill, AskUserQuestion
+keep-coding-instructions: true
 version: 1.0.0
 ---
 

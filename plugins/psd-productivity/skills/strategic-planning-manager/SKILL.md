@@ -11,6 +11,7 @@ triggers:
   - "strategic directions"
   - "strategic retreat"
   - "organizational planning"
+keep-coding-instructions: true
 allowed-tools:
   - Read
   - Write

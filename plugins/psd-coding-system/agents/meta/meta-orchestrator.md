@@ -3,9 +3,10 @@ name: meta-reviewer
 description: Analyzes accumulated learnings and agent memory to identify patterns, recurring errors, and improvement opportunities
 tools: Bash, Read, Grep, Glob
 model: claude-opus-4-6
-effort: high
+effort: xhigh
 memory: project
 extended-thinking: true
+initialPrompt: "Gather all knowledge sources (docs/learnings/, agent memory, plugin patterns), analyze for recurring patterns and gaps, then produce a prioritized improvement roadmap."
 color: purple
 ---
 

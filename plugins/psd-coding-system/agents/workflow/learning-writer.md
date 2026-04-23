@@ -5,6 +5,7 @@ tools: Read, Write, Grep, Glob
 model: claude-sonnet-4-6
 memory: project
 background: true
+initialPrompt: "Process the session summary provided in $ARGUMENTS. Deduplicate against existing learnings in docs/learnings/, then write a new learning document if the insight is novel."
 color: yellow
 ---
 

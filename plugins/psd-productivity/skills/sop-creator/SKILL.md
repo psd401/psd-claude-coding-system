@@ -1,6 +1,7 @@
 ---
 name: sop-creator
 description: Generate Peninsula School District Standard Operating Procedures using the official PSD SOP template and conventions. Conducts a structured interview to gather all required information before drafting. Use when creating new SOPs, updating existing procedures, or drafting operational documentation for any district department. Triggers on requests to create SOPs, standard operating procedures, operational procedures, process documentation, or procedural guides for PSD.
+keep-coding-instructions: true
 ---
 
 # PSD Standard Operating Procedure Creator

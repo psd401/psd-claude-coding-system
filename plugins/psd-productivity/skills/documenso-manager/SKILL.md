@@ -4,6 +4,10 @@ description: "Manage document signing with Documenso — create envelopes, add r
 argument-hint: "[command] [args...] — e.g., 'status', 'list', 'create <pdf>', 'send <id>', 'templates'"
 model: claude-opus-4-6
 effort: high
+paths:
+  - scripts/
+  - references/
+  - ~/Downloads/
 allowed-tools:
   - Bash
   - Read

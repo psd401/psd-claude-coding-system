@@ -4,6 +4,7 @@ description: Chief of Staff workflow — daily briefings, priority management, a
 argument-hint: "[briefing|priorities|delegate]"
 model: claude-opus-4-6
 effort: high
+keep-coding-instructions: true
 allowed-tools:
   - Read
   - Write

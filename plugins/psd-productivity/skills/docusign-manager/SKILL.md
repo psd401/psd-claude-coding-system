@@ -4,6 +4,12 @@ description: "Export and archive DocuSign envelopes, templates, and documents fo
 argument-hint: "[command] [args...] — e.g., 'status', 'list-templates', 'bulk-download', 'export-templates'"
 model: claude-opus-4-6
 effort: high
+paths:
+  - scripts/
+  - references/
+  - ~/Downloads/
+  - ~/.docusign-export/
+  - ~/DocuSign-Export/
 allowed-tools:
   - Bash
   - Read

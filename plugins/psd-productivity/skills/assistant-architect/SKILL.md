@@ -12,6 +12,7 @@ triggers:
   - "make this into an assistant"
   - "turn this into an assistant"
 allowed-tools: Read, Write, AskUserQuestion
+keep-coding-instructions: true
 version: 1.3.1
 ---
 

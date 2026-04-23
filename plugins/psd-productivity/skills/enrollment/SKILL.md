@@ -4,6 +4,11 @@ description: P223 monthly enrollment automation for Peninsula School District â€
 argument-hint: "[action] [school?] [date?]"
 model: claude-opus-4-6
 effort: high
+paths:
+  - scripts/
+  - references/
+  - ~/Downloads/
+  - ./
 allowed-tools:
   - Read
   - Write
