@@ -275,6 +275,16 @@ The `height` property on individual fields defaults to 22pt. Set it higher for t
 - Uses `psd_logo-2color-horizontal.png` from `psd-brand-guidelines/assets/`
 - 2-inch width, maintains aspect ratio
 
+## Validating Manifests
+
+After generating a PDF, validate its field manifest against the Documenso contract using the integration test harness:
+
+```bash
+bun plugins/psd-productivity/scripts/test_pipeline.js --suite manifest --manifest @/path/to/doc.pdf.fields.json
+```
+
+This catches coordinate out-of-bounds, type mismatches, duplicate field names, and page overflow before sending to Documenso.
+
 ## Workflow for Claude
 
 When a user invokes `/pdf-builder`:
