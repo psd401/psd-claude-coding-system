@@ -4,8 +4,9 @@
 // Usage: bun health_check.js
 
 const { getAccessToken, getBaseUri, getAccountInfo, docusignFetch } = require('./docusign_client.js');
+const { runHealthCheck } = require('../../../scripts/health_check_base.js');
 
-async function healthCheck() {
+runHealthCheck(async () => {
   // Step 1: Test JWT authentication
   try {
     await getAccessToken();
@@ -22,20 +23,13 @@ async function healthCheck() {
   try {
     baseUri = await getBaseUri();
   } catch (e) {
-    return {
-      status: 'error',
-      error: `Base URI discovery failed: ${e.message}`,
-    };
+    return { status: 'error', error: `Base URI discovery failed: ${e.message}` };
   }
 
   // Step 3: Get account info
   const accountInfo = await docusignFetch('');
-
   if (accountInfo.error) {
-    return {
-      status: 'error',
-      error: accountInfo.error,
-    };
+    return { status: 'error', error: accountInfo.error };
   }
 
   const info = getAccountInfo();
@@ -50,12 +44,4 @@ async function healthCheck() {
     billingPeriodStartDate: accountInfo.billingPeriodStartDate || null,
     billingPeriodEndDate: accountInfo.billingPeriodEndDate || null,
   };
-}
-
-try {
-  const result = await healthCheck();
-  console.log(JSON.stringify(result, null, 2));
-} catch (e) {
-  console.error(JSON.stringify({ error: e.message }));
-  process.exit(1);
-}
+});
