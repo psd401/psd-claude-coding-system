@@ -23,7 +23,7 @@
  */
 
 const { execSync } = require('child_process');
-const { readFileSync, existsSync, mkdtempSync, rmSync } = require('fs');
+const { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync, unlinkSync } = require('fs');
 const { join, resolve } = require('path');
 const { tmpdir } = require('os');
 
@@ -46,17 +46,6 @@ const VALID_FIELD_TYPES = {
   INITIALS: 'initials',
   DROPDOWN: 'dropdown',
 };
-
-// Known-bad n8n patterns (from MV migration learnings)
-const SWITCH_REQUIRED_FIELDS = [
-  'options.typeValidation',
-  'options.version',
-  'combinator',
-];
-
-const SWITCH_CONDITION_REQUIRED = [
-  'operator.name',
-];
 
 // Templates to test (all built-in templates from generate_pdf.py)
 const TEST_TEMPLATES = [
@@ -421,7 +410,7 @@ function validateN8nWorkflow(workflow, source) {
   // 1. Run the existing validate_workflow.js (structural validation)
   try {
     const tmpFile = join(tmpdir(), `psd-n8n-validate-${Date.now()}.json`);
-    require('fs').writeFileSync(tmpFile, JSON.stringify(workflow));
+    writeFileSync(tmpFile, JSON.stringify(workflow));
     const result = execSync(
       `bun "${VALIDATE_WORKFLOW}" "@${tmpFile}"`,
       { encoding: 'utf-8', timeout: 10000 }
@@ -438,7 +427,7 @@ function validateN8nWorkflow(workflow, source) {
         pass(suite, `${source}: warning noted: ${w.slice(0, 80)}`);
       }
     }
-    try { require('fs').unlinkSync(tmpFile); } catch {}
+    try { unlinkSync(tmpFile); } catch {}
   } catch (e) {
     // If validation script fails, try to parse the error
     let errMsg = e.message || 'unknown';
@@ -536,13 +525,7 @@ function validateN8nWorkflow(workflow, source) {
     if (node.type === 'n8n-nodes-base.googleSheets') {
       const op = node.parameters?.operation;
       if (op === 'update' && !node.alwaysOutputData) {
-        // Check if this node's output feeds other nodes
-        const connectedFrom = Object.keys(workflow.connections || {}).some(key => {
-          const outputs = workflow.connections[key]?.main || [];
-          return outputs.some(branch =>
-            Array.isArray(branch) && branch.some(conn => conn.node === node.name)
-          );
-        });
+        // Check if this node's output feeds downstream nodes
         const feedsOthers = (workflow.connections || {})[node.name] !== undefined;
 
         if (feedsOthers) {
