@@ -14,7 +14,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 20 skills + 44 specialized agents
+1. **Workflow Automation** - 21 skills + 44 specialized agents
 2. **Memory-Based Learning** - Automatic learning capture via `/work`, `/test`, `/review-pr`, `/lfg`, `/debug`
 3. **Knowledge Evolution** - `/evolve` auto-analyzes learnings, checks releases, compares plugins, contributes patterns
 
@@ -53,6 +53,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `/triage` | FreshService ticket to GitHub issue | `/triage 12345` |
 | `/product-manager` | Validated specs to auto sub-issues | `/product-manager "dashboard"` |
 | `/evolve` | Auto-evolve: analyze learnings, check releases, compare plugins | `/evolve` |
+| `/optimize` | Metric-driven iterative optimization | `/optimize "reduce API latency"` |
 | `/clean-branch` | Cleanup + auto learning extraction | `/clean-branch` |
 
 ---
