@@ -18,7 +18,7 @@ extended-thinking: true
 
 # Project Review Setup
 
-Configure which of the 20 review and language agents activate during `/review-pr` for this specific project. Creates a `.claude/review-config.json` in the project root.
+Configure which of the 22 review and language agents activate during `/review-pr` for this specific project. Creates a `.claude/review-config.json` in the project root.
 
 **Arguments:** $ARGUMENTS
 
@@ -54,7 +54,7 @@ echo "=== Available Review Agents ==="
 
 ## Phase 2: Show Available Agents
 
-Present all 20 review and language agents with their descriptions and let the user choose which to enable:
+Present all 22 review and language agents with their descriptions and let the user choose which to enable:
 
 ```markdown
 ### Always-On Structural Agents (Round 1)
@@ -65,41 +65,43 @@ These run on every `/review-pr` Round 1 by default:
 | 1 | architecture-strategist | SOLID compliance and anti-pattern detection | ON |
 | 2 | code-simplicity-reviewer | YAGNI enforcement and complexity scoring | ON |
 | 3 | pattern-recognition-specialist | Code duplication detection | ON |
+| 4 | correctness-reviewer | Logic errors, edge cases, off-by-one, state bugs | ON |
+| 5 | adversarial-reviewer | Failure scenarios across component boundaries | ON |
 
 ### Feedback-Triggered Agents
 These activate when matching keywords appear in review comments:
 
 | # | Agent | Trigger | Default |
 |---|-------|---------|---------|
-| 4 | security-analyst-specialist | Security/vulnerability keywords | ON |
-| 5 | performance-optimizer | Performance/speed keywords | ON |
-| 6 | test-specialist | Test/coverage keywords | ON |
-| 7 | architect-specialist | Architecture/design keywords | ON |
-| 8 | telemetry-data-specialist | Telemetry/metrics keywords | ON |
-| 9 | shell-devops-specialist | Shell/hook/exit-code keywords | ON |
-| 10 | configuration-validator | Version/config keywords | ON |
-| 11 | ux-specialist | UX/accessibility keywords | ON |
+| 6 | security-analyst-specialist | Security/vulnerability keywords | ON |
+| 7 | performance-optimizer | Performance/speed keywords | ON |
+| 8 | test-specialist | Test/coverage keywords | ON |
+| 9 | architect-specialist | Architecture/design keywords | ON |
+| 10 | telemetry-data-specialist | Telemetry/metrics keywords | ON |
+| 11 | shell-devops-specialist | Shell/hook/exit-code keywords | ON |
+| 12 | configuration-validator | Version/config keywords | ON |
+| 13 | ux-specialist | UX/accessibility keywords | ON |
 
 ### Context-Triggered Agents
 These activate when specific file patterns or labels appear in the PR:
 
 | # | Agent | Trigger | Default |
 |---|-------|---------|---------|
-| 12 | data-migration-expert | Migration files detected | ON |
-| 13 | schema-drift-detector | Schema/ORM changes detected | ON |
-| 14 | data-integrity-guardian | PII-related files detected | ON |
-| 15 | deployment-verification-agent | Migration files detected | ON |
-| 16 | bug-reproduction-validator | Bug label on linked issue | ON |
+| 14 | data-migration-expert | Migration files detected | ON |
+| 15 | schema-drift-detector | Schema/ORM changes detected | ON |
+| 16 | data-integrity-guardian | PII-related files detected | ON |
+| 17 | deployment-verification-agent | Migration files detected | ON |
+| 18 | bug-reproduction-validator | Bug label on linked issue | ON |
 
 ### Language Reviewers
 These activate when matching file extensions appear in the PR diff:
 
 | # | Agent | Trigger | Default |
 |---|-------|---------|---------|
-| 17 | typescript-reviewer | .ts/.tsx/.js/.jsx files | ON |
-| 18 | python-reviewer | .py files | ON |
-| 19 | swift-reviewer | .swift files | ON |
-| 20 | sql-reviewer | .sql files | ON |
+| 19 | typescript-reviewer | .ts/.tsx/.js/.jsx files | ON |
+| 20 | python-reviewer | .py files | ON |
+| 21 | swift-reviewer | .swift files | ON |
+| 22 | sql-reviewer | .sql files | ON |
 ```
 
 ## Phase 3: Interactive Configuration
@@ -110,9 +112,9 @@ Ask the user which agents to disable (all are enabled by default):
 > Enter numbers separated by commas (e.g., "9,11,17,18"), or "none" to keep all enabled.
 >
 > Common configurations:
-> - **Python-only project:** Disable 17, 19 (TS and Swift reviewers)
-> - **No database project:** Disable 12, 13, 14, 15 (migration/schema/PII/deployment agents)
-> - **Minimal review:** Disable 4-16 (keep only structural + language reviewers)
+> - **Python-only project:** Disable 19, 21 (TS and Swift reviewers)
+> - **No database project:** Disable 14, 15, 16, 17 (migration/schema/PII/deployment agents)
+> - **Minimal review:** Disable 6-18 (keep only structural + language reviewers)
 
 ## Phase 4: Write Config
 
@@ -130,7 +132,9 @@ Write a JSON config file with this structure:
     "alwaysOn": {
       "architecture-strategist": true,
       "code-simplicity-reviewer": true,
-      "pattern-recognition-specialist": true
+      "pattern-recognition-specialist": true,
+      "correctness-reviewer": true,
+      "adversarial-reviewer": true
     },
     "feedbackTriggered": {
       "security-analyst-specialist": true,

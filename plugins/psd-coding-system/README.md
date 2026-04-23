@@ -14,7 +14,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 12 skills + 42 specialized agents
+1. **Workflow Automation** - 12 skills + 44 specialized agents
 2. **Memory-Based Learning** - Automatic learning capture via `/work`, `/test`, `/review-pr`, `/lfg`
 3. **Knowledge Evolution** - `/evolve` auto-analyzes learnings, checks releases, compares plugins, contributes patterns
 
@@ -56,7 +56,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ---
 
-## AI Agents (42 total)
+## AI Agents (44 total)
 
 ### Review Specialists (`agents/review/`)
 
@@ -70,6 +70,8 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `architecture-strategist` | SOLID compliance, anti-pattern detection |
 | `code-simplicity-reviewer` | YAGNI enforcement, complexity scoring |
 | `pattern-recognition-specialist` | Code duplication detection |
+| `correctness-reviewer` | Logic errors, edge cases, off-by-one, state bugs |
+| `adversarial-reviewer` | Failure scenarios across component boundaries |
 | `schema-drift-detector` | ORM vs migration schema drift detection |
 | `data-integrity-guardian` | PII/FERPA/GDPR compliance scanning |
 | `typescript-reviewer` | TypeScript/JavaScript code review |

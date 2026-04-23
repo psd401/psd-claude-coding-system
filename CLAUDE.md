@@ -13,7 +13,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 19 | 42 |
+| `psd-coding-system` | AI-assisted development workflows | 19 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 29 | 2 |
 
 ### Key Changes in v2.0.0
@@ -37,8 +37,8 @@ psd-claude-plugins/                           # repo root
       .claude-plugin/
         plugin.json                           # name: "psd-coding-system"
       skills/                                 # 19 user-invocable skills
-      agents/                                 # 42 specialized agents
-        review/                               # 14 code review specialists
+      agents/                                 # 44 specialized agents
+        review/                               # 16 code review specialists
         domain/                               # 7 domain specialists
         quality/                              # 3 quality assurance
         research/                             # 6 research agents
@@ -139,13 +139,14 @@ psd-claude-plugins/                           # repo root
 | `/clean-branch` | Post-merge cleanup |
 | `/triage` | FreshService ticket triage |
 
-### psd-coding-system Agents (42 total)
+### psd-coding-system Agents (44 total)
 
-**Review Agents** (14) — `agents/review/`:
+**Review Agents** (16) — `agents/review/`:
 - **Security**: security-analyst, security-analyst-specialist
 - **Deployment**: deployment-verification-agent, data-migration-expert
 - **Architecture**: agent-native-reviewer, architecture-strategist
 - **Code Quality**: code-simplicity-reviewer, pattern-recognition-specialist
+- **Correctness**: correctness-reviewer, adversarial-reviewer
 - **Schema & Data**: schema-drift-detector, data-integrity-guardian
 - **Language-Specific**: typescript-reviewer, python-reviewer, swift-reviewer, sql-reviewer
 
