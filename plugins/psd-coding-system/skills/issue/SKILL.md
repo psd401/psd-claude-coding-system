@@ -306,15 +306,15 @@ Brief description of what needs improvement and why
 - Documentation: [links]
 ```
 
-### Phase 3: Optional Enhancement (For Highly Complex Features)
+### Phase 3: Architectural Enrichment (Complex Features)
 
-**ONLY for truly complex features** - if the issue meets ALL of these criteria:
+For features meeting **all** of these criteria, invoke agents to add architecture and validation:
 - Multi-component changes (frontend + backend + database)
 - Significant architectural impact
 - Complex integration requirements
 - High risk or uncertainty
 
-**Complexity Score (optional assessment):**
+**Complexity Score:**
 - Multi-component changes (frontend + backend + database): +2
 - New API endpoints or significant API modifications: +2
 - Database schema changes or migrations: +2
@@ -323,28 +323,23 @@ Brief description of what needs improvement and why
 - External service integration: +1
 - Estimated files affected > 5: +1
 
-**If complexity score >= 5 (not 3!)**, consider adding architectural guidance AFTER issue creation:
+**If complexity score >= 5**, invoke agents AFTER issue creation:
 
 ```bash
-# Get the issue number that was just created
 ISSUE_NUMBER="[the number from gh issue create]"
-
-# Optional: Invoke architect to ADD architecture comment
-# Use Task tool with:
-# - subagent_type: "psd-coding-system:domain:architect-specialist"
-# - description: "Add architecture design for issue #$ISSUE_NUMBER"
-# - prompt: "Create architectural design for: $ARGUMENTS
-#           Issue: #$ISSUE_NUMBER
-#           Add your design as a comment to the issue."
-
-# Optional: Invoke plan-validator for quality assurance
-# Use Task tool with:
-# - subagent_type: "psd-coding-system:validation:plan-validator"
-# - description: "Validate issue #$ISSUE_NUMBER"
-# - prompt: "Review issue #$ISSUE_NUMBER and add validation feedback as a comment."
 ```
 
-**Note:** These are optional enhancements. The issue is already complete and ready for `/work`. Agents add supplementary comments if needed.
+**Invoke architect to add architecture comment:**
+- subagent_type: "psd-coding-system:domain:architect-specialist"
+- description: "Add architecture design for issue #$ISSUE_NUMBER"
+- prompt: "Create architectural design for: $ARGUMENTS. Issue: #$ISSUE_NUMBER. Add your design as a comment to the issue."
+
+**Invoke plan-validator for quality assurance:**
+- subagent_type: "psd-coding-system:validation:plan-validator"
+- description: "Validate issue #$ISSUE_NUMBER"
+- prompt: "Review issue #$ISSUE_NUMBER and add validation feedback as a comment."
+
+These agents add architecture comments directly to the issue — they do not block `/work`.
 
 ## Quick Commands Reference
 
@@ -378,30 +373,30 @@ gh issue close <number>
 2. **Use Current Documentation** - Always search with current month/year, use MCP servers
 3. **Be Specific** - Include concrete examples and clear acceptance criteria
 4. **Link Context** - Reference related issues, PRs, and documentation
-5. **Consider Impact** - Note effects on architecture, performance, and security
+5. **Assess Impact** - Note effects on architecture, performance, and security
 6. **Plan Testing** - Include test scenarios in the issue description
 7. **Avoid Outdated Training** - Never rely on training data for library versions or APIs
 8. **Templates Are Guides** - Adapt templates to fit the specific issue type
 
-## Agent Collaboration (Optional)
+## Agent Collaboration
 
-When features require additional expertise, agents can be invoked AFTER issue creation to add comments:
+For features requiring additional expertise, invoke agents AFTER issue creation to add comments:
 
-- **Architecture Design**: Use `psd-coding-system:domain:architect-specialist` for complex architectural guidance
-- **Plan Validation**: Use `psd-coding-system:validation:plan-validator` for quality assurance with GPT-5
-- **Security Review**: Use `psd-coding-system:review:security-analyst` for security considerations
-- **Documentation**: Use `psd-coding-system:quality:documentation-writer` for documentation planning
+- **Architecture Design**: `psd-coding-system:domain:architect-specialist` — architectural guidance
+- **Plan Validation**: `psd-coding-system:validation:plan-validator` — quality assurance
+- **Security Review**: `psd-coding-system:review:security-analyst` — security analysis
+- **Documentation**: `psd-coding-system:quality:documentation-writer` — documentation planning
 
-These add value but are not required - the issue you create should be comprehensive on its own.
+The issue you create must be self-contained and actionable. Agents add supplementary depth, not missing essentials.
 
 ## Output
 
 After creating the issue:
 1. **Provide the issue URL** for tracking
-2. **Suggest next steps:**
+2. **State next steps:**
    - "Ready for `/work [issue-number]`"
-   - Or "Consider `/architect [issue-number]`" if highly complex
-3. **Note any follow-up** research or clarification that might be helpful
+   - For complex features: "Run `/architect [issue-number]` before implementation"
+3. **Flag gaps** — any missing context or open questions that need answers before work begins
 
 ```bash
 echo "Issue #$ISSUE_NUMBER created successfully!"
@@ -429,14 +424,14 @@ echo "Next: /work $ISSUE_NUMBER"
 -> Ready for /work
 ```
 
-**Complex Feature (with optional enhancement):**
+**Complex Feature (with architectural enrichment):**
 ```
 /issue "Add OAuth integration for Google and Microsoft"
 -> Research latest OAuth 2.1 standards (2025)
 -> Check security best practices
--> Create comprehensive issue
--> Optionally: Invoke architect to add architectural design comment
--> Optionally: Invoke plan-validator to add validation comment
+-> Create issue with full acceptance criteria
+-> Invoke architect to add architectural design comment
+-> Invoke plan-validator to add validation comment
 -> Ready for /work
 ```
 
