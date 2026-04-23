@@ -322,6 +322,8 @@ else
   echo "  - Architecture strategist (SOLID compliance)"
   echo "  - Code simplicity reviewer (YAGNI enforcement)"
   echo "  - Pattern recognition specialist (duplication detection)"
+  echo "  - Correctness reviewer (logic errors, edge cases, state bugs)"
+  echo "  - Adversarial reviewer (failure scenarios, boundary stress-testing)"
 fi
 [ -n "$HAS_MIGRATION" ] && echo "  - Data migration expert (conditional: migration files detected)"
 [ -n "$HAS_MIGRATION" ] && echo "  - Deployment verification agent (conditional: migration files detected)"
@@ -351,6 +353,14 @@ On **Round 1**, invoke these 3 agents for structural code quality. On **rounds 2
 - subagent_type: "psd-coding-system:review:pattern-recognition-specialist"
 - description: "Duplication detection for PR #$ARGUMENTS"
 - prompt: "Analyze PR diff for code duplication. Search the codebase for exact, near, and structural duplicates of significant code blocks (50+ tokens). Flag 3+ occurrences for refactoring. Respect 'three similar lines > premature abstraction' principle."
+
+- subagent_type: "psd-coding-system:review:correctness-reviewer"
+- description: "Correctness review for PR #$ARGUMENTS"
+- prompt: "Review PR diff for logic errors, off-by-one bugs, null/undefined handling gaps, state management issues, comparison bugs, and async correctness. Enumerate edge cases for significant functions. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Report findings with severity (P1/P2/P3)."
+
+- subagent_type: "psd-coding-system:review:adversarial-reviewer"
+- description: "Adversarial review for PR #$ARGUMENTS"
+- prompt: "Map all component boundaries in the PR diff. Construct failure scenarios for each boundary: data contract violations, partial failure/recovery, timing/ordering failures, cascading failures, and resource exhaustion. Trace cross-boundary failure propagation for high-risk scenarios. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Report findings with severity (P1/P2/P3)."
 
 #### Conditional Feedback-Based Agents
 
@@ -561,6 +571,8 @@ $(if [ "$INCREMENTAL" != true ]; then
   echo "- Architecture strategist (SOLID compliance)"
   echo "- Code simplicity reviewer (YAGNI enforcement)"
   echo "- Pattern recognition specialist (duplication detection)"
+  echo "- Correctness reviewer (logic errors, edge cases, state bugs)"
+  echo "- Adversarial reviewer (failure scenarios, boundary stress-testing)"
 fi)
 - [Additional conditional agents invoked]
 

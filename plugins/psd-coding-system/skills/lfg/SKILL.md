@@ -212,13 +212,21 @@ HAS_SWIFT=$(echo "$CHANGED_FILES" | grep -E '\.swift$' | head -1)
 HAS_SQL=$(echo "$CHANGED_FILES" | grep -E '\.sql$' | head -1)
 ```
 
-**Always invoke security review:**
+**Always invoke security, correctness, and adversarial reviews:**
 
 - subagent_type: "psd-coding-system:review:security-analyst-specialist"
 - description: "Security review for PR #$PR_NUMBER"
 - prompt: "Review changed files for security vulnerabilities: XSS, injection, auth bypass, secrets, OWASP top 10. Changed files: $CHANGED_FILES. Report findings with severity (P1/P2/P3)."
 
-**Invoke language reviewers based on detected languages (in parallel with security):**
+- subagent_type: "psd-coding-system:review:correctness-reviewer"
+- description: "Correctness review for PR #$PR_NUMBER"
+- prompt: "Review changed files for logic errors, off-by-one bugs, null/undefined handling gaps, state management issues, comparison bugs, and async correctness. Enumerate edge cases for significant functions. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Changed files: $CHANGED_FILES. Report findings with severity (P1/P2/P3)."
+
+- subagent_type: "psd-coding-system:review:adversarial-reviewer"
+- description: "Adversarial review for PR #$PR_NUMBER"
+- prompt: "Map all component boundaries in changed files. Construct failure scenarios: data contract violations, partial failure/recovery, timing/ordering failures, cascading failures, and resource exhaustion. Trace cross-boundary failure propagation for high-risk scenarios. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Changed files: $CHANGED_FILES. Report findings with severity (P1/P2/P3)."
+
+**Invoke language reviewers based on detected languages (in parallel with above):**
 
 If TypeScript/JavaScript detected:
 - subagent_type: "psd-coding-system:review:typescript-reviewer"
