@@ -13,7 +13,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 20 | 44 |
+| `psd-coding-system` | AI-assisted development workflows | 21 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 29 | 2 |
 
 ### Key Changes in v2.0.0
@@ -36,7 +36,7 @@ psd-claude-plugins/                           # repo root
     psd-coding-system/                        # development workflows
       .claude-plugin/
         plugin.json                           # name: "psd-coding-system"
-      skills/                                 # 20 user-invocable skills
+      skills/                                 # 21 user-invocable skills
       agents/                                 # 44 specialized agents
         review/                               # 16 code review specialists
         domain/                               # 7 domain specialists
@@ -115,7 +115,7 @@ psd-claude-plugins/                           # repo root
 - Each plugin ships its own agents
 - `enabledPlugins` in `.claude/settings.json` allows selective enabling/disabling
 
-### psd-coding-system Skills (20 total)
+### psd-coding-system Skills (21 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -137,6 +137,7 @@ psd-claude-plugins/                           # repo root
 | `/worktree` | Git worktree management for parallel development |
 | `/swarm` | Parallel agent team orchestration |
 | `/bump-version` | Automate version bump ritual |
+| `/optimize` | Metric-driven iterative optimization loops |
 | `/clean-branch` | Post-merge cleanup |
 | `/triage` | FreshService ticket triage |
 
