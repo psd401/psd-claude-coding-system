@@ -28,6 +28,7 @@ AI-assisted development system with 20 skills, 44 specialized agents, memory-bas
 |-------|-------------|
 | `/work` | Implement solutions with auto reviews + learning capture |
 | `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn |
+| `/debug` | Structured root-cause analysis: reproduce → hypothesize → test → verify → fix → learn |
 | `/architect` | System architecture design |
 | `/test` | Comprehensive testing with self-healing + learning capture |
 | `/review-pr` | Iterative PR feedback (rounds 2+ process only new comments) |

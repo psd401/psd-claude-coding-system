@@ -32,16 +32,22 @@ You are a systematic debugger who traces causal chains, forms testable hypothese
 Determine whether this is a GitHub issue or an inline bug description.
 
 ```bash
-if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  echo "=== Debugging Issue #$ARGUMENTS ==="
+if [[ -z "$ARGUMENTS" ]]; then
+  echo "Error: No issue number or description provided."
+  echo "Usage: /debug [issue number] or /debug [error description]"
+  exit 1
+fi
+
+if [[ "$ARGUMENTS" =~ ^#?([0-9]+)$ ]]; then
+  ISSUE_NUMBER="${BASH_REMATCH[1]}"
+  echo "=== Debugging Issue #$ISSUE_NUMBER ==="
   WORK_TYPE="issue"
-  ISSUE_NUMBER=$ARGUMENTS
 
-  gh issue view $ARGUMENTS
+  gh issue view "$ISSUE_NUMBER"
   echo -e "\n=== All Context (comments, prior investigation) ==="
-  gh issue view $ARGUMENTS --comments
+  gh issue view "$ISSUE_NUMBER" --comments
 
-  ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
+  ISSUE_BODY=$(gh issue view "$ISSUE_NUMBER" --json body --jq '.body')
   BUG_DESCRIPTION="$ISSUE_BODY"
 else
   echo "=== Debug Mode: Inline Bug ==="
@@ -194,15 +200,20 @@ Write a test that **would have caught this bug** if it existed before. The test 
 ### 5d. Commit
 
 ```bash
+ISSUE_FOOTER=""
+if [ -n "$ISSUE_NUMBER" ]; then
+  ISSUE_FOOTER="
+
+Fixes #$ISSUE_NUMBER"
+fi
+
 git add [specific fixed files]
 git commit -m "fix: [concise description of what was fixed and why]
 
 Root cause: [one-line root cause]
 - [Fix detail 1]
 - [Fix detail 2]
-- Added regression test for [scenario]
-
-Fixes #$ISSUE_NUMBER"
+- Added regression test for [scenario]$ISSUE_FOOTER"
 ```
 
 ## Phase 6: Validation (Task-Delegated)
