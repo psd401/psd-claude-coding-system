@@ -4,6 +4,11 @@ description: "Generate branded PSD PDF documents with letterhead, clean fonts, a
 argument-hint: "[template or description] — e.g., 'permission-slip', 'leave-request', 'create a new vendor agreement'"
 model: claude-opus-4-6
 effort: high
+paths:
+  - scripts/
+  - references/
+  - ~/Downloads/
+  - ~/Desktop/
 allowed-tools:
   - Bash
   - Read

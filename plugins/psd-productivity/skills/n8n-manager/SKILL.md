@@ -4,6 +4,9 @@ description: "Build, deploy, and manage n8n workflow automations on PSD's intern
 argument-hint: "[command] [args...] — e.g., 'build ...', 'list', 'status', 'show 42', 'activate 42'"
 model: claude-opus-4-6
 effort: high
+paths:
+  - scripts/
+  - references/
 allowed-tools:
   - Bash
   - Read
