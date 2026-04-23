@@ -37,8 +37,8 @@ psd-claude-plugins/                           # repo root
       .claude-plugin/
         plugin.json                           # name: "psd-coding-system"
       skills/                                 # 19 user-invocable skills
-      agents/                                 # 42 specialized agents
-        review/                               # 14 code review specialists
+      agents/                                 # 44 specialized agents
+        review/                               # 16 code review specialists
         domain/                               # 7 domain specialists
         quality/                              # 3 quality assurance
         research/                             # 6 research agents

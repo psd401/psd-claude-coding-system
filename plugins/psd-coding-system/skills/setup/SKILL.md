@@ -54,7 +54,7 @@ echo "=== Available Review Agents ==="
 
 ## Phase 2: Show Available Agents
 
-Present all 20 review and language agents with their descriptions and let the user choose which to enable:
+Present all 22 review and language agents with their descriptions and let the user choose which to enable:
 
 ```markdown
 ### Always-On Structural Agents (Round 1)
@@ -112,9 +112,9 @@ Ask the user which agents to disable (all are enabled by default):
 > Enter numbers separated by commas (e.g., "9,11,17,18"), or "none" to keep all enabled.
 >
 > Common configurations:
-> - **Python-only project:** Disable 17, 19 (TS and Swift reviewers)
-> - **No database project:** Disable 12, 13, 14, 15 (migration/schema/PII/deployment agents)
-> - **Minimal review:** Disable 4-16 (keep only structural + language reviewers)
+> - **Python-only project:** Disable 19, 21 (TS and Swift reviewers)
+> - **No database project:** Disable 14, 15, 16, 17 (migration/schema/PII/deployment agents)
+> - **Minimal review:** Disable 6-18 (keep only structural + language reviewers)
 
 ## Phase 4: Write Config
 

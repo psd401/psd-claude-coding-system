@@ -338,97 +338,97 @@ fi
 
 #### Always-On Review Agents (Round 1 only — skip on incremental runs)
 
-On **Round 1**, invoke these 3 agents for structural code quality. On **rounds 2+** (incremental), skip them — they already ran on round 1 and the focus should be on addressing new reviewer feedback.
+On **Round 1**, invoke these 5 agents for structural code quality. On **rounds 2+** (incremental), skip them — they already ran on round 1 and the focus should be on addressing new reviewer feedback.
 
 **Only if `$INCREMENTAL` is NOT true:**
 
 - subagent_type: "psd-coding-system:review:architecture-strategist"
-- description: "SOLID review for PR #$ARGUMENTS"
+- description: "SOLID review for PR #$PR_NUMBER"
 - prompt: "Review PR diff for SOLID compliance and anti-pattern detection. Evaluate changed files against Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion. Report violations with file:line references."
 
 - subagent_type: "psd-coding-system:review:code-simplicity-reviewer"
-- description: "Simplicity review for PR #$ARGUMENTS"
+- description: "Simplicity review for PR #$PR_NUMBER"
 - prompt: "Review PR diff for unnecessary complexity, YAGNI violations, premature abstractions, and over-engineering. Flag unused abstractions, speculative generality, and dead code. Every line is a liability."
 
 - subagent_type: "psd-coding-system:review:pattern-recognition-specialist"
-- description: "Duplication detection for PR #$ARGUMENTS"
+- description: "Duplication detection for PR #$PR_NUMBER"
 - prompt: "Analyze PR diff for code duplication. Search the codebase for exact, near, and structural duplicates of significant code blocks (50+ tokens). Flag 3+ occurrences for refactoring. Respect 'three similar lines > premature abstraction' principle."
 
 - subagent_type: "psd-coding-system:review:correctness-reviewer"
-- description: "Correctness review for PR #$ARGUMENTS"
+- description: "Correctness review for PR #$PR_NUMBER"
 - prompt: "Review PR diff for logic errors, off-by-one bugs, null/undefined handling gaps, state management issues, comparison bugs, and async correctness. Enumerate edge cases for significant functions. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Report findings with severity (P1/P2/P3)."
 
 - subagent_type: "psd-coding-system:review:adversarial-reviewer"
-- description: "Adversarial review for PR #$ARGUMENTS"
+- description: "Adversarial review for PR #$PR_NUMBER"
 - prompt: "Map all component boundaries in the PR diff. Construct failure scenarios for each boundary: data contract violations, partial failure/recovery, timing/ordering failures, cascading failures, and resource exhaustion. Trace cross-boundary failure propagation for high-risk scenarios. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Report findings with severity (P1/P2/P3)."
 
 #### Conditional Feedback-Based Agents
 
 If security feedback exists:
 - subagent_type: "psd-coding-system:review:security-analyst-specialist"
-- description: "Address security feedback for PR #$ARGUMENTS"
+- description: "Address security feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the security feedback: $SECURITY_FEEDBACK. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If performance feedback exists:
 - subagent_type: "psd-coding-system:quality:performance-optimizer"
-- description: "Address performance feedback for PR #$ARGUMENTS"
+- description: "Address performance feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the performance feedback: $PERFORMANCE_FEEDBACK. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If test feedback exists:
 - subagent_type: "psd-coding-system:quality:test-specialist"
-- description: "Address testing feedback for PR #$ARGUMENTS"
+- description: "Address testing feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the testing feedback: $TEST_FEEDBACK. Then implement fixes directly in the codebase — write the missing tests, fix the failing ones. Do not just report — make the code changes."
 
 If architecture feedback exists:
 - subagent_type: "psd-coding-system:domain:architect-specialist"
-- description: "Address architecture feedback for PR #$ARGUMENTS"
+- description: "Address architecture feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the architecture feedback: $ARCHITECTURE_FEEDBACK. Then implement the refactoring directly in the codebase. Do not just report — make the code changes."
 
 If telemetry/data feedback exists:
 - subagent_type: "psd-coding-system:validation:telemetry-data-specialist"
-- description: "Address telemetry/data pipeline feedback for PR #$ARGUMENTS"
+- description: "Address telemetry/data pipeline feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the telemetry/data feedback: $TELEMETRY_DATA_FEEDBACK. Validate jq queries, regex patterns, and aggregation logic. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If shell/DevOps feedback exists:
 - subagent_type: "psd-coding-system:domain:shell-devops-specialist"
-- description: "Address shell/DevOps feedback for PR #$ARGUMENTS"
+- description: "Address shell/DevOps feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the shell/DevOps feedback: $SHELL_DEVOPS_FEEDBACK. Check exit codes, JSON parsing, hook integration. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If configuration feedback exists:
 - subagent_type: "psd-coding-system:validation:configuration-validator"
-- description: "Address configuration consistency feedback for PR #$ARGUMENTS"
+- description: "Address configuration consistency feedback for PR #$PR_NUMBER"
 - prompt: "Analyze the configuration feedback: $CONFIG_FEEDBACK. Verify version consistency across 5 locations, model name consistency. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 If UX feedback exists or UI files changed:
 - subagent_type: "psd-coding-system:domain:ux-specialist"
-- description: "Address UX/usability feedback for PR #$ARGUMENTS"
+- description: "Address UX/usability feedback for PR #$PR_NUMBER"
 - prompt: "Evaluate UX considerations for PR changes. Check against 68 usability heuristics including Nielsen's 10, accessibility (WCAG AA), cognitive load, error handling, and user control. Address specific feedback: $UX_FEEDBACK. Then implement fixes directly in the codebase. Do not just report — make the code changes."
 
 #### Conditional Context-Based Agents
 
 If migration files detected in diff:
 - subagent_type: "psd-coding-system:review:data-migration-expert"
-- description: "Migration validation for PR #$ARGUMENTS"
+- description: "Migration validation for PR #$PR_NUMBER"
 - prompt: "Validate data migration: Check foreign key integrity, ID mappings, data transformation logic. Provide pre/post deployment validation queries."
 
 If migration files detected in diff:
 - subagent_type: "psd-coding-system:review:deployment-verification-agent"
-- description: "Deployment checklist for PR #$ARGUMENTS"
+- description: "Deployment checklist for PR #$PR_NUMBER"
 - prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment."
 
 If PR is linked to a bug issue (bug label detected):
 - subagent_type: "psd-coding-system:workflow:bug-reproduction-validator"
-- description: "Bug reproduction for PR #$ARGUMENTS"
+- description: "Bug reproduction for PR #$PR_NUMBER"
 - prompt: "Validate the bug fix in this PR. Reproduce the original bug, collect evidence, verify the fix addresses the root cause. Provide structured reproduction report."
 
 If PR diff contains migration files, schema changes, or ORM model modifications (detect via grep for `migration`, `.prisma`, `models.py`, `schema.`, `CreateTable`, `ALTER TABLE`):
 - subagent_type: "psd-coding-system:review:schema-drift-detector"
-- description: "Schema drift check for PR #$ARGUMENTS"
+- description: "Schema drift check for PR #$PR_NUMBER"
 - prompt: "Detect schema drift in this PR. Compare ORM model definitions against migration files and raw SQL schemas. Flag missing migrations, orphaned columns, index drift, and type mismatches. Provide drift report with severity levels."
 
 If PR touches database models, user-facing data handling, or files with PII-related naming (detect via grep for `user`, `student`, `email`, `password`, `personal`, `ssn`, `address`):
 - subagent_type: "psd-coding-system:review:data-integrity-guardian"
-- description: "PII/compliance scan for PR #$ARGUMENTS"
+- description: "PII/compliance scan for PR #$PR_NUMBER"
 - prompt: "Scan PR changes for PII patterns, unencrypted sensitive data, access control gaps, and FERPA/GDPR compliance issues. Focus on student records, personal data handling, and encryption status. Provide compliance report with remediation steps."
 
 ### Phase 2.5: Language-Specific Deep Review (NEW - Post-PR Full Review)
@@ -455,22 +455,22 @@ echo "=== Language-Specific Deep Review ==="
 
 If TypeScript/JavaScript detected:
 - subagent_type: "psd-coding-system:review:typescript-reviewer"
-- description: "Full TS review for PR #$ARGUMENTS"
+- description: "Full TS review for PR #$PR_NUMBER"
 - prompt: "FULL MODE review: Comprehensive TypeScript/JavaScript analysis including: type safety, error handling, null checks, async patterns, performance, security. Review full diff."
 
 If Python detected:
 - subagent_type: "psd-coding-system:review:python-reviewer"
-- description: "Full Python review for PR #$ARGUMENTS"
+- description: "Full Python review for PR #$PR_NUMBER"
 - prompt: "FULL MODE review: Comprehensive Python analysis including: type hints, error handling, async patterns, security, performance, PEP8 compliance. Review full diff."
 
 If Swift detected:
 - subagent_type: "psd-coding-system:review:swift-reviewer"
-- description: "Full Swift review for PR #$ARGUMENTS"
+- description: "Full Swift review for PR #$PR_NUMBER"
 - prompt: "FULL MODE review: Comprehensive Swift analysis including: optionals, memory management, concurrency, SwiftUI patterns, security. Review full diff."
 
 If SQL detected:
 - subagent_type: "psd-coding-system:review:sql-reviewer"
-- description: "Full SQL review for PR #$ARGUMENTS"
+- description: "Full SQL review for PR #$PR_NUMBER"
 - prompt: "FULL MODE review: Comprehensive SQL analysis including: injection prevention, performance, indexes, constraints, transactions. Review full diff."
 
 ### Phase 2.6: Deployment Verification (NEW - For Migrations)
@@ -479,12 +479,12 @@ If SQL detected:
 
 If migrations detected:
 - subagent_type: "psd-coding-system:review:deployment-verification-agent"
-- description: "Deployment checklist for PR #$ARGUMENTS"
+- description: "Deployment checklist for PR #$PR_NUMBER"
 - prompt: "Generate Go/No-Go deployment checklist for PR with migration/schema changes. Include rollback plan, validation queries, and risk assessment. Add checklist to PR comment."
 
 If migrations detected:
 - subagent_type: "psd-coding-system:review:data-migration-expert"
-- description: "Migration validation for PR #$ARGUMENTS"
+- description: "Migration validation for PR #$PR_NUMBER"
 - prompt: "Validate data migration: Check foreign key integrity, ID mappings, data transformation logic. Provide pre/post deployment validation queries."
 
 **Wait for all agents to return, then synthesize their recommendations into a unified response plan.**

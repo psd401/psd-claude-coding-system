@@ -49,7 +49,7 @@ Systematically check each changed function/block for:
 Search for boundary-sensitive patterns:
 
 ```
-Grep(pattern: "\.length\s*[-+]|\.length\s*[<>=]|slice\(|substring\(|splice\(", glob: "*.{ts,tsx,js,jsx,py,go,rs,swift}", output_mode: "content")
+Grep(pattern: "\.length\s*[-+]|\.length\s*[<>=]|slice\(|substring\(|splice\(", glob: "*.{ts,tsx,js,jsx,py,go,rs,swift}", output_mode: "content", -C: 2)
 ```
 
 ```
@@ -107,7 +107,11 @@ Grep(pattern: "\?\.|!\.|as [A-Z]|as any|# type: ignore|noqa", glob: "*.{ts,tsx,j
 Search for risky comparisons:
 
 ```
-Grep(pattern: "[^!=<>]==[^=]|[^!]==[^=]", glob: "*.{ts,tsx,js,jsx}", output_mode: "content")
+Grep(pattern: "[^!=<>]==[^=]|[^!]==[^=]", glob: "*.{ts,tsx,js,jsx}", output_mode: "content", -C: 2)
+```
+
+```
+Grep(pattern: " is ", glob: "*.py", output_mode: "content", -C: 2)
 ```
 
 #### 2e. Async/Concurrency Bugs
