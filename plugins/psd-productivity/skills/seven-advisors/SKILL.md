@@ -10,6 +10,7 @@ triggers:
   - "think through this decision"
   - "multiple perspectives"
 allowed-tools: Read
+keep-coding-instructions: true
 version: 1.1.0
 ---
 

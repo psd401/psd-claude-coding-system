@@ -11,6 +11,7 @@ triggers:
   - "write email"
   - "write post"
 allowed-tools: Read, Write, Bash, Skill, AskUserQuestion
+keep-coding-instructions: true
 version: 0.1.0
 ---
 
