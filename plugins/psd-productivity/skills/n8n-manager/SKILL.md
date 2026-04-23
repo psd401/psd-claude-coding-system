@@ -237,6 +237,31 @@ Returns the workflow ID and editor URL.
 
 See `references/psd-integration-map.md` for full details including workspace IDs and endpoints.
 
+## Pipeline Smoke Test
+
+Before deploying workflows that use the pdf-builder → documenso → n8n pipeline, run the integration test harness:
+
+```bash
+# Run all suites (manifest, documenso, n8n, snapshot)
+bun plugins/psd-productivity/scripts/test_pipeline.js
+
+# Validate a specific workflow JSON file
+bun plugins/psd-productivity/scripts/test_pipeline.js --suite n8n --workflow @path/to/workflow.json
+
+# Validate a specific field manifest
+bun plugins/psd-productivity/scripts/test_pipeline.js --suite manifest --manifest @path/to/doc.pdf.fields.json
+```
+
+**What it catches** (no live API calls — all structural checks):
+- Field manifest coordinates out of bounds or overflowing page edges
+- Type mismatches between UPPERCASE outer type and lowercase fieldMeta.type
+- Switch v3.2 nodes missing combinator/typeValidation/version/operator.name (silent route-to-0 bug)
+- executeWorkflow nodes with broken typeVersion 1.0
+- Gmail nodes missing `appendAttribution: false`
+- Google Sheets Update nodes missing `alwaysOutputData: true` when downstream nodes consume output
+- Documenso envelope/create HTTP requests missing `type: 'DOCUMENT'`
+- Stale snapshot risks in deploy/update scripts
+
 ## Reference Documents
 
 | Document | Contents |
