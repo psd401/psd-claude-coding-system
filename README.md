@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.10.0-green)]()
+[![Version](https://img.shields.io/badge/Version-2.11.0-green)]()
 
 ## Overview
 
 **Two independently installable plugins** — one for software development workflows, one for general productivity.
 
-**Version**: 2.10.0
+**Version**: 2.11.0
 
 ---
 
@@ -18,7 +18,7 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 ### psd-coding-system
 
-AI-assisted development system with 20 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
+AI-assisted development system with 21 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
 
 ```bash
 /plugin install psd-coding-system
@@ -43,6 +43,7 @@ AI-assisted development system with 20 skills, 44 specialized agents, memory-bas
 | `/setup` | Per-project review agent configuration |
 | `/worktree` | Git worktree management |
 | `/swarm` | Parallel agent orchestration |
+| `/optimize` | Metric-driven iterative optimization loops |
 | `/bump-version` | Automate version bump ritual |
 | `/clean-branch` | Post-merge cleanup |
 | `/triage` | FreshService ticket triage |
@@ -51,7 +52,7 @@ AI-assisted development system with 20 skills, 44 specialized agents, memory-bas
 
 ### psd-productivity
 
-25 productivity workflows for district operations, document generation, research, and media. Works in both Claude Code and Claude Cowork.
+32 productivity workflows for district operations, document generation, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -120,13 +121,13 @@ psd-claude-plugins/
 │   └── marketplace.json           # Lists both plugins
 ├── plugins/
 │   ├── psd-coding-system/         # Development workflows
-│   │   ├── skills/                # 20 user-invocable skills
+│   │   ├── skills/                # 21 user-invocable skills
 │   │   ├── agents/                # 44 specialized agents
 │   │   ├── hooks/                 # PostToolUse syntax validation
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
 │   └── psd-productivity/          # Productivity workflows
-│       ├── skills/                # 25 productivity skills
+│       ├── skills/                # 32 productivity skills
 │       └── agents/                # Workflow-specific agents (TBD)
 ├── CLAUDE.md
 ├── CHANGELOG.md

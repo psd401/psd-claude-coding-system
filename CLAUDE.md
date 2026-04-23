@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.10.0
+**Version**: 2.11.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 21 | 44 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 29 | 2 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 32 | 1 |
 
 ### Key Changes in v2.0.0
 
@@ -54,7 +54,7 @@ psd-claude-plugins/                           # repo root
     psd-productivity/                         # productivity workflows (Cowork-friendly)
       .claude-plugin/
         plugin.json                           # name: "psd-productivity"
-      skills/                                 # 25 user-invocable skills
+      skills/                                 # 32 user-invocable skills
         freshservice-manager/                 # Freshservice ticket management
         redrover-manager/                     # Red Rover absence data
         legislative-tracker/                  # WA State K-12 legislation
@@ -82,7 +82,9 @@ psd-claude-plugins/                           # repo root
         psd-instructional-vision/             # PSD instructional framework
         enrollment/                           # PSD enrollment workflow
         slides-to-site/                       # Google Slides → psd401.ai pages
+        google-workspace-cli/                  # Google Workspace CLI (Drive, Sheets, Gmail, Calendar)
         n8n-manager/                          # n8n workflow automation management
+        docusign-manager/                     # DocuSign migration and export
         documenso-manager/                    # Document signing (Documenso)
         chief-of-staff/                       # Executive support
       agents/                                 # workflow-specific agents
@@ -177,7 +179,7 @@ psd-claude-plugins/                           # repo root
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
 
-### psd-productivity Skills (31 total)
+### psd-productivity Skills (32 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -210,6 +212,7 @@ psd-claude-plugins/                           # repo root
 | `/browser-control` | Browser automation for authenticated web apps via Chrome DevTools MCP |
 | `/slides-to-site` | Convert Google Slides to psd401.ai presentation pages |
 | `/n8n` | Build, deploy, and manage n8n workflow automations — CRUD, executions, credentials, PSD integrations |
+| `/docusign` | DocuSign migration and export — bulk envelope download, template export, PowerForm inventory |
 | `/documenso` | Document signing — create envelopes, manage recipients/fields, distribute, download signed PDFs, templates |
 | `/chief-of-staff` | Daily briefings and priority management |
 

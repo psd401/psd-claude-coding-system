@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-04-23
+
+### Added
+- **`/debug` skill — structured root-cause analysis** (psd-coding-system 2.1.0):
+  - Reproduce → hypothesize → test → verify → fix → learn workflow
+  - Automatic learning capture on completion
+- **`/optimize` skill — metric-driven iterative optimization** (psd-coding-system 2.1.0):
+  - Baseline measurement → targeted optimization loops → verification
+- **correctness-reviewer agent** (psd-coding-system 2.1.0):
+  - Validates logical correctness, edge cases, and invariant preservation
+- **adversarial-reviewer agent** (psd-coding-system 2.1.0):
+  - Stress-tests code against adversarial inputs, race conditions, and failure modes
+- **Cross-skill integration test harness** (psd-productivity 2.11.0):
+  - Reusable test framework for validating skill interactions and shared infrastructure
+- **Shared BaseApiClient refactor** (psd-productivity 2.11.0):
+  - Common API client library extracted from duplicate patterns across skills
+  - Consistent error handling, rate limiting, and retry logic
+
+### Changed
+- **Claude Code feature adoption** (psd-coding-system 2.1.0): Updated skills and agents for latest Claude Code capabilities (PR #49)
+- **`/clean-branch` fix** (psd-coding-system 2.1.0): Corrected branch cleanup logic (PR #51)
+- **Skill hardening from MV migration** (psd-productivity 2.11.0): Robustness improvements to skills based on lessons learned from McKinney-Vento DocuSign migration (PR #42)
+
+### Fixed
+- `/clean-branch` skill now correctly handles edge cases in post-merge cleanup
+
 ## [2.10.0] - 2026-04-17
 
 ### Added
