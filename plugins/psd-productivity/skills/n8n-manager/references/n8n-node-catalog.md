@@ -224,8 +224,8 @@ Conditional branching. Output 0 = true, Output 1 = false.
 }
 ```
 
-### Switch (`n8n-nodes-base.switch`)
-Multi-branch routing based on a value.
+### Switch (`n8n-nodes-base.switch`) — v3.2
+Multi-branch routing based on a value. **Every rule MUST include the full structure below.** Missing `options.typeValidation`, `options.version`, `combinator`, or `operator.name` causes n8n to silently route all inputs to output 0 regardless of the value being tested.
 
 ```json
 {
@@ -234,17 +234,60 @@ Multi-branch routing based on a value.
   "typeVersion": 3.2,
   "position": [500, 300],
   "parameters": {
-    "mode": "rules",
     "rules": {
       "values": [
-        { "conditions": { "conditions": [{ "leftValue": "={{ $json.category }}", "rightValue": "hardware", "operator": { "type": "string", "operation": "equals" } }] }, "outputKey": "Hardware" },
-        { "conditions": { "conditions": [{ "leftValue": "={{ $json.category }}", "rightValue": "software", "operator": { "type": "string", "operation": "equals" } }] }, "outputKey": "Software" }
+        {
+          "conditions": {
+            "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+            "conditions": [{
+              "id": "<uuid-v4>",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "hardware",
+              "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+            }],
+            "combinator": "and"
+          },
+          "renameOutput": false
+        },
+        {
+          "conditions": {
+            "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+            "conditions": [{
+              "id": "<uuid-v4>",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "software",
+              "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+            }],
+            "combinator": "and"
+          },
+          "renameOutput": false
+        }
       ]
     },
-    "fallbackOutput": "extra"
+    "options": { "fallbackOutput": "extra" }
   }
 }
 ```
+
+**`fallbackOutput: "extra"`** — adds a final output for inputs that match no rule. Connect a fallback/log node to the last switch output.
+
+### Execute Workflow (`n8n-nodes-base.executeWorkflow`) — v1.2
+Calls a sub-workflow by ID. **Always use `typeVersion: 1.2`.** Version 1.0 throws `Workflow does not exist` at runtime even when the target is active.
+
+```json
+{
+  "name": "Handle Completion",
+  "type": "n8n-nodes-base.executeWorkflow",
+  "typeVersion": 1.2,
+  "position": [1050, 300],
+  "parameters": {
+    "workflowId": { "__rl": true, "value": "jyfv4zdobvpbmcCo", "mode": "id" },
+    "options": {}
+  }
+}
+```
+
+**Activation order:** the sub-workflow must be active BEFORE the parent is saved with the reference, otherwise deploy fails with `Cannot publish workflow: Node X references workflow Y which is not published`.
 
 ### Merge (`n8n-nodes-base.merge`)
 Combine data from multiple branches.
@@ -343,6 +386,33 @@ Send email via SMTP.
 - **`defineBelow` mode** requires a full `schema` array with `id`, `displayName`, `type`, and boolean flags alongside the `value` object. Missing schema causes "Could not get parameter" errors.
 - **"Column names were updated after the node's setup"** error means headers have trailing spaces or were modified. Re-type headers in the sheet to remove hidden characters.
 - **Update operation (v4.5)** uses `matchingColumns` array in the `columns` parameter, not the old `lookupColumn`/`lookupValue` pattern.
+- **Update returns empty output** on successful write. Downstream nodes receive zero items and do not execute. Set `"alwaysOutputData": true` on any Update node whose output feeds the next step. Example:
+  ```json
+  {
+    "name": "Update Sheet Row",
+    "type": "n8n-nodes-base.googleSheets",
+    "typeVersion": 4.5,
+    "alwaysOutputData": true,
+    "parameters": { "operation": "update", ... }
+  }
+  ```
+- **Filtered read unreliability** — `filtersUI` with `lookupColumn`/`lookupValue` sometimes silently returns zero rows even when the row exists. Reproduced with `sheetName.mode='name' value='Sheet1'`. When this happens, switch to a direct HTTP Request to the Sheets API and filter client-side:
+  ```json
+  {
+    "name": "Read Intake Row",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.2,
+    "parameters": {
+      "method": "GET",
+      "url": "https://sheets.googleapis.com/v4/spreadsheets/<sheetId>/values/Sheet1",
+      "authentication": "predefinedCredentialType",
+      "nodeCredentialType": "googleSheetsOAuth2Api"
+    },
+    "credentials": { "googleSheetsOAuth2Api": { "id": "<cred>", "name": "Google Sheets" } }
+  }
+  ```
+  Then in a Code node downstream: `var headers = $json.values[0]; var rows = $json.values.slice(1).map(r => Object.fromEntries(headers.map((h,i)=>[h,r[i]])));`
+- **sheetName mode mismatch across sheets** — Employee Directory (`16iyRqjWoeeXLrrcyP6EOGWL8JKutd-rMBuDzvkNtK38`) requires `{mode: 'id', value: 'gid=0'}`. Most other sheets work with `{mode: 'name', value: 'Sheet1'}`. If one mode fails with "Sheet with name X not found", try the other before blaming anything else.
 - **Best practice**: Use a Code node to format data with exact column header keys, then use `autoMapInputData` mode.
 
 ### Google Drive Known Issues
@@ -351,24 +421,103 @@ Send email via SMTP.
 - **Workaround**: Don't use the Google Drive download node for binary files. Serve templates via a webhook "template server" pattern (base64-embedded in a Code node), or use an HTTP Request node with `?alt=media&supportsAllDrives=true`.
 - **Shared drives** require `supportsAllDrives=true` parameter and `driveId` in the options object. Without these, shared drive files return 403.
 
-### Gmail (`n8n-nodes-base.gmail`)
+### Gmail (`n8n-nodes-base.gmail`) — v2.1
+**Canonical PSD-branded config.** Always include `options.appendAttribution: false`. Never set `options.senderName` unless a Google Workspace send-as alias is configured on the credentialed account (otherwise Gmail accepts the message with a SENT label but silently drops delivery).
 
 ```json
 {
-  "name": "Send Gmail",
+  "name": "Send Notification",
   "type": "n8n-nodes-base.gmail",
   "typeVersion": 2.1,
   "position": [750, 300],
   "parameters": {
-    "sendTo": "={{ $json.email }}",
-    "subject": "Notification from PSD",
-    "message": "Your request has been processed."
+    "sendTo": "={{ $json.recipients }}",
+    "subject": "={{ $json.subject }}",
+    "emailType": "html",
+    "message": "={{ $json.emailHtml }}",
+    "options": { "appendAttribution": false }
   },
   "credentials": {
     "gmailOAuth2": { "id": "cred-id", "name": "PSD Gmail" }
   }
 }
 ```
+
+**Multiple recipients:** `sendTo` accepts a comma-separated string (e.g. `"a@x.com, b@x.com"`). No `cc`/`bcc` field on v2.1 — all recipients go in `sendTo`.
+
+### HTTP Request — Documenso envelope create (multipart)
+Canonical shape for creating a Documenso envelope from n8n. The `type: 'DOCUMENT'` field in the payload is REQUIRED; omitting it causes n8n to report `ECONNREFUSED` (n8n misreports Documenso's 400 validation errors with multipart-form-data as TCP connection refused).
+
+```json
+{
+  "name": "Create Documenso Envelope",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4.2,
+  "parameters": {
+    "method": "POST",
+    "url": "=https://documenso.psd401.net/api/v2/envelope/create",
+    "sendHeaders": true,
+    "headerParameters": { "parameters": [
+      { "name": "Authorization", "value": "=api_xxxxxxxxxxxxxxx" }
+    ]},
+    "sendBody": true,
+    "contentType": "multipart-form-data",
+    "bodyParameters": { "parameters": [
+      { "name": "payload", "value": "={{ $json.payload }}" },
+      { "parameterType": "formBinaryData", "name": "files", "inputDataFieldName": "data" }
+    ]},
+    "options": {}
+  }
+}
+```
+
+Payload shape built by the upstream Code node:
+```js
+var payload = {
+  type: 'DOCUMENT',  // REQUIRED — omitting this causes 400 masked as ECONNREFUSED
+  title: envelopeTitle,
+  recipients: [
+    { email: counselorEmail, name: counselorName, role: 'SIGNER', signingOrder: 1, fields: prefilled.concat(sigFields) },
+    { email: 'cc@psd401.net', name: 'CC Name', role: 'CC', signingOrder: 2, fields: [] }
+  ],
+  meta: {
+    subject: envelopeTitle,
+    message: '...',
+    timezone: 'America/Los_Angeles',
+    dateFormat: 'MM/dd/yyyy',
+    distributionMethod: 'EMAIL',
+    signingOrder: 'SEQUENTIAL',
+    typedSignatureEnabled: true,
+    drawSignatureEnabled: true
+  }
+};
+return [{ json: { payload: JSON.stringify(payload) }, binary: $input.first().binary }];
+```
+
+### HTTP Request — Documenso envelope distribute (raw JSON)
+```json
+{
+  "name": "Distribute Envelope",
+  "type": "n8n-nodes-base.httpRequest",
+  "typeVersion": 4.2,
+  "parameters": {
+    "method": "POST",
+    "url": "https://documenso.psd401.net/api/v2/envelope/distribute",
+    "sendHeaders": true,
+    "headerParameters": { "parameters": [
+      { "name": "Authorization", "value": "api_xxxxxxxxxxxxxxx" },
+      { "name": "Content-Type", "value": "application/json" }
+    ]},
+    "sendBody": true,
+    "contentType": "raw",
+    "rawContentType": "application/json",
+    "body": "={\"envelopeId\":\"{{ $json.id }}\"}",
+    "options": {}
+  }
+}
+```
+
+The distribute endpoint is `/api/v2/envelope/distribute` (not `/envelope/{id}/distribute` — that path returns 404).
 
 ## Response Nodes
 

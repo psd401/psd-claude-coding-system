@@ -80,6 +80,7 @@ PSD runs n8n Community Edition. These features are **not available**:
 | `/n8n vars` | `bun list_variables.js` | List variables |
 | `/n8n var-create <key> <val>` | `bun create_variable.js <key> <val>` | Create variable |
 | `/n8n audit` | `bun run_audit.js` | Security audit |
+| `/n8n rotate-documenso-key <old> <new>` | `bun rotate_documenso_key.js <old> <new>` | Rotate the Documenso API key across every workflow that uses it. Add `--dry-run` first to preview. |
 
 ### Folder & Organization (MCP-based)
 
@@ -208,6 +209,18 @@ Returns the workflow ID and editor URL.
 - **Webhook paths don't support route parameters** — `path: "template/:name"` returns 404. Use query parameters instead: `path: "psd-template"` with `?name=value`.
 - **Google Drive v3 download bug** — the download operation calls the export API, causing "Export only supports Docs Editors files" for uploaded PDFs. Use the template server pattern or HTTP Request with `?alt=media&supportsAllDrives=true`.
 - **Google Sheets auto-map pitfall** — `autoMapInputData` creates duplicate columns if JSON keys don't match headers exactly (including whitespace). Use a Code node to format keys before the Sheets node.
+- **Google Sheets Update returns empty output** — the `update` operation on `n8n-nodes-base.googleSheets` v4.5 normally emits zero items on success, which breaks downstream chains silently. Set `"alwaysOutputData": true` on every Update node whose output is consumed by a later node (Read, Email, etc.).
+- **Google Sheets filtered-read can silently return zero rows** — `filtersUI` with `lookupColumn`/`lookupValue` intermittently returns empty even when the row exists; seen with `sheetName.mode='name' value='Sheet1'`. Fallback is a direct HTTP Request to `https://sheets.googleapis.com/v4/spreadsheets/{id}/values/{range}` via `predefinedCredentialType: googleSheetsOAuth2Api`, then filter client-side in a Code node. Reliable.
+- **Google Sheets sheetName mode mismatch** — some sheets work with `{mode: 'name', value: 'Sheet1'}` and others only with `{mode: 'id', value: 'gid=0'}`. When a Sheets node "Sheet with name X not found," try the other form. Employee Directory (`16iyRqjWoeeXLrrcyP6EOGWL8JKutd-rMBuDzvkNtK38`) requires `gid=0`.
+- **Switch node v3.2 silently routes to output 0** if rules are missing full structure. Every rule's `conditions` object MUST include `options.typeValidation: 'strict'`, `options.version: 2`, `combinator: 'and'`, and each condition needs `operator.name` (e.g. `'filter.operator.equals'`) in addition to `type`/`operation`. Rules built with only the minimal `{leftValue, rightValue, operator: {type, operation}}` match the first rule on every input.
+- **Switch fallback output requires `options.fallbackOutput: 'extra'`** — without it, unmatched inputs are silently dropped. With it, an additional output is added at the end of the rules array for "no rule matched" traffic.
+- **executeWorkflow typeVersion 1.0 is broken** — throws `Workflow does not exist` at runtime even when the sub-workflow exists and is active. Always deploy `n8n-nodes-base.executeWorkflow` with `typeVersion: 1.2`. Sub-workflow resolution in v1.0 is effectively dead.
+- **Sub-workflows must be activated before the caller is saved** — deploying a parent workflow that calls an inactive sub-workflow fails with `Cannot publish workflow: Node X references workflow Y which is not published`. Activate the sub-workflow first, THEN deploy the parent.
+- **Gmail node `senderName` silently drops messages** — setting `options.senderName` without a matching Google Workspace send-as alias causes Gmail to accept the message, return a valid message ID with SENT label, and never deliver. Omit `senderName` unless a Workspace alias is configured for the credentialed account.
+- **Gmail node default footer leaks** — `options.appendAttribution` defaults to `true`, appending "Automated with n8n" to branded emails. Always explicitly set `options.appendAttribution: false` on every Gmail node.
+- **Stale snapshot regressions** — `update_workflow.js` is a full PUT. If a script rebuilds a workflow from a snapshot taken before another fix was deployed, the earlier fix silently reverts. Every modify MUST be preceded by a `get_workflow.js` call in the same script run; never re-use an older snapshot even minutes later.
+- **HTTP Request `=` prefix on literal fields** — fields built by the n8n UI store string literals as `=value` (expression-mode with no interpolation). Build scripts that write `"value": "plain"` work for most cases but can trigger subtle bugs in multipart body encoding. Prefer `"=plain"` to match UI-built shape.
+- **n8n masks Documenso 400 errors as ECONNREFUSED** — when `POST /api/v2/envelope/create` returns HTTP 400 with a JSON validation error (e.g. missing `type: 'DOCUMENT'`), the n8n HTTP Request node with multipart-form-data reports it as `The service refused the connection - perhaps it is offline` / `ECONNREFUSED`. Always replay a failing Documenso payload via `curl` from the host to see the real error body.
 
 ## PSD Systems Quick Reference
 
@@ -226,6 +239,7 @@ See `references/psd-integration-map.md` for full details including workspace IDs
 | Document | Contents |
 |----------|----------|
 | `references/n8n-workflow-json-spec.md` | Workflow JSON structure, connection model, expression syntax |
-| `references/n8n-node-catalog.md` | Common nodes with JSON snippets (Webhook, Form, HTTP, Code, IF, Slack, Google) |
+| `references/n8n-node-catalog.md` | Common nodes with JSON snippets (Webhook, Form, HTTP, Code, IF, Slack, Google) — includes the canonical Switch v3.2, executeWorkflow v1.2, Gmail v2.1, and Documenso multipart/distribute HTTP shapes |
 | `references/psd-integration-map.md` | PSD systems → n8n nodes, credentials, auth methods, endpoints |
 | `references/psd-workflow-templates.md` | 10 pre-built PSD workflow patterns with node configs |
+| `references/documenso-n8n-patterns.md` | Submission + completion-handler + router patterns for the DocuSign→Documenso migration; title-prefix routing convention; debug flow when "nothing happens" |

@@ -15,12 +15,66 @@
 | GET | `/envelope` | List/search envelopes |
 | GET | `/envelope/{envelopeId}` | Get envelope details |
 | POST | `/envelope/update` | Update envelope metadata |
-| POST | `/envelope/distribute` | Send to recipients (DRAFT → PENDING) |
+| POST | `/envelope/distribute` | Send to recipients (DRAFT → PENDING) — body `{envelopeId}` |
 | POST | `/envelope/redistribute` | Resend to recipients |
 | POST | `/envelope/delete` | Delete envelope |
 | POST | `/envelope/duplicate` | Duplicate an envelope |
 | POST | `/envelope/use` | Create envelope from template |
 | GET | `/envelope/{envelopeId}/audit-log` | Retrieve audit log |
+
+### POST /envelope/create — required payload shape
+
+`type: 'DOCUMENT'` is REQUIRED. Omitting it returns HTTP 400 with `expected: 'DOCUMENT' | 'TEMPLATE', received: undefined`. From n8n's HTTP Request node with multipart-form-data, this 400 surfaces as a misleading `ECONNREFUSED` error.
+
+```json
+{
+  "type": "DOCUMENT",
+  "title": "MV Intake - Doe (TECH SUPPORT) - 2026-04-22",
+  "recipients": [
+    { "email": "...", "name": "...", "role": "SIGNER", "signingOrder": 1, "fields": [...] },
+    { "email": "...", "name": "...", "role": "CC",     "signingOrder": 2, "fields": [] }
+  ],
+  "meta": {
+    "subject": "...",
+    "message": "...",
+    "timezone": "America/Los_Angeles",
+    "dateFormat": "MM/dd/yyyy",
+    "distributionMethod": "EMAIL",
+    "signingOrder": "SEQUENTIAL",
+    "typedSignatureEnabled": true,
+    "drawSignatureEnabled": true
+  }
+}
+```
+
+Multipart upload: send the JSON above as a `payload` form field plus the PDF as `files` binary form field.
+
+### POST /envelope/distribute — endpoint shape
+
+The distribute endpoint is `/api/v2/envelope/distribute` with body `{"envelopeId":"envelope_xxx"}`. **NOT** `/api/v2/envelope/{id}/distribute` — that path returns 404. Common porting mistake from other signing-service patterns.
+
+```bash
+curl -X POST https://documenso.psd401.net/api/v2/envelope/distribute \
+  -H "Authorization: api_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"envelopeId":"envelope_abc123"}'
+```
+
+### Envelope ID forms (canonicalize to string)
+
+Two ID forms exist and they are NOT interchangeable:
+
+| Form | Where it appears | Example |
+|------|------------------|---------|
+| Numeric integer | Webhook payload `payload.id`, internal `documentId` | `104` |
+| String | Top-level API responses, search results, all path params | `envelope_abc123xyz` |
+
+**Rule:** always canonicalize to the string form for cross-system matching (sheet rows, Drive metadata, audit logs, downstream node lookups). When a webhook fires with a numeric id, resolve it via search:
+
+```
+GET /envelope?query={title}
+→ data[0].id  (the string form)
+```
 
 ### Search Parameters (GET /envelope)
 

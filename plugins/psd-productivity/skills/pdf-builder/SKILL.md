@@ -129,7 +129,7 @@ For documents that don't fit a template, build a JSON spec with sections:
 |------|-------------|----------------|
 | `heading` | Josefin Sans Bold title | `text`, `level` (1=18pt, 2=14pt, 3=11pt) |
 | `paragraph` | Inter Regular body text (auto-wrapped) | `text`, `fontSize`, `lineHeight` |
-| `field_row` | Horizontal row of labeled input boxes | `fields[]` with `label`, `type`, `width` (0-1 fraction), `value`, `height` (points, default 22) |
+| `field_row` | Horizontal row of labeled input boxes | `fields[]` with `label`, `type`, `width` (0-1 fraction), `value`, `height` (points, default 22). Section-level options: `showLabels` (bool, default `true`), `gap` (int, default ~9pt — horizontal gap between cells), `rowGap` (int, default ~9pt — vertical gap after the row) |
 | `checkbox_group` | Vertical checkbox list | `label`, `items[]` with `label`, `checked`, `required` |
 | `table` | Data table with alternating rows | `headers[]`, `rows[][]` |
 | `signature_block` | Signing zone with role labels | `signers[]` with `role`, `fields[]`, `anchor` ("flow" or "bottom") |
@@ -139,6 +139,42 @@ For documents that don't fit a template, build a JSON spec with sections:
 **CRITICAL — Duplicate field labels**: Field labels are slugified to create manifest field names. Two fields with the same label (e.g., both "Position") produce the same slug, causing the manifest `positions` object to only keep the last one. Use unique labels (e.g., "Team Member Position", "Evaluator Position") or deduplicate manually in downstream code.
 
 **Spacer for page breaks**: A spacer of ~80pt after a signature block reliably pushes the next section to a new page. Use this to separate reference appendices from the evaluation content.
+
+### Building a tight table of form fields
+
+Use `showLabels: false`, `gap: 0`, `rowGap: 0` on stacked `field_row` sections to render a proper table of fillable cells (one header row with labels, many flush data rows below). Each cell still needs a unique label for slug uniqueness — compact names like `S2 First` / `S2 Last` work well.
+
+```json
+{ "type": "field_row", "gap": 0, "rowGap": 0, "fields": [
+    { "label": "First Name", "type": "TEXT", "width": 0.18, "height": 14 },
+    { "label": "Last Name",  "type": "TEXT", "width": 0.18, "height": 14 },
+    { "label": "Student ID", "type": "TEXT", "width": 0.13, "height": 14 },
+    { "label": "DOB",        "type": "TEXT", "width": 0.15, "height": 14 },
+    { "label": "Grade",      "type": "TEXT", "width": 0.10, "height": 14 },
+    { "label": "School",     "type": "TEXT", "width": 0.26, "height": 14 }
+]},
+{ "type": "field_row", "showLabels": false, "gap": 0, "rowGap": 0, "fields": [
+    { "label": "S2 First", "type": "TEXT", "width": 0.18, "height": 14 },
+    { "label": "S2 Last",  "type": "TEXT", "width": 0.18, "height": 14 },
+    { "label": "S2 ID",    "type": "TEXT", "width": 0.13, "height": 14 },
+    { "label": "S2 DOB",   "type": "TEXT", "width": 0.15, "height": 14 },
+    { "label": "S2 Grade", "type": "TEXT", "width": 0.10, "height": 14 },
+    { "label": "S2 School","type": "TEXT", "width": 0.26, "height": 14 }
+]},
+...
+```
+
+Reference implementation: `workflows/ssd-mv-intake/template-spec.json` in the `psd-workflow-automation` repo (6-student McKinney-Vento intake table).
+
+### Page 1 title rendering
+
+The letterhead module only renders the spec's top-level `title` in the **continuation header** on pages 2+. Page 1 has the logo block and letterhead but no title bar. To show the document title on page 1, add an explicit `heading` section at the top of `sections`:
+
+```json
+{ "type": "spacer", "height": 4 },
+{ "type": "heading", "text": "Annual McKinney-Vento Intake Form", "level": 1 },
+{ "type": "spacer", "height": 6 },
+```
 
 ### Field Types for `field_row` and `signature_block`
 
