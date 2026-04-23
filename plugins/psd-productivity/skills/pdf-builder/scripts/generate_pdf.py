@@ -195,7 +195,7 @@ class PDFBuilder:
 
         # Move down: label height (if shown) + box height + padding
         label_reserve = (FIELD_LABEL_SIZE + 4) if show_labels else 0
-        y -= (label_reserve + row_height + 2)
+        y -= (label_reserve + row_height)
 
         # y is now at the bottom of the field box
         box_y = y

@@ -7,15 +7,15 @@
 //   bun rotate_documenso_key.js --dry-run <old_key> <new_key>
 //
 // What it does:
-//   1. Lists all workflows on the n8n instance
+//   1. Lists all workflows on the n8n instance (paginated via n8nFetchAll)
 //   2. For each, fetches live JSON and counts occurrences of <old_key>
 //   3. For workflows with matches: string-replaces old → new in the full JSON,
-//      strips to API-allowed settings, and PUTs back
-//   4. Prints a per-workflow result line
+//      strips only read-only fields (id, createdAt, etc.), and PUTs back
+//   4. Prints a per-workflow result line (exits non-zero if any update fails)
 //
 // Safe to re-run; workflows with zero matches are skipped.
 
-const { n8nFetch, getEditorUrl } = require('./n8n_client.js');
+const { n8nFetch, n8nFetchAll, getEditorUrl } = require('./n8n_client.js');
 
 const args = process.argv.slice(2);
 const dryRun = args[0] === '--dry-run';
@@ -36,26 +36,31 @@ if (!oldKey.startsWith('api_') || !newKey.startsWith('api_')) {
   process.exit(1);
 }
 
-const ALLOWED_SETTINGS = ['executionOrder', 'callerPolicy', 'errorWorkflow'];
-
-function stripSettings(settings) {
-  const out = {};
-  for (const k of ALLOWED_SETTINGS) {
-    if (settings && settings[k] !== undefined) out[k] = settings[k];
-  }
-  return out;
-}
+// Read-only fields returned by GET that the PUT endpoint rejects.
+const READ_ONLY_FIELDS = ['id', 'createdAt', 'updatedAt', 'versionId'];
 
 async function main() {
-  const list = await n8nFetch('/workflows');
-  const workflows = list.data || list.workflows || list || [];
+  // Use n8nFetchAll to paginate through all workflows (n8nFetch only returns one page)
+  const list = await n8nFetchAll('/workflows');
+  if (list.error) {
+    console.error(JSON.stringify({ error: `Failed to list workflows: ${list.error}` }));
+    process.exit(1);
+  }
+  const workflows = list.data || [];
   const results = [];
+  let hasFailures = false;
 
   for (const w of workflows) {
     const id = w.id;
     const name = w.name || '(unnamed)';
-    let live;
-    try { live = await n8nFetch(`/workflows/${id}`); } catch (e) { results.push({ id, name, status: 'fetch_failed', error: e.message }); continue; }
+
+    // Fetch the full live workflow — n8nFetch returns {error} on failure, does not throw
+    const live = await n8nFetch(`/workflows/${id}`);
+    if (live.error) {
+      results.push({ id, name, status: 'fetch_failed', error: live.error });
+      hasFailures = true;
+      continue;
+    }
 
     const json = JSON.stringify(live);
     const count = (json.match(new RegExp(oldKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
@@ -66,20 +71,22 @@ async function main() {
       continue;
     }
 
+    // Replace key in the full workflow JSON, then strip only read-only fields
+    // that the API rejects on PUT. This preserves all workflow metadata (tags,
+    // active, staticData, pinData, settings, etc.) instead of destructively
+    // rebuilding a partial body.
     const updatedJson = json.split(oldKey).join(newKey);
     const updated = JSON.parse(updatedJson);
-    const body = {
-      name: updated.name,
-      nodes: updated.nodes,
-      connections: updated.connections,
-      settings: stripSettings(updated.settings),
-    };
+    for (const field of READ_ONLY_FIELDS) {
+      delete updated[field];
+    }
 
-    try {
-      await n8nFetch(`/workflows/${id}`, { method: 'PUT', body });
+    const putResult = await n8nFetch(`/workflows/${id}`, { method: 'PUT', body: updated });
+    if (putResult.error) {
+      results.push({ id, name, status: 'update_failed', references: count, error: putResult.error });
+      hasFailures = true;
+    } else {
       results.push({ id, name, status: 'updated', references: count, url: getEditorUrl(id) });
-    } catch (e) {
-      results.push({ id, name, status: 'update_failed', references: count, error: e.message });
     }
   }
 
@@ -89,6 +96,8 @@ async function main() {
     affectedWorkflows: results.length,
     results,
   }, null, 2));
+
+  if (hasFailures) process.exit(1);
 }
 
 main().catch((e) => {

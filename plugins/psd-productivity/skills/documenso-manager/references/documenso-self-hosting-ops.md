@@ -49,7 +49,7 @@ A key issued from a personal user account has that user's quota and visibility. 
 - A new team key cannot see envelopes that were created with the old personal key
 - Webhooks fired by old-context envelopes won't include the new context
 
-**Key rotation procedure** (see `n8n-manager/scripts/rotate_documenso_key.sh` if implemented):
+**Key rotation procedure** (see `n8n-manager/scripts/rotate_documenso_key.js` if implemented):
 1. Issue new key in Documenso UI (team settings)
 2. Find all n8n workflows that reference the old key (grep for `api_` prefix in workflow JSON)
 3. For each workflow: `get_workflow.js → string-replace key → update_workflow.js`
