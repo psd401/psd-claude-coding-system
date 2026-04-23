@@ -182,6 +182,15 @@ Pre-fill TEXT fields with values via the API so signers see data without needing
 - **Items array is `envelopeItems`** — not `items`. Item IDs are string format: `envelope_item_xxxxx`.
 - **Same email for multiple recipients** may cause Documenso to skip sending signing emails (deduplication). Use different emails for testing.
 - **Distribute endpoint** — use raw JSON body with explicit `Content-Type: application/json` header. The n8n HTTP Request node's keypair body mode can produce malformed JSON.
+- **Distribute endpoint shape is `POST /api/v2/envelope/distribute`** with body `{"envelopeId":"envelope_xxx"}` — NOT path-based `/envelope/{id}/distribute` (that returns 404). Easy mistake when porting from other signing-service patterns.
+- **Envelope create payload requires `type: 'DOCUMENT'`** — missing this field causes HTTP 400 with `expected: 'DOCUMENT' | 'TEMPLATE', received: undefined`. When sent via n8n HTTP Request node with multipart-form-data, the 400 is misreported as `ECONNREFUSED`. Always include `type: 'DOCUMENT'` at the top of the payload object.
+- **Self-hosted Documenso respects `NEXT_PUBLIC_FEATURE_BILLING_ENABLED`** — when this env var is `true`, the instance applies free-plan limits (5 documents/month per user). Two fixes: (a) set the env var to `false` and rebuild (client-side bundle bakes it in), or (b) create a Team inside Documenso and issue API keys scoped to the team. Team-scoped keys bypass the per-user cap.
+- **API keys are team-scoped** — a key issued from a personal user account hits that user's quota. A key issued from a team has the team's (higher) limits. When rotating keys, verify the source context. Personal keys also cannot see team envelopes and vice versa.
+- **Webhooks are per-team, UI-only** — switching to a new team (or creating one) requires recreating the webhook subscription. No API to do this. Path: Documenso UI → team → Settings → Webhooks. URL: `https://n8n.psd401.net/webhook/documenso-completed`, event: `DOCUMENT_COMPLETED` or `ENVELOPE_COMPLETED` depending on version.
+- **Envelope `id` canonicalization** — two forms exist and are NOT interchangeable: (1) numeric integer in webhook payload (`payload.id: 104`, the internal `documentId`), and (2) string form from the API (`envelope_abc123`). Always canonicalize to the string form for cross-system matching (sheet rows, Drive metadata, audit logs). To resolve numeric → string: `GET /api/v2/envelope?query={title}` and read `.data[0].id`.
+- **Envelope email delivery depends on Documenso SMTP** — if SMTP config is broken, envelopes reach PENDING status with `sendStatus: SENT` in the API but signers never get emails. Bypass by giving signers their direct signing URL: `https://{DOCUMENSO_HOST}/sign/{recipient.token}`. The `token` is on each recipient in the envelope fetch response.
+- **Envelope fields come from `recipients[].fields`** — the top-level envelope GET response does NOT surface field metadata directly. To see what was pre-filled, inspect the signer's `fields` array inside recipients. Empty `fields: []` on a completed envelope means no pre-fill was submitted, not that data was lost.
+- **Always use `role: 'CC'` with empty `fields: []`** for read-only copy recipients. CC recipients count as "signed" automatically on envelope creation (their `signingStatus` is `SIGNED` even before anyone signs). They do not block completion.
 
 ## Recipient Roles Quick Reference
 
@@ -199,5 +208,6 @@ Pre-fill TEXT fields with values via the API so signers see data without needing
 |----------|----------|
 | `references/documenso-api-reference.md` | Full v2 API endpoints, field types (11), recipient roles (5), webhook events (13) |
 | `references/documenso-envelope-lifecycle.md` | DRAFT→PENDING→COMPLETED flow, field positioning guide, signing order, email settings |
+| `references/documenso-self-hosting-ops.md` | Self-hosted ops: billing-enabled mode, teams + API keys, webhook setup per-team, SMTP delivery, error→cause cheatsheet |
 | `references/psd-signing-templates.md` | 8 pre-built PSD template patterns with field positions |
 | `references/psd-signing-workflows.md` | End-to-end workflows for HR, board, student, vendor + n8n integration |
