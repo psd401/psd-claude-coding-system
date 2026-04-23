@@ -210,7 +210,8 @@ Fixes #$ISSUE_NUMBER"
 Invoke the **work-validator** agent to verify the fix is solid.
 
 ```bash
-CHANGED_FILES=$(git diff --name-only main...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo "main")
+CHANGED_FILES=$(git diff --name-only "$DEFAULT_BRANCH"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
 echo "Changed files for validation:"
 echo "$CHANGED_FILES"
 ```
@@ -286,5 +287,6 @@ echo "Root cause: [category] — [one-line root cause]"
 echo "Hypotheses tested: [N]"
 echo "Fix: [one-line fix description]"
 echo "Regression test: [yes/no]"
-echo "Files changed: $(git diff --name-only main...HEAD 2>/dev/null | wc -l | tr -d ' ')"
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo "main")
+echo "Files changed: $(git diff --name-only "$DEFAULT_BRANCH"...HEAD 2>/dev/null | wc -l | tr -d ' ')"
 ```
