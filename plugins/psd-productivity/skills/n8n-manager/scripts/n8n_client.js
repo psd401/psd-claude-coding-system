@@ -8,7 +8,6 @@
  */
 
 const { BaseApiClient, normalizeHost } = require('../../../scripts/api_client.js');
-const { SECRETS } = require('../../../scripts/secrets.js');
 
 class N8nClient extends BaseApiClient {
   get serviceName() { return 'n8n'; }
