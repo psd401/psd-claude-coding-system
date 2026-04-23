@@ -5,6 +5,7 @@ tools: Bash, Read, Grep, Glob, Task
 model: claude-sonnet-4-6
 isolation: worktree
 extended-thinking: true
+initialPrompt: "Run post-implementation validation using context from $ARGUMENTS. Detect languages from changed files, dispatch reviewers in LIGHT mode, and return a Validation Report with PASS/PASS_WITH_WARNINGS/FAIL status."
 color: green
 ---
 
