@@ -4,9 +4,9 @@
 // Usage: bun health_check.js
 
 const { documensoFetch, getEnvelopeUrl } = require('./documenso_client.js');
+const { runHealthCheck } = require('../../../scripts/health_check_base.js');
 
-async function healthCheck() {
-  // List envelopes to verify connectivity
+runHealthCheck(async () => {
   const result = await documensoFetch('/envelope?page=1&perPage=1');
   if (result.error) {
     return { status: 'error', message: `Cannot connect to Documenso: ${result.error}` };
@@ -17,16 +17,6 @@ async function healthCheck() {
   return {
     status: 'healthy',
     uiUrl: getEnvelopeUrl('').replace('/documents/', ''),
-    envelopes: {
-      total: totalEnvelopes,
-    },
+    envelopes: { total: totalEnvelopes },
   };
-}
-
-try {
-  const result = await healthCheck();
-  console.log(JSON.stringify(result, null, 2));
-} catch (e) {
-  console.error(JSON.stringify({ status: 'error', message: e.message }));
-  process.exit(1);
-}
+});
