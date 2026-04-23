@@ -18,7 +18,7 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 ### psd-coding-system
 
-AI-assisted development system with 19 skills, 42 specialized agents, memory-based learning, and Context7 framework docs.
+AI-assisted development system with 19 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
 
 ```bash
 /plugin install psd-coding-system
@@ -86,10 +86,10 @@ AI-assisted development system with 19 skills, 42 specialized agents, memory-bas
 
 ---
 
-## AI Agents (42 total — psd-coding-system)
+## AI Agents (44 total — psd-coding-system)
 
-### Review Specialists (14 agents)
-`security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
+### Review Specialists (16 agents)
+`security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `correctness-reviewer` · `adversarial-reviewer` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
 
 ### Domain Specialists (7 agents)
 `backend-specialist` · `frontend-specialist` · `database-specialist` · `llm-specialist` · `ux-specialist` · `architect-specialist` · `shell-devops-specialist`
@@ -120,7 +120,7 @@ psd-claude-plugins/
 ├── plugins/
 │   ├── psd-coding-system/         # Development workflows
 │   │   ├── skills/                # 19 user-invocable skills
-│   │   ├── agents/                # 42 specialized agents
+│   │   ├── agents/                # 44 specialized agents
 │   │   ├── hooks/                 # PostToolUse syntax validation
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
