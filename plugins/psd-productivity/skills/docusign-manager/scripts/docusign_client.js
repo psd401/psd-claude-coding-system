@@ -129,69 +129,16 @@ class DocuSignClient extends BaseApiClient {
 
   /**
    * DocuSign base URL is dynamic — discovered via OAuth userinfo.
-   * This is called by the parent fetch() but we override fetch() entirely
-   * because we need the async getBaseUri() + account path prefix.
+   * Now async to support the base class awaiting buildBaseUrl().
    */
-  buildBaseUrl(_config) {
-    // Not used directly — see overridden fetch()
-    return '';
+  async buildBaseUrl(config) {
+    const baseUri = await getBaseUri();
+    return `${baseUri}/accounts/${config.accountId}`;
   }
 
   async buildAuthHeaders(_config) {
     const token = await getAccessToken();
     return { Authorization: `Bearer ${token}` };
-  }
-
-  /**
-   * Override fetch to use DocuSign's dynamic base URI + account path.
-   */
-  async fetch(path, options = {}) {
-    if (this._rateLimiter) {
-      await this._rateLimiter.acquire();
-    }
-
-    const baseUri = await getBaseUri();
-    const config = this.getConfig();
-    const token = await getAccessToken();
-
-    const url = `${baseUri}/accounts/${config.accountId}${path}`;
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
-
-    const fetchOptions = {
-      method: options.method || 'GET',
-      headers,
-    };
-
-    if (options.body) {
-      fetchOptions.body = typeof options.body === 'string'
-        ? options.body
-        : JSON.stringify(options.body);
-    }
-
-    const resp = await globalThis.fetch(url, fetchOptions);
-
-    // Handle binary responses (PDF downloads)
-    if (options.responseType === 'arraybuffer') {
-      if (!resp.ok) {
-        const text = await resp.text();
-        return { error: `DocuSign API error ${resp.status}: ${text}` };
-      }
-      return resp.arrayBuffer();
-    }
-
-    // JSON response
-    if (!resp.ok) {
-      let errorDetail;
-      try { errorDetail = await resp.text(); } catch { errorDetail = `HTTP ${resp.status}`; }
-      return { error: `DocuSign API error ${resp.status}: ${errorDetail}` };
-    }
-
-    try { return await resp.json(); } catch { return { error: 'Failed to parse JSON response' }; }
   }
 }
 

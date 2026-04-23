@@ -42,6 +42,7 @@ class RateLimiter {
    * @param {number} refillRate - Tokens added per second
    */
   constructor(maxTokens = 480, refillRate = 16) {
+    if (refillRate <= 0) throw new Error('refillRate must be positive');
     this.maxTokens = maxTokens;
     this.refillRate = refillRate;
     this.tokens = maxTokens;
@@ -93,10 +94,11 @@ class BaseApiClient {
 
   /**
    * Build the API base URL from service config.
+   * May be async to support dynamic URL discovery (e.g., DocuSign OAuth).
    * @param {object} config - The SECRETS[serviceName] object
-   * @returns {string} Base URL (e.g., 'https://host/api/v1')
+   * @returns {string|Promise<string>} Base URL (e.g., 'https://host/api/v1')
    */
-  buildBaseUrl(config) {
+  async buildBaseUrl(config) {
     throw new Error('Subclass must implement buildBaseUrl(config)');
   }
 
@@ -127,7 +129,7 @@ class BaseApiClient {
   }
 
   /** Get the API base URL. */
-  getBaseUrl() {
+  async getBaseUrl() {
     return this.buildBaseUrl(this.getConfig());
   }
 
@@ -149,9 +151,9 @@ class BaseApiClient {
     }
 
     const config = this.getConfig();
-    const baseUrl = this.buildBaseUrl(config);
+    const baseUrl = await this.buildBaseUrl(config);
     const authHeaders = await this.buildAuthHeaders(config);
-    const url = `${baseUrl}${path}`;
+    const url = path ? (baseUrl.replace(/\/$/, '') + (path.startsWith('/') ? path : '/' + path)) : baseUrl;
 
     const headers = {
       ...authHeaders,
@@ -228,7 +230,7 @@ class BaseApiClient {
     const allData = [];
 
     while (true) {
-      const qs = new URLSearchParams({ page: String(page), perPage: String(perPage), ...params });
+      const qs = new URLSearchParams({ ...params, page: String(page), perPage: String(perPage) });
       const result = await this.fetch(`${path}?${qs}`);
       if (result.error) return result;
 
@@ -269,13 +271,20 @@ class BaseApiClient {
     const allData = [];
 
     while (true) {
-      const qs = new URLSearchParams({ limit: String(limit), ...params });
+      const qs = new URLSearchParams({ ...params, limit: String(limit) });
       if (cursor) qs.set('cursor', cursor);
 
       const result = await this.fetch(`${path}?${qs}`);
       if (result.error) return result;
 
-      const items = result[dataKey] || [];
+      const rawItems = result[dataKey];
+      if (rawItems != null && !Array.isArray(rawItems)) {
+        return {
+          error: `Invalid pagination payload: expected '${dataKey}' to be an array`,
+          status: 500,
+        };
+      }
+      const items = Array.isArray(rawItems) ? rawItems : [];
       allData.push(...items);
       cursor = result[cursorKey];
       if (!cursor) break;
@@ -314,7 +323,14 @@ class BaseApiClient {
       const result = await this.fetch(`${path}?${qs}`);
       if (result.error) return result;
 
-      const items = result[itemsKey] || [];
+      const rawItems = result[itemsKey];
+      if (rawItems != null && !Array.isArray(rawItems)) {
+        return {
+          error: `Expected "${itemsKey}" to be an array in offset pagination response.`,
+          status: result.status || 502,
+        };
+      }
+      const items = Array.isArray(rawItems) ? rawItems : [];
       allItems.push(...items);
 
       if (totalCount === null) {

@@ -26,7 +26,7 @@ async function runHealthCheck(checkFn) {
     console.log(JSON.stringify(result, null, 2));
     if (result.status === 'error') process.exit(1);
   } catch (e) {
-    console.error(JSON.stringify({ status: 'error', message: e.message }, null, 2));
+    console.error(JSON.stringify({ status: 'error', message: e?.message ?? String(e) }, null, 2));
     process.exit(1);
   }
 }
