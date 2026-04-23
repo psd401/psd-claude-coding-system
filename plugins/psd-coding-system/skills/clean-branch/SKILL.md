@@ -31,9 +31,18 @@ First, determine what branch you're on and find the associated merged PR and iss
 CURRENT_BRANCH=$(git branch --show-current)
 echo "Current branch: $CURRENT_BRANCH"
 
-# Find merged PR for this branch — this is ground truth
-MERGED_PR=$(gh pr list --state merged --head "$CURRENT_BRANCH" --limit 1 --json number,title --jq '.[0]')
-echo "Merged PR: $MERGED_PR"
+# Find merged PR for this branch — extract number and title as separate variables
+PR_NUMBER=$(gh pr list --state merged --head "$CURRENT_BRANCH" --limit 1 --json number --jq '.[0].number // empty')
+PR_TITLE=$(gh pr list --state merged --head "$CURRENT_BRANCH" --limit 1 --json title --jq '.[0].title // empty')
+echo "Merged PR: #$PR_NUMBER — $PR_TITLE"
+
+# Guard: stop if no merged PR found for this branch
+if [ -z "$PR_NUMBER" ]; then
+  echo "ERROR: No merged PR found for branch '$CURRENT_BRANCH'."
+  echo "This skill only cleans up branches that have a merged PR."
+  echo "If the PR was merged from a different branch name, switch to that branch first."
+  exit 1
+fi
 ```
 
 **If no merged PR is found for the current branch, stop immediately and report:**
@@ -44,7 +53,7 @@ Do NOT fall back to guessing, searching other branches, or using PRs from prior 
 
 ```bash
 # Get full PR details to find issue number (only if merged PR was found)
-gh pr view <PR_NUMBER> --json number,title,body
+gh pr view "$PR_NUMBER" --json number,title,body
 ```
 
 ### Phase 2: Branch Cleanup
@@ -52,19 +61,19 @@ gh pr view <PR_NUMBER> --json number,title,body
 Dynamically detect the repository's default branch — do NOT hardcode `dev` or `main`:
 
 ```bash
-# Detect the default branch dynamically
-DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')
+# Detect the default branch dynamically (with fallback matching lfg/work skills)
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo "main")
 echo "Default branch: $DEFAULT_BRANCH"
 
 # Switch to default branch and pull latest
 git checkout "$DEFAULT_BRANCH"
 git pull origin "$DEFAULT_BRANCH"
 
-# Delete local feature branch
-git branch -d <BRANCH_NAME>
+# Delete local feature branch (use $CURRENT_BRANCH captured in Phase 1)
+git branch -d "$CURRENT_BRANCH"
 
 # Delete remote feature branch
-git push origin --delete <BRANCH_NAME>
+git push origin --delete "$CURRENT_BRANCH"
 ```
 
 ### Phase 3: Close Associated Issue
@@ -76,7 +85,7 @@ Close the GitHub issue with a summary of what was completed:
 gh issue view <ISSUE_NUMBER>
 
 # Close issue with comment summarizing the work
-gh issue close <ISSUE_NUMBER> --comment "Completed in PR #<PR_NUMBER>.
+gh issue close <ISSUE_NUMBER> --comment "Completed in PR #$PR_NUMBER.
 
 <Brief 1-2 sentence summary of what was implemented/fixed>
 
