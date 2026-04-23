@@ -44,7 +44,18 @@ Classify the optimization target:
 | **Score** | Lighthouse, accessibility, code quality | Tool-generated score |
 | **Qualitative** | Code readability, UX flow, documentation | LLM-as-judge evaluation |
 
-### 1.2 Build the Measurement Command
+**If the metric type is Qualitative**, skip directly to Phase 4 (LLM-as-Judge) — Phases 1.2-1.3, 2.3, and Phase 3's numeric measurement/comparison logic do not apply. Define the rubric first (Phase 4), establish a baseline score via LLM evaluation, then run experiments using the rubric for before/after scoring instead of bash commands.
+
+```bash
+METRIC_TYPE="[detected type from table above]"
+if [ "$METRIC_TYPE" = "qualitative" ]; then
+  echo "Qualitative target detected — using LLM-as-judge scoring (Phase 4)"
+  echo "Skipping numeric measurement setup..."
+  # Jump to Phase 4 for rubric definition and LLM-based baseline scoring
+fi
+```
+
+### 1.2 Build the Measurement Command (Quantitative Only)
 
 Construct a **repeatable** measurement command that produces a single number.
 
@@ -81,7 +92,7 @@ RESULT_2=$([measurement command])
 RESULT_3=$([measurement command])
 
 # Sort and take median
-BASELINE=$(echo -e "$RESULT_1\n$RESULT_2\n$RESULT_3" | sort -n | sed -n '2p')
+BASELINE=$(printf "%s\n%s\n%s\n" "$RESULT_1" "$RESULT_2" "$RESULT_3" | sort -n | sed -n '2p')
 
 echo "Baseline: $BASELINE $METRIC_UNIT"
 echo "Readings: $RESULT_1, $RESULT_2, $RESULT_3"
@@ -125,12 +136,14 @@ STATEEOF
 echo "State persisted to $STATE_DIR/state.json"
 ```
 
-**Add `.optimize/` to `.gitignore` if not already present:**
+**Note:** `.optimize/` should be in the project's `.gitignore`. If it is not, add it before proceeding:
 
 ```bash
 if ! grep -q "^\.optimize/" .gitignore 2>/dev/null; then
+  echo "WARNING: .optimize/ is not in .gitignore. Adding it now."
   echo ".optimize/" >> .gitignore
-  echo "Added .optimize/ to .gitignore"
+  git add .gitignore
+  git commit -m "chore: add .optimize/ to .gitignore"
 fi
 ```
 
@@ -182,14 +195,21 @@ echo "=== Degenerate Gate ==="
 # Re-measure to confirm stability
 CHECK=$([measurement command])
 
-# Calculate drift from baseline
-DRIFT=$(echo "scale=2; ($CHECK - $BASELINE) / $BASELINE * 100" | bc 2>/dev/null || echo "0")
+# Calculate drift from baseline (awk handles floats portably; guards against zero baseline)
+if [ "$BASELINE" = "0" ] || [ -z "$BASELINE" ]; then
+  echo "WARNING: Baseline is zero — percentage drift is undefined. Using absolute delta."
+  DRIFT="N/A"
+  echo "Stability check: $CHECK $METRIC_UNIT (absolute delta: $(awk "BEGIN {printf \"%.2f\", $CHECK - 0}"))"
+else
+  DRIFT=$(awk "BEGIN {printf \"%.2f\", ($CHECK - $BASELINE) / $BASELINE * 100}")
 
-echo "Stability check: $CHECK $METRIC_UNIT (drift: ${DRIFT}% from baseline)"
+  echo "Stability check: $CHECK $METRIC_UNIT (drift: ${DRIFT}% from baseline)"
 
-# If drift > 20%, the measurement is unstable — warn and ask user
-if (( $(echo "${DRIFT#-} > 20" | bc -l 2>/dev/null || echo 0) )); then
-  echo "WARNING: Measurement drift exceeds 20%. Results may be unreliable."
+  # If drift > 20%, the measurement is unstable — warn and ask user
+  ABS_DRIFT=$(awk "BEGIN {d = $DRIFT; if (d < 0) d = -d; print (d > 20) ? 1 : 0}")
+  if [ "$ABS_DRIFT" = "1" ]; then
+    echo "WARNING: Measurement drift exceeds 20%. Results may be unreliable."
+  fi
 fi
 ```
 
@@ -202,6 +222,22 @@ Run experiments sequentially — one hypothesis at a time. Each experiment:
 2. Measure the result
 3. Evaluate improvement
 4. Keep or revert
+
+### Pre-Loop: Require Clean Working Tree
+
+Before entering the experiment loop, ensure the working tree is clean. This prevents user work from being lost via stash accumulation or accidental reverts.
+
+```bash
+if [ -n "$(git status --porcelain)" ]; then
+  echo "ERROR: Working tree has uncommitted changes."
+  echo "Please commit or stash your changes before running /optimize."
+  echo ""
+  git status --short
+  exit 1
+fi
+```
+
+Use AskUserQuestion if the working tree is dirty — explain the risk and ask the user to commit or stash first.
 
 ### Loop Structure
 
@@ -226,9 +262,9 @@ echo "=== Experiment $ITERATION/$MAX_ITERATIONS ==="
 echo "Hypothesis: [description from ranked list]"
 echo ""
 
-# Create checkpoint commit
-git add -A
-git stash push -m "optimize-checkpoint-$ITERATION" 2>/dev/null || true
+# Record checkpoint SHA (working tree is clean from pre-loop check or prior commit/revert)
+CHECKPOINT_SHA=$(git rev-parse HEAD)
+echo "Checkpoint: $CHECKPOINT_SHA"
 ```
 
 #### 3.2 Apply the Change
@@ -246,18 +282,45 @@ Ensure the change doesn't break anything before measuring:
 
 ```bash
 echo "Validating..."
+VALIDATION_FAILED=false
 
-# Run tests (if they exist)
-npm test 2>/dev/null || pytest 2>/dev/null || go test ./... 2>/dev/null || true
+# Run tests (if a test runner exists)
+if [ -f "package.json" ] && grep -q '"test"' package.json 2>/dev/null; then
+  if ! npm test 2>&1; then
+    echo "VALIDATION FAILED: tests"
+    VALIDATION_FAILED=true
+  fi
+elif [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
+  if ! pytest 2>&1; then
+    echo "VALIDATION FAILED: tests"
+    VALIDATION_FAILED=true
+  fi
+fi
 
 # Run typecheck (if applicable)
-npm run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null || true
+if [ "$VALIDATION_FAILED" = false ] && [ -f "tsconfig.json" ]; then
+  if ! npm run typecheck 2>&1 && ! tsc --noEmit 2>&1; then
+    echo "VALIDATION FAILED: typecheck"
+    VALIDATION_FAILED=true
+  fi
+fi
 
-# Run lint
-npm run lint 2>/dev/null || true
+# Run lint (if applicable)
+if [ "$VALIDATION_FAILED" = false ] && [ -f "package.json" ] && grep -q '"lint"' package.json 2>/dev/null; then
+  if ! npm run lint 2>&1; then
+    echo "VALIDATION FAILED: lint"
+    VALIDATION_FAILED=true
+  fi
+fi
+
+if [ "$VALIDATION_FAILED" = true ]; then
+  echo "Validation failed — reverting experiment and moving to next hypothesis"
+  git checkout -- .
+  continue
+fi
 ```
 
-If validation fails, **revert the change and move to the next hypothesis**.
+If validation fails, the experiment is reverted and skipped automatically.
 
 #### 3.4 Measure the Result
 
@@ -268,7 +331,7 @@ echo "Measuring..."
 R1=$([measurement command])
 R2=$([measurement command])
 R3=$([measurement command])
-RESULT=$(echo -e "$R1\n$R2\n$R3" | sort -n | sed -n '2p')
+RESULT=$(printf "%s\n%s\n%s\n" "$R1" "$R2" "$R3" | sort -n | sed -n '2p')
 
 echo "Result: $RESULT $METRIC_UNIT (baseline: $BASELINE, current best: $CURRENT_BEST)"
 ```
@@ -276,13 +339,24 @@ echo "Result: $RESULT $METRIC_UNIT (baseline: $BASELINE, current best: $CURRENT_
 #### 3.5 Evaluate
 
 ```bash
-# Calculate improvement from current best
-if [ "$DIRECTION" = "lower" ]; then
-  IMPROVEMENT=$(echo "scale=2; ($CURRENT_BEST - $RESULT) / $CURRENT_BEST * 100" | bc 2>/dev/null || echo "0")
-  IS_BETTER=$(echo "$RESULT < $CURRENT_BEST" | bc 2>/dev/null || echo "0")
+# Calculate improvement from current best (awk for portability; guard zero denominator)
+if [ "$CURRENT_BEST" = "0" ] || [ -z "$CURRENT_BEST" ]; then
+  echo "WARNING: Current best is zero — using absolute delta instead of percentage."
+  if [ "$DIRECTION" = "lower" ]; then
+    IMPROVEMENT=$(awk "BEGIN {printf \"%.2f\", 0 - $RESULT}")
+    IS_BETTER=$(awk "BEGIN {print ($RESULT < 0) ? 1 : 0}")
+  else
+    IMPROVEMENT=$(awk "BEGIN {printf \"%.2f\", $RESULT - 0}")
+    IS_BETTER=$(awk "BEGIN {print ($RESULT > 0) ? 1 : 0}")
+  fi
 else
-  IMPROVEMENT=$(echo "scale=2; ($RESULT - $CURRENT_BEST) / $CURRENT_BEST * 100" | bc 2>/dev/null || echo "0")
-  IS_BETTER=$(echo "$RESULT > $CURRENT_BEST" | bc 2>/dev/null || echo "0")
+  if [ "$DIRECTION" = "lower" ]; then
+    IMPROVEMENT=$(awk "BEGIN {printf \"%.2f\", ($CURRENT_BEST - $RESULT) / $CURRENT_BEST * 100}")
+    IS_BETTER=$(awk "BEGIN {print ($RESULT < $CURRENT_BEST) ? 1 : 0}")
+  else
+    IMPROVEMENT=$(awk "BEGIN {printf \"%.2f\", ($RESULT - $CURRENT_BEST) / $CURRENT_BEST * 100}")
+    IS_BETTER=$(awk "BEGIN {print ($RESULT > $CURRENT_BEST) ? 1 : 0}")
+  fi
 fi
 
 echo "Improvement: ${IMPROVEMENT}%"
@@ -292,24 +366,25 @@ echo "Improvement: ${IMPROVEMENT}%"
 
 ```bash
 if [ "$IS_BETTER" = "1" ]; then
-  echo "WINNER — keeping this change (+${IMPROVEMENT}%)"
+  PREVIOUS_BEST=$CURRENT_BEST
   CURRENT_BEST=$RESULT
+  echo "WINNER — keeping this change (+${IMPROVEMENT}%)"
 
   # Commit the winning change
   git add -A
   git commit -m "perf: [hypothesis description]
 
 - Metric: $METRIC_NAME
-- Before: $CURRENT_BEST $METRIC_UNIT
+- Before: $PREVIOUS_BEST $METRIC_UNIT
 - After: $RESULT $METRIC_UNIT
 - Improvement: ${IMPROVEMENT}%
 
 Part of optimization loop for: $ARGUMENTS"
 
 else
-  echo "NO IMPROVEMENT — reverting"
-  git checkout -- . 2>/dev/null
-  git clean -fd 2>/dev/null
+  echo "NO IMPROVEMENT — reverting tracked files to checkpoint"
+  # Only revert tracked files — never delete untracked files (e.g., .env, local fixtures)
+  git checkout -- .
 fi
 ```
 
@@ -325,13 +400,13 @@ fi
 Check if we should stop:
 
 ```bash
-# Check if target is met
+# Check if target is met (awk for portable float comparison)
 if [ "$TARGET" != "none" ]; then
-  if [ "$DIRECTION" = "lower" ] && (( $(echo "$CURRENT_BEST <= $TARGET" | bc -l 2>/dev/null || echo 0) )); then
+  if [ "$DIRECTION" = "lower" ] && [ "$(awk "BEGIN {print ($CURRENT_BEST <= $TARGET) ? 1 : 0}")" = "1" ]; then
     echo "TARGET MET: $CURRENT_BEST <= $TARGET $METRIC_UNIT"
     break
   fi
-  if [ "$DIRECTION" = "higher" ] && (( $(echo "$CURRENT_BEST >= $TARGET" | bc -l 2>/dev/null || echo 0) )); then
+  if [ "$DIRECTION" = "higher" ] && [ "$(awk "BEGIN {print ($CURRENT_BEST >= $TARGET) ? 1 : 0}")" = "1" ]; then
     echo "TARGET MET: $CURRENT_BEST >= $TARGET $METRIC_UNIT"
     break
   fi
@@ -348,13 +423,13 @@ fi
 
 ## Phase 4: Qualitative Evaluation (LLM-as-Judge)
 
-For qualitative targets (readability, UX, documentation quality), use LLM-as-judge scoring instead of numeric measurement.
+For qualitative targets (readability, UX, documentation quality), use LLM-as-judge scoring instead of numeric measurement. **If the metric type was classified as "qualitative" in Phase 1.1, this phase replaces Phases 1.2-1.3 and Phase 3's numeric measurement logic.**
 
 **When to use:** The user's target is subjective — "improve readability", "better error messages", "cleaner API surface".
 
-### Scoring Rubric
+### 4.1 Scoring Rubric
 
-Define a 1-10 scoring rubric specific to the target:
+Define a 1-10 scoring rubric specific to the target **before any experiments begin**:
 
 ```markdown
 ### Scoring Rubric: [target]
@@ -368,7 +443,23 @@ Define a 1-10 scoring rubric specific to the target:
 | 1-2 | Poor — actively harmful to maintainability/usability |
 ```
 
-### Evaluation
+### 4.2 Establish Qualitative Baseline
+
+Read the relevant files and score them against the rubric to establish a baseline score. Record the score, reasoning, and specific examples.
+
+```bash
+echo "=== Qualitative Baseline ==="
+echo "Scoring files against rubric..."
+# Read target files, evaluate each rubric criterion, produce a 1-10 score
+BASELINE_SCORE="[LLM evaluation score]"
+echo "Baseline score: $BASELINE_SCORE / 10"
+```
+
+### 4.3 Qualitative Experiment Loop
+
+For each hypothesis, apply the change, then re-evaluate against the **same rubric** and **same evaluation prompt** used for the baseline. Compare scores to decide keep vs revert. The experiment loop structure (Phase 3) applies — use the rubric score as the measurement value, with `DIRECTION=higher`.
+
+### 4.4 Evaluation
 
 For each experiment, evaluate the change against the rubric by reading the modified files and scoring each criterion. Use the same evaluation prompt for consistency across experiments.
 
@@ -385,9 +476,12 @@ echo "Metric: $METRIC_NAME ($METRIC_UNIT)"
 echo "Baseline: $BASELINE"
 echo "Final: $CURRENT_BEST"
 
-TOTAL_IMPROVEMENT=$(echo "scale=2; ($BASELINE - $CURRENT_BEST) / $BASELINE * 100" | bc 2>/dev/null || echo "0")
-if [ "$DIRECTION" = "higher" ]; then
-  TOTAL_IMPROVEMENT=$(echo "scale=2; ($CURRENT_BEST - $BASELINE) / $BASELINE * 100" | bc 2>/dev/null || echo "0")
+if [ "$BASELINE" = "0" ] || [ -z "$BASELINE" ]; then
+  TOTAL_IMPROVEMENT="N/A (baseline was zero)"
+elif [ "$DIRECTION" = "higher" ]; then
+  TOTAL_IMPROVEMENT=$(awk "BEGIN {printf \"%.2f\", ($CURRENT_BEST - $BASELINE) / $BASELINE * 100}")
+else
+  TOTAL_IMPROVEMENT=$(awk "BEGIN {printf \"%.2f\", ($BASELINE - $CURRENT_BEST) / $BASELINE * 100}")
 fi
 
 echo "Total improvement: ${TOTAL_IMPROVEMENT}%"
