@@ -8,6 +8,8 @@ paths:
   - scripts/
   - references/
   - ~/Downloads/
+  - ~/.docusign-export/
+  - ~/DocuSign-Export/
 allowed-tools:
   - Bash
   - Read

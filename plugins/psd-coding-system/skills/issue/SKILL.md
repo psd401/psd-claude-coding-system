@@ -308,7 +308,7 @@ Brief description of what needs improvement and why
 
 ### Phase 3: Architectural Enrichment (Complex Features)
 
-For features meeting **all** of these criteria, invoke agents to add architecture and validation:
+For features matching **these** criteria, invoke agents to add architecture and validation:
 - Multi-component changes (frontend + backend + database)
 - Significant architectural impact
 - Complex integration requirements

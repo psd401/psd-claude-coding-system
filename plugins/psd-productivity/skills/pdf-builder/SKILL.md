@@ -28,16 +28,18 @@ Generate professional PDFs with Peninsula School District letterhead, Inter/Jose
 ### Using a Built-in Template
 
 ```bash
-uv run generate_pdf.py --template <template-name> --data '<json>' --output /path/to/doc.pdf
+uv run generate_pdf.py --template <template-name> --data '<json>' --output ~/Downloads/doc.pdf
 ```
 
 ### Using a Custom JSON Spec
 
 ```bash
-uv run generate_pdf.py --json '<spec>' --output /path/to/doc.pdf
+uv run generate_pdf.py --json '<spec>' --output ~/Downloads/doc.pdf
 # or
-uv run generate_pdf.py --spec spec.json --output /path/to/doc.pdf
+uv run generate_pdf.py --spec spec.json --output ~/Downloads/doc.pdf
 ```
+
+> **Note**: Output paths must be within the skill's `paths:` scope (`scripts/`, `references/`, `~/Downloads/`, `~/Desktop/`).
 
 ### Output
 

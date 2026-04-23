@@ -8,6 +8,7 @@ paths:
   - scripts/
   - references/
   - ~/Downloads/
+  - ./
 allowed-tools:
   - Read
   - Write
