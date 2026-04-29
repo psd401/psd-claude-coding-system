@@ -678,11 +678,11 @@ echo "PR review completed successfully!"
 
 ### Phase 6: Learning Capture
 
-Always dispatch the learning-writer agent with a session summary. The agent handles deduplication and novelty detection — it will skip writing if the insight isn't novel.
+Always dispatch the learning-writer agent with a session summary. **You MUST fill in the bracketed placeholders below with actual data from this session** — do not pass the template text literally.
 
 - subagent_type: "psd-coding-system:workflow:learning-writer"
 - description: "Capture PR review learning for #$PR_NUMBER"
-- prompt: "SUMMARY=[Round $REVIEW_ROUND review of PR #$PR_NUMBER. $(if [ "$INCREMENTAL" = true ]; then echo "Incremental run — only new feedback since Round $PREV_ROUND."; else echo "Full review — first pass."; fi) What review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[the most notable mistake pattern or prevention strategy from this session, or 'routine review' if nothing stood out] CATEGORY=[appropriate category — e.g., security, logic, integration] TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
+- prompt: "SUMMARY=[FILL: Round $REVIEW_ROUND review of PR #$PR_NUMBER — what review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[FILL: the most notable mistake pattern or prevention strategy from this session] CATEGORY=[FILL: one of security, logic, integration, workflow, etc.] TAGS=[FILL: comma-separated relevant tags]. Write the learning document."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.
 

@@ -524,11 +524,11 @@ List hypotheses that were not tested (if any remain from the ranked list):
 
 ## Phase 6: Learning Capture (Task-Delegated — Always)
 
-Always dispatch the learning-writer agent with a session summary.
+Always dispatch the learning-writer agent with a session summary. **You MUST fill in the bracketed placeholders below with actual data from this session** — do not pass the template text literally.
 
 - subagent_type: "psd-coding-system:workflow:learning-writer"
 - description: "Capture learning from /optimize session"
-- prompt: "SUMMARY=[optimization target: $ARGUMENTS, baseline: $BASELINE, final: $CURRENT_BEST, improvement: ${TOTAL_IMPROVEMENT}%, experiments: $ITERATION, hypotheses tested and outcomes] KEY_INSIGHT=[the most effective optimization technique from this session, or 'routine optimization' if nothing stood out] CATEGORY=performance TAGS=[optimize, metrics, iterative-improvement]. Write a concise learning document only if this insight is novel. Skip if routine."
+- prompt: "SUMMARY=[FILL: optimization target, baseline metric, final metric, improvement %, experiments run, hypotheses tested and outcomes] KEY_INSIGHT=[FILL: the most effective optimization technique from this session] CATEGORY=performance TAGS=[FILL: optimize, metrics, iterative-improvement, plus relevant tags]. Write the learning document."
 
 **Do not block on this agent** — if it fails, the optimization is already applied.
 
