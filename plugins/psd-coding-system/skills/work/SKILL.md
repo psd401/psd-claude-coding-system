@@ -305,10 +305,10 @@ echo "=== PR created ==="
 
 ## Phase 7: Learning Capture
 
-Always dispatch the learning-writer agent with a session summary. The agent handles deduplication and novelty detection — it will skip writing if the insight isn't novel.
+Always dispatch the learning-writer agent with a session summary. **You MUST fill in the bracketed placeholders below with actual data from this session** — do not pass the template text literally.
 
 - subagent_type: "psd-coding-system:workflow:learning-writer"
 - description: "Capture learning from #$ISSUE_NUMBER"
-- prompt: "SUMMARY=[brief description of what happened during implementation — errors hit, patterns used, workarounds applied] KEY_INSIGHT=[the most notable learning or pattern from this session, or 'routine implementation' if nothing stood out] CATEGORY=[appropriate category] TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
+- prompt: "SUMMARY=[FILL: describe what happened — errors hit, patterns used, workarounds applied] KEY_INSIGHT=[FILL: the most notable learning or pattern from this session] CATEGORY=[FILL: one of build-errors, test-failures, runtime-errors, performance, security, database, ui, integration, logic, workflow, debugging] TAGS=[FILL: comma-separated relevant tags]. Write the learning document."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.

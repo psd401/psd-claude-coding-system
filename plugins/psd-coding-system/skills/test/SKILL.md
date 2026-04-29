@@ -221,11 +221,11 @@ echo "Testing completed successfully!"
 
 ### Phase 6: Learning Capture
 
-Always dispatch the learning-writer agent with a session summary. The agent handles deduplication and novelty detection — it will skip writing if the insight isn't novel.
+Always dispatch the learning-writer agent with a session summary. **You MUST fill in the bracketed placeholders below with actual data from this session** — do not pass the template text literally.
 
 - subagent_type: "psd-coding-system:workflow:learning-writer"
 - description: "Capture testing learning"
-- prompt: "SUMMARY=[what test issues were encountered, self-healing attempts, coverage findings] KEY_INSIGHT=[the most notable testing pattern or failure mode from this session, or 'routine testing' if nothing stood out] CATEGORY=test-failures TAGS=[relevant tags]. Write a concise learning document only if this insight is novel. Skip if routine."
+- prompt: "SUMMARY=[FILL: what test issues were encountered, self-healing attempts, coverage findings] KEY_INSIGHT=[FILL: the most notable testing pattern or failure mode from this session] CATEGORY=test-failures TAGS=[FILL: comma-separated relevant tags]. Write the learning document."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.
 

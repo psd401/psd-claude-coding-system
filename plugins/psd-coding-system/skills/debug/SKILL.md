@@ -277,11 +277,11 @@ SYMPTOM: [observed behavior]
 
 ## Phase 8: Learning Capture (Task-Delegated — Always)
 
-Always dispatch the learning-writer agent. Debug sessions produce high-value learnings — root cause patterns, misleading symptoms, and diagnostic techniques.
+Always dispatch the learning-writer agent. Debug sessions produce high-value learnings — root cause patterns, misleading symptoms, and diagnostic techniques. **You MUST fill in the bracketed placeholders below with actual data from this session** — do not pass the template text literally.
 
 - subagent_type: "psd-coding-system:workflow:learning-writer"
 - description: "Capture learning from debug session"
-- prompt: "SUMMARY=[debug session: symptom was X, root cause was Y, fix was Z, hypotheses tested: N confirmed / M refuted] KEY_INSIGHT=[the most notable diagnostic technique or root cause pattern from this session, or 'routine bug fix' if nothing stood out] CATEGORY=[debugging] TAGS=[debug, root-cause-analysis, relevant-tags]. Write a concise learning document only if this insight is novel. Skip if routine."
+- prompt: "SUMMARY=[FILL: debug session — symptom, root cause, fix, hypotheses tested] KEY_INSIGHT=[FILL: the most notable diagnostic technique or root cause pattern from this session] CATEGORY=debugging TAGS=[FILL: debug, root-cause-analysis, plus relevant tags]. Write the learning document."
 
 **Do not block on this agent** — the fix is already committed.
 
