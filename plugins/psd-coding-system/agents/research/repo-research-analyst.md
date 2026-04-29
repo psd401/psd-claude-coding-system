@@ -4,6 +4,8 @@ description: Codebase onboarding and deep research agent for architecture mappin
 tools: Read, Grep, Glob, WebSearch
 model: claude-sonnet-4-6
 extended-thinking: true
+mcpServers:
+  - context7
 color: blue
 ---
 
