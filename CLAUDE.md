@@ -246,11 +246,22 @@ The `psd-coding-system` plugin configures a Context7 MCP server providing live f
 
 ### Hooks
 
-**PostToolUse Hook** (`scripts/post-edit-validate.sh`):
+**PostToolUse Hook — Syntax Validation** (`scripts/post-edit-validate.sh`):
 - Runs after Edit or Write tool calls (matcher: `Edit|Write`)
 - `if` conditional (v2.1.85): only fires for `.ts/.tsx/.py/.json` files — skips `.md`, `.sh`, `.yaml`, etc.
 - Validates file syntax: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
 - Non-blocking, 10s timeout
+
+**PostToolUse Hook — Secret Redaction** (`scripts/redact-secrets.sh`):
+- Runs after Bash tool calls (matcher: `Bash`)
+- Uses `outputReplace: true` (v2.1.121) to replace output before Claude sees it
+- Redacts: API keys (sk-*, ghp_*, AKIA*), Bearer tokens, Google/Slack keys, password/secret assignments
+- Non-blocking, 5s timeout
+
+**PreCompact Hook** (`scripts/pre-compact-context.sh`):
+- Runs before context compaction (v2.1.105)
+- Outputs current branch, uncommitted changes, recent commits, and active issue number
+- Output is injected into compacted conversation to preserve task context
 
 **WorktreeCreate/Remove Hooks** (v2.1.50+):
 - Auto-symlinks `.env` into worktrees; logs cleanup on removal
@@ -387,7 +398,8 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - Learnings auto-deleted after 90 days by `/evolve` TTL cleanup
 - Agent memory stored locally in `.claude/agent-memory/`
 - No telemetry collection
-- Only PostToolUse hook runs automatically (syntax validation)
+- PostToolUse hooks run automatically (syntax validation + secret redaction)
+- PreCompact hook preserves branch/task context during compaction
 
 ### Model Selection Strategy
 - **sonnet-4-6**: Default for agents and lightweight coding tasks
@@ -415,6 +427,11 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 | `initialPrompt:` agent auto-submit | v2.1.83 | 4 agents | learning-writer, work-researcher, meta-reviewer, work-validator |
 | `paths:` file access scoping | v2.1.84 | 5 skills | enrollment, pdf-builder, documenso, docusign, n8n |
 | `if` hook conditionals | v2.1.85 | PostToolUse hook | Only fires for .ts/.tsx/.py/.json files |
-| `keep-coding-instructions:` | v2.1.94 | 7 skills | writer, sop-creator, presentation-master, seven-advisors, chief-of-staff, assistant-architect, strategic-planning-manager |
+| `keep-coding-instructions:` | v2.1.94 | 10 skills/agents | 7 skills + work-researcher, learning-writer, test-specialist |
+| `PreCompact` hook | v2.1.105 | hooks.json | Preserves branch, commits, active issue before compaction |
 | `effort: xhigh` | v2.1.111 | 5 skills/agents | architect, product-manager, lfg, evolve, meta-reviewer |
+| Agent `mcpServers` frontmatter | v2.1.117 | 3 agents | framework-docs-researcher, best-practices-researcher, repo-research-analyst |
 | `claude plugin tag` | v2.1.118 | bump-version skill | Replaces manual git tag in release workflow |
+| `$schema` in plugin.json | v2.1.120 | Both plugins | Enables `claude plugin validate` |
+| `alwaysLoad` MCP config | v2.1.121 | psd-coding-system | Context7 resolve-library-id + query-docs eagerly loaded |
+| PostToolUse `outputReplace` | v2.1.121 | hooks.json | Auto-redacts secrets from Bash output |
