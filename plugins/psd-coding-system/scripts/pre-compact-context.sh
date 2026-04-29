@@ -7,6 +7,14 @@ set -euo pipefail
 
 echo "=== Pre-Compaction Context Snapshot ==="
 
+# Guard: exit cleanly if not inside a git worktree (e.g., non-git directory).
+# Without this, set -e would abort on any failing git command.
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Not inside a git repository — skipping context snapshot."
+  echo "=== End Context Snapshot ==="
+  exit 0
+fi
+
 # 1. Current branch and uncommitted work
 BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 echo "Branch: $BRANCH"

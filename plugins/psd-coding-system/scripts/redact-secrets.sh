@@ -18,24 +18,25 @@ fi
 # - API keys (sk-*, xoxb-*, ghp_*, ghu_*, etc.)
 # - Bearer tokens
 # - AWS keys
-# - Base64-encoded long strings that look like secrets
+# - Google API keys
 # - Password/secret assignments in env output
-REDACTED=$(echo "$OUTPUT" | sed -E \
-  -e 's/(sk-[a-zA-Z0-9]{20,})/[REDACTED]/g' \
-  -e 's/(xoxb-[a-zA-Z0-9-]{20,})/[REDACTED]/g' \
-  -e 's/(xoxp-[a-zA-Z0-9-]{20,})/[REDACTED]/g' \
-  -e 's/(ghp_[a-zA-Z0-9]{36,})/[REDACTED]/g' \
-  -e 's/(ghu_[a-zA-Z0-9]{36,})/[REDACTED]/g' \
-  -e 's/(ghs_[a-zA-Z0-9]{36,})/[REDACTED]/g' \
-  -e 's/(AKIA[A-Z0-9]{16})/[REDACTED]/g' \
-  -e 's/(Bearer [a-zA-Z0-9._-]{20,})/Bearer [REDACTED]/g' \
-  -e 's/(AIza[a-zA-Z0-9_-]{35})/[REDACTED]/g' \
-  -e 's/((password|secret|token|api_key|apikey|api-key|private_key)=)[^ \t"'"'"']*/\1[REDACTED]/gi' \
-)
+# Uses perl instead of sed for portable case-insensitive matching (BSD sed
+# does not support the /i flag with -E, which breaks on macOS).
+REDACTED=$(echo "$OUTPUT" | perl -pe '
+  s/(sk-[a-zA-Z0-9]{20,})/[REDACTED]/g;
+  s/(xoxb-[a-zA-Z0-9-]{20,})/[REDACTED]/g;
+  s/(xoxp-[a-zA-Z0-9-]{20,})/[REDACTED]/g;
+  s/(ghp_[a-zA-Z0-9]{36,})/[REDACTED]/g;
+  s/(ghu_[a-zA-Z0-9]{36,})/[REDACTED]/g;
+  s/(ghs_[a-zA-Z0-9]{36,})/[REDACTED]/g;
+  s/(AKIA[A-Z0-9]{16})/[REDACTED]/g;
+  s/(Bearer [a-zA-Z0-9._-]{20,})/Bearer [REDACTED]/g;
+  s/(AIza[a-zA-Z0-9_-]{35})/[REDACTED]/g;
+  s/((password|secret|token|api_key|apikey|api-key|private_key)=)[^ \t"'"'"']*/$1\[REDACTED]/gi;
+')
 
-# Only output replacement if something was actually redacted
-if [ "$OUTPUT" != "$REDACTED" ]; then
-  echo "$REDACTED"
-fi
+# Always output content — outputReplace: true means our stdout replaces
+# the tool output entirely. Outputting nothing would blank valid output.
+echo "$REDACTED"
 
 exit 0
