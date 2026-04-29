@@ -162,6 +162,23 @@ gh issue comment $ARGUMENTS --body "## Technical Research
 "
 ```
 
+## Mandatory Completion Criteria
+
+**Every issue created by `/issue` MUST include the Completion Criteria block below verbatim, immediately above the issue's specific Acceptance Criteria.** This is the universal floor — `/work` enforces these gates and refuses to ship a PR that doesn't satisfy them.
+
+```markdown
+## Completion Criteria (mandatory — enforced by /work)
+
+- [ ] All unit and integration tests pass
+- [ ] All e2e tests pass for the affected user flow(s) — list flow names in the Acceptance Criteria below
+- [ ] Zero lint warnings on every file touched by this work. ESLint for `.js/.jsx/.ts/.tsx`, ruff/flake8 for `.py`, shellcheck for `.sh`, jq syntax check for `.json`. Pre-existing warnings on touched files MUST be fixed, not deferred and not suppressed with `eslint-disable` / `# noqa`.
+- [ ] Type check clean — no new TypeScript errors, no new `any` types
+- [ ] If the repo has no e2e framework, `/work` must scaffold one (Playwright preferred for web stacks; choose appropriate framework otherwise) and add at least one e2e test for the changed flow before this issue can close
+- [ ] PR description lists every touched file and confirms each gate above with a checked checkbox
+```
+
+If the work genuinely has no e2e surface (pure refactor, build-script change, etc.), the e2e bullet may be replaced in the issue with `N/A — <one-line justification>` — but the placeholder cannot ship as-written.
+
 ## Issue Templates
 
 ### Feature Request Template
@@ -180,10 +197,20 @@ As a [user type], I want [feature] so that [benefit]
 - Detailed requirement 2
 - Detailed requirement 3
 
+## Completion Criteria (mandatory — enforced by /work)
+
+- [ ] All unit and integration tests pass
+- [ ] All e2e tests pass for the affected user flow(s) — listed below
+- [ ] Zero lint warnings on every file touched by this work (ESLint, ruff/flake8, shellcheck, jq as applicable). Pre-existing warnings on touched files MUST be fixed.
+- [ ] Type check clean — no new TS errors, no new `any` types
+- [ ] If repo has no e2e framework, `/work` scaffolds one (Playwright preferred) before close
+- [ ] PR description lists every touched file with each gate checked
+
 ## Acceptance Criteria
 - [ ] Criterion 1 (specific, testable)
 - [ ] Criterion 2 (specific, testable)
 - [ ] Criterion 3 (specific, testable)
+- [ ] E2E flow(s) covered: `<flow names — e.g. "user login", "checkout">` (or `N/A — <reason>`)
 
 ## Technical Considerations
 
@@ -254,6 +281,20 @@ What actually happens (include error messages, screenshots)
 ## Proposed Fix
 [Technical approach to fixing the bug]
 
+## Completion Criteria (mandatory — enforced by /work)
+
+- [ ] All unit and integration tests pass, including a regression test for this bug
+- [ ] All e2e tests pass for the affected user flow(s) — listed below
+- [ ] Zero lint warnings on every file touched by this work (ESLint, ruff/flake8, shellcheck, jq as applicable). Pre-existing warnings on touched files MUST be fixed.
+- [ ] Type check clean — no new TS errors, no new `any` types
+- [ ] If repo has no e2e framework, `/work` scaffolds one (Playwright preferred) before close
+- [ ] PR description lists every touched file with each gate checked
+
+## Acceptance Criteria
+- [ ] Bug no longer reproduces using the steps above
+- [ ] Regression test added that fails without the fix and passes with it
+- [ ] E2E flow(s) covered: `<flow names>` (or `N/A — <reason>`)
+
 ## Testing Considerations
 - How to verify the fix
 - Regression test scenarios
@@ -287,10 +328,20 @@ Brief description of what needs improvement and why
 - Benefit 2
 - Benefit 3
 
+## Completion Criteria (mandatory — enforced by /work)
+
+- [ ] All unit and integration tests pass — including any tests that exercise the refactored code paths
+- [ ] All e2e tests pass for the affected user flow(s) — listed below
+- [ ] Zero lint warnings on every file touched by this work (ESLint, ruff/flake8, shellcheck, jq as applicable). Pre-existing warnings on touched files MUST be fixed.
+- [ ] Type check clean — no new TS errors, no new `any` types
+- [ ] If repo has no e2e framework, `/work` scaffolds one (Playwright preferred) before close
+- [ ] PR description lists every touched file with each gate checked
+
 ## Acceptance Criteria
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
+- [ ] E2E flow(s) covered: `<flow names>` (or `N/A — <reason>` if pure refactor with no UI surface)
 
 ## Implementation Approach
 [Technical approach to making the changes]

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2026-04-27
+
+### Changed
+- **`/triage` skill — deep diagnosis + dual FreshService update** (psd-coding-system 2.2.0):
+  - New Phase 1.5 fans out three research agents in parallel — `repo-research-analyst`, `git-history-analyzer`, `bug-reproduction-validator` — to produce a Diagnosis Brief (suspected root cause, likely files, related commits, reproduction status, open questions) before invoking `/issue`
+  - Diagnosis Brief is appended to the issue description so `/issue` populates Steps to Reproduce / Root Cause / Proposed Fix from real evidence rather than placeholders
+  - Captures GitHub issue URL after `/issue` completes; aborts Phase 3 if URL not parseable
+  - Phase 3 split into two FreshService writes: a **private internal note** (`POST /tickets/{id}/notes` with `private: true`) carrying the full Diagnosis Brief + GitHub URL, and a sanitized **public reply** to the requester containing the GitHub URL plus a status acknowledgement
+- **`/issue` skill — mandatory Completion Criteria** (psd-coding-system 2.2.0):
+  - New top-level "Mandatory Completion Criteria" section defines the universal floor every issue must satisfy
+  - All three templates (Feature Request, Bug Report, Improvement/Refactoring) gained a Completion Criteria block above their Acceptance Criteria — unit/integration tests, e2e tests, zero lint warnings on touched files, type-check clean, e2e framework scaffold if missing, PR description listing every touched file
+  - Each template's Acceptance Criteria now includes an explicit `E2E flow(s) covered:` line with `N/A — <reason>` escape hatch for refactors with no UI surface
+- **`/work` skill — strict touched-files quality gate + e2e enforcement** (psd-coding-system 2.2.0):
+  - Phase 4 testing replaced with strict per-file lint enforcement: ESLint `--max-warnings 0` for JS/TS, ruff/flake8 for Python, shellcheck for shell, jq for JSON. **Pre-existing warnings on touched files MUST be fixed** — no `eslint-disable`, `# noqa`, or `@ts-ignore` suppressions. TypeScript `tsc --noEmit` runs without error suppression
+  - New Phase 4.5 enforces e2e coverage: detects Playwright / Cypress / custom e2e setups and runs them; scaffolds Playwright if no framework exists; honors `E2E flow.*N/A` waiver from the issue body
+  - Phase 5 result handling: `PASS_WITH_WARNINGS` is promoted to FAIL when the warning lives on a touched file
+  - Phase 6 PR body now includes a Completion Criteria checklist plus a `## Touched Files` list emitted from `git diff --name-only`
+
 ## [2.11.0] - 2026-04-23
 
 ### Added

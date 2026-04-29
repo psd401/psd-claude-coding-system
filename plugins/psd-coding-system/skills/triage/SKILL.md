@@ -343,53 +343,170 @@ echo "Status: $STATUS_STR"
 echo ""
 ```
 
+### Phase 1.5: Diagnosis [REQUIRED — DO NOT SKIP]
+
+**Triage is not just data shuffling. Before handing off to `/issue`, do real investigative work so the implementer starts with evidence, not a description.**
+
+Fan out three research agents **in parallel** (single message, multiple Task tool calls). Pass each one the ticket subject, description, and conversation history loaded above.
+
+1. **Codebase mapping** — `psd-coding-system:research:repo-research-analyst`
+   - Prompt: "FreshService ticket #${TICKET_ID} reports: ${SUBJECT}. Description: ${DESCRIPTION}. Identify the components, files, and architectural area most likely involved. Return file paths with line ranges, the relevant module boundaries, and any patterns that look related to the symptom."
+
+2. **Git history** — `psd-coding-system:research:git-history-analyzer`
+   - Prompt: "FreshService ticket #${TICKET_ID} reports: ${SUBJECT}. Description: ${DESCRIPTION}. Find recent commits that touched the suspected area, identify hot files, and surface any commits whose timing aligns with when the bug appears to have started. Return commit SHAs with one-line summaries and authors."
+
+3. **Reproduction** — `psd-coding-system:workflow:bug-reproduction-validator`
+   - Prompt: "Attempt to reproduce or validate the bug described in FreshService ticket #${TICKET_ID}: ${SUBJECT}. Description: ${DESCRIPTION}. Conversation history is in the ticket data. Document every reproduction attempt — what you ran, what you saw. Return status: REPRODUCED / PARTIAL / BLOCKED with explicit reasons."
+
+**Synthesize the three results into a Diagnosis Brief.** Write it to `/tmp/fs-diagnosis-${TICKET_ID}.md` so it can be reused by both Phase 2 and Phase 3:
+
+```bash
+DIAGNOSIS_FILE="/tmp/fs-diagnosis-${TICKET_ID}.md"
+cat > "$DIAGNOSIS_FILE" <<'EOF_DIAGNOSIS'
+# Diagnosis Brief — FreshService Ticket #TICKET_ID_PLACEHOLDER
+
+## Suspected Root Cause
+<one to three sentences with confidence: HIGH / MEDIUM / LOW>
+
+## Likely Affected Files
+- <path:line-range> — <why this file is suspected>
+- <path:line-range> — <why this file is suspected>
+
+## Recent Related Commits
+- <sha> — <one-line summary> (<author>, <date>)
+
+## Reproduction Status
+- Status: <REPRODUCED | PARTIAL | BLOCKED>
+- Steps attempted:
+  1. <step>
+  2. <step>
+- Outcome: <what was observed>
+- Blockers (if any): <why repro failed>
+
+## Open Questions for the Implementer
+- <question>
+- <question>
+
+## Research Gaps
+<note any agent that failed and what's missing>
+EOF_DIAGNOSIS
+sed -i.bak "s/TICKET_ID_PLACEHOLDER/${TICKET_ID}/g" "$DIAGNOSIS_FILE" && rm -f "${DIAGNOSIS_FILE}.bak"
+```
+
+After writing the template, **fill it in with the actual synthesized findings** before continuing. If any of the three agents failed, leave their section gap-marked (`_agent unavailable — TODO_`) rather than fabricating content.
+
+Append the Diagnosis Brief to `$ISSUE_DESCRIPTION` so `/issue` receives it inline:
+
+```bash
+ISSUE_DESCRIPTION="${ISSUE_DESCRIPTION}
+
+---
+
+## Triage Diagnosis Brief
+
+$(cat "$DIAGNOSIS_FILE")
+"
+```
+
 ### Phase 2: Create GitHub Issue
 
-Now invoke the `/issue` command with the extracted information:
+Now invoke the `/issue` command with the extracted information **plus the Diagnosis Brief**.
 
-**IMPORTANT**: Use the Skill tool to invoke `/psd-coding-system:issue` with the ticket description.
+**IMPORTANT**: Use the Skill tool to invoke `/psd-coding-system:issue` with `$ISSUE_DESCRIPTION` (which now contains both the FreshService data and the Triage Diagnosis Brief).
 
-Pass the `$ISSUE_DESCRIPTION` variable that contains the formatted bug report from FreshService.
+When invoking `/issue`, prepend this instruction to the description so the issue skill treats the brief correctly:
 
-**After the issue is created, capture the issue number/URL for the FreshService reply.**
+> The text below is **evidence**, not a feature request. Use the FreshService data and Diagnosis Brief to populate the Bug Report template's "Steps to Reproduce", "Expected Behavior", "Actual Behavior", "Root Cause Analysis", and "Proposed Fix" sections directly. Do not paraphrase the brief into placeholders — copy concrete details (file paths, commit SHAs, repro steps) into the issue body. The mandatory Completion Criteria block must appear in the final issue.
+
+**After the issue is created, capture both the issue number and full URL — they are required for Phase 3.** Parse them from the `/issue` skill's output:
+
+```bash
+# Capture from /issue output (the skill emits the URL on its final line)
+ISSUE_URL="<the https://github.com/.../issues/N URL emitted by /issue>"
+ISSUE_NUMBER="${ISSUE_URL##*/}"
+
+if [ -z "$ISSUE_URL" ] || [ -z "$ISSUE_NUMBER" ]; then
+  echo "ERROR: Could not capture GitHub issue URL from /issue invocation."
+  echo "Phase 3 cannot proceed — manually post to FreshService ticket #${TICKET_ID}."
+  exit 1
+fi
+
+echo "Captured GitHub issue: #${ISSUE_NUMBER} — ${ISSUE_URL}"
+```
 
 ### Phase 3: Update FreshService Ticket
 
-After successfully creating the GitHub issue, add a reply to the FreshService ticket and update its status:
+After successfully creating the GitHub issue, write **two** updates to the FreshService ticket — a **private internal note** carrying the full Diagnosis Brief + GitHub URL (visible only to agents), and a **sanitized public reply** to the requester containing just the GitHub URL and a status acknowledgement. Then move the ticket to In Progress.
 
 ```bash
 echo ""
 echo "=== Updating FreshService Ticket ==="
 echo ""
 
-# Add a reply to the ticket with the GitHub issue link
-echo "Adding reply to ticket..."
-REPLY_BODY="Thank you for submitting this issue. We have received your ticket and created a GitHub issue to track this problem. We will let you know when the issue has been resolved."
+# --- 1. PRIVATE NOTE (internal — full diagnosis + GitHub URL) -----------------
+echo "Adding private note to ticket (internal-only)..."
+
+# jq encodes the multi-line markdown body as a JSON string safely
+PRIVATE_NOTE_BODY=$(jq -Rs . <<EOF_NOTE
+Triaged by Claude Code. GitHub issue created.
+
+GitHub issue: ${ISSUE_URL}
+
+---
+
+$(cat "$DIAGNOSIS_FILE")
+EOF_NOTE
+)
+
+NOTE_RESPONSE=$(curl -s -w "\n%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
+  -H "Content-Type: application/json" \
+  -X POST "${API_BASE_URL}/tickets/${TICKET_ID}/notes" \
+  -d "{\"private\": true, \"body\": ${PRIVATE_NOTE_BODY}}")
+
+NOTE_HTTP_CODE=$(echo "$NOTE_RESPONSE" | tail -n1)
+
+if [ "$NOTE_HTTP_CODE" = "201" ]; then
+  echo "Private note added (internal-only, contains full diagnosis + GitHub URL)"
+else
+  echo "Warning: Failed to add private note (HTTP $NOTE_HTTP_CODE)"
+  echo "   The diagnosis details were NOT recorded in FreshService."
+fi
+
+# --- 2. PUBLIC REPLY (sanitized — requester-visible) -------------------------
+echo "Adding public reply to ticket..."
+
+# Public reply: short, sanitized, no diagnosis details. Includes GitHub URL
+# so the requester can self-track. Plain-text only (no HTML, no markdown).
+PUBLIC_REPLY_TEXT="Thank you for submitting this issue. We have created a tracking issue and our development team is investigating.
+
+You can follow progress here: ${ISSUE_URL}
+
+We will update this ticket when the fix is deployed."
+
+# Encode as JSON string (jq handles quoting + newlines)
+PUBLIC_REPLY_BODY=$(jq -Rs . <<< "$PUBLIC_REPLY_TEXT")
 
 REPLY_RESPONSE=$(curl -s -w "\n%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
   -H "Content-Type: application/json" \
   -X POST "${API_BASE_URL}/tickets/${TICKET_ID}/conversations" \
-  -d "{\"body\": \"${REPLY_BODY}\"}")
+  -d "{\"body\": ${PUBLIC_REPLY_BODY}}")
 
-# Extract HTTP code from response
 REPLY_HTTP_CODE=$(echo "$REPLY_RESPONSE" | tail -n1)
-REPLY_JSON=$(echo "$REPLY_RESPONSE" | head -n-1)
 
 if [ "$REPLY_HTTP_CODE" = "201" ]; then
-  echo "Reply added to ticket"
+  echo "Public reply sent to requester (sanitized, contains GitHub URL)"
 else
-  echo "Warning: Failed to add reply (HTTP $REPLY_HTTP_CODE)"
-  echo "   FreshService ticket NOT updated"
+  echo "Warning: Failed to add public reply (HTTP $REPLY_HTTP_CODE)"
+  echo "   Requester was NOT notified."
 fi
 
-# Update ticket status to "In Progress" (status code 2)
+# --- 3. STATUS UPDATE (Open -> In Progress) ----------------------------------
 echo "Updating ticket status to In Progress..."
 STATUS_RESPONSE=$(curl -s -w "\n%{http_code}" -u "${FRESHSERVICE_API_KEY}:X" \
   -H "Content-Type: application/json" \
   -X PUT "${API_BASE_URL}/tickets/${TICKET_ID}" \
   -d '{"status": 2}')
 
-# Extract HTTP code from response
 STATUS_HTTP_CODE=$(echo "$STATUS_RESPONSE" | tail -n1)
 
 if [ "$STATUS_HTTP_CODE" = "200" ]; then
@@ -398,6 +515,9 @@ else
   echo "Warning: Failed to update status (HTTP $STATUS_HTTP_CODE)"
   echo "   FreshService ticket status NOT updated"
 fi
+
+# Cleanup the diagnosis temp file
+rm -f "$DIAGNOSIS_FILE"
 
 echo ""
 ```
@@ -414,12 +534,14 @@ echo "Summary:"
 echo "  - FreshService Ticket: #$TICKET_ID"
 echo "  - Subject: $SUBJECT"
 echo "  - Priority: $PRIORITY_STR"
+echo "  - GitHub Issue: #${ISSUE_NUMBER} — ${ISSUE_URL}"
 echo "  - Status: Updated to In Progress"
-echo "  - Reply: Sent to requester"
+echo "  - Private note: Posted (full diagnosis, internal-only)"
+echo "  - Public reply: Sent to requester (sanitized, includes GitHub URL)"
 echo ""
 echo "Next steps:"
 echo "  - Review the created GitHub issue"
-echo "  - Use /work [issue-number] to begin implementation"
+echo "  - Use /work ${ISSUE_NUMBER} to begin implementation"
 echo "  - When resolved, update FreshService ticket manually"
 ```
 
