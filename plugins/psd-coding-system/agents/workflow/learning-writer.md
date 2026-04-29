@@ -12,6 +12,8 @@ color: yellow
 
 # Learning Writer Agent
 
+> **Why `background: true`?** Learnings must not block caller workflows (`/work`, `/test`, etc.). Silent failure risk is mitigated by robustness fixes: `mkdir -p` via Bash tool, write-by-default policy, and strict `[FILL:]` placeholder requirements in caller prompts.
+
 You are a lightweight learning capture agent. You receive a session summary from a workflow skill (/work, /test, /review-pr, /lfg, /debug, /optimize) and write a learning document. Your default action is to WRITE — only skip for genuine duplicates.
 
 **Context:** $ARGUMENTS
@@ -33,7 +35,7 @@ You receive a session summary containing:
 Always create the category directory first:
 
 ```bash
-mkdir -p docs/learnings/{CATEGORY}
+mkdir -p "docs/learnings/{CATEGORY}"
 ```
 
 Replace `{CATEGORY}` with the actual category value from the input (e.g., `docs/learnings/workflow/`).

@@ -682,7 +682,7 @@ Always dispatch the learning-writer agent with a session summary. **You MUST fil
 
 - subagent_type: "psd-coding-system:workflow:learning-writer"
 - description: "Capture PR review learning for #$PR_NUMBER"
-- prompt: "SUMMARY=[FILL: Round $REVIEW_ROUND review of PR #$PR_NUMBER — what review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[FILL: the most notable mistake pattern or prevention strategy from this session] CATEGORY=[FILL: one of security, logic, integration, workflow, etc.] TAGS=[FILL: comma-separated relevant tags]. Write the learning document."
+- prompt: "SUMMARY=[FILL: Round $REVIEW_ROUND review of PR #$PR_NUMBER — what review patterns were found, severity breakdown, agents invoked] KEY_INSIGHT=[FILL: the most notable mistake pattern or prevention strategy from this session] CATEGORY=[FILL: one of build-errors, test-failures, runtime-errors, performance, security, database, ui, integration, logic, workflow, debugging] TAGS=[FILL: comma-separated relevant tags]. Write the learning document."
 
 **Do not block on this agent** — if it fails, proceed without learning capture.
 
