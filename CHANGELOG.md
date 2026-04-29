@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.13.1] - 2026-04-29
+
+### Fixed
+- **psd-coding-system plugin failed to load** (psd-coding-system 2.3.1) — removed invalid `alwaysLoad` field from the `context7` mcpServers entry in `plugin.json`. The field is not part of the plugin manifest schema and caused `claude plugin validate` to fail with `mcpServers: Invalid input`, which prevented the entire plugin (all skills and agents) from loading. The `alwaysLoad` "adoption" claim from v2.13.0 has been removed from CLAUDE.md's adopted-features table; if/when this is supported in plugin.json the table can be restored.
+
 ## [2.13.0] - 2026-04-28
 
 ### Added

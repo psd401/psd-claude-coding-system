@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.13.0
+**Version**: 2.13.1
 **Status**: Production-Ready
 
 ### Plugins
@@ -433,5 +433,4 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 | Agent `mcpServers` frontmatter | v2.1.117 | 3 agents | framework-docs-researcher, best-practices-researcher, repo-research-analyst |
 | `claude plugin tag` | v2.1.118 | bump-version skill | Replaces manual git tag in release workflow |
 | `$schema` in plugin.json | v2.1.120 | Both plugins | Enables `claude plugin validate` |
-| `alwaysLoad` MCP config | v2.1.121 | psd-coding-system | Context7 resolve-library-id + query-docs eagerly loaded |
 | PostToolUse `outputReplace` | v2.1.121 | hooks.json | Auto-redacts secrets from Bash output |
