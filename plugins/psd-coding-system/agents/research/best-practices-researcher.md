@@ -4,6 +4,8 @@ description: Two-phase knowledge lookup (local → online) with mandatory deprec
 tools: Read, Grep, Glob, WebSearch, WebFetch
 model: claude-sonnet-4-6
 extended-thinking: true
+mcpServers:
+  - context7
 color: blue
 ---
 

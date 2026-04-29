@@ -11,6 +11,28 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/redact-secrets.sh",
+            "timeout": 5,
+            "outputReplace": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/pre-compact-context.sh",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "WorktreeCreate": [
