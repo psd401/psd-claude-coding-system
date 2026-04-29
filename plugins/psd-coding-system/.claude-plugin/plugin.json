@@ -1,4 +1,5 @@
 {
+  "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
   "name": "psd-coding-system",
   "version": "2.2.0",
   "description": "AI-assisted development system for Peninsula School District - workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
@@ -22,7 +23,8 @@
   "mcpServers": {
     "context7": {
       "type": "http",
-      "url": "https://mcp.context7.com/mcp"
+      "url": "https://mcp.context7.com/mcp",
+      "alwaysLoad": ["resolve-library-id", "query-docs"]
     }
   }
 }

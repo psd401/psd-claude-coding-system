@@ -5,6 +5,7 @@ tools: Bash, Read, Edit, Write, WebSearch
 model: claude-sonnet-4-6
 memory: project
 extended-thinking: true
+keep-coding-instructions: true
 color: green
 ---
 
