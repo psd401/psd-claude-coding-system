@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.13.0] - 2026-04-28
+
+### Added
+- **Adopt Claude Code v2.1.83-v2.1.122 features** (psd-coding-system 2.3.0, PR #58, closes #56):
+  - **`alwaysLoad` MCP config** (v2.1.121) — Context7 tools (`resolve-library-id`, `query-docs`) eagerly loaded, eliminating deferred-search latency
+  - **`$schema` in plugin.json** (v2.1.120) — added to both psd-coding-system and psd-productivity, enables `claude plugin validate`
+  - **`keep-coding-instructions: true`** (v2.1.94) — added to work-researcher, learning-writer, and test-specialist agents
+  - **`PreCompact` hook** (v2.1.105) — new `pre-compact-context.sh` preserves branch, uncommitted changes, recent commits, and active issue number before context compaction
+  - **Agent `mcpServers` frontmatter** (v2.1.117) — framework-docs-researcher, best-practices-researcher, and repo-research-analyst now declare Context7 dependency directly
+  - **PostToolUse `outputReplace`** (v2.1.121) — new `redact-secrets.sh` auto-redacts API keys, Bearer tokens, AWS keys, and password assignments from Bash output before Claude sees them (perl-based for macOS BSD portability)
+
+### Fixed
+- **learning-writer agent producing zero output** (psd-coding-system 2.3.0, PR #59, closes #57):
+  - Added `Bash` tool so the agent can run `mkdir -p` for category directories — previously `Write` failed silently when the directory did not exist
+  - Removed stale `TRIGGER_REASON` input field that no skill ever populated
+  - Removed "Skip if routine" escape hatch from all six consuming skills (`/work`, `/test`, `/review-pr`, `/lfg`, `/debug`, `/optimize`) — template placeholders were being passed literally and read as "routine," suppressing every learning capture
+  - Added `[FILL:]` prefixes to skill prompts to force real data substitution rather than placeholder text
+  - Strengthened agent behavior to "Write the learning document" unconditionally
+  - Quoted the `mkdir -p` path against special characters in category names
+  - Replaced `etc.` shorthand in `/review-pr` CATEGORY list with the exact 11-category enum from the agent definition
+
 ## [2.12.0] - 2026-04-27
 
 ### Changed
