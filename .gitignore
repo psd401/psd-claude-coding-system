@@ -29,3 +29,4 @@ node_modules/
 *.freshservice.env
 plugins/psd-coding-system/.freshservice.env
 .freshservice.env
+.claude/setup-marker.log
