@@ -8,8 +8,8 @@ You are running a controlled pilot test for the PSD automation architecture. You
 
 The cloned repo for this routine is `psd401/psd-claude-plugins`. Two test agents are involved:
 
-- `pilot-direct-commit` — committed at `.claude/agents/pilot-direct-commit.md`. Replies with `DIRECT_COMMIT_AGENT_REACHED`.
-- `pilot-setup-placed` — copied into `.claude/agents/` by the setup script from `routine-pilots/agent-discovery-check/pilot-setup-placed.md`. Replies with `SETUP_PLACED_AGENT_REACHED`.
+- `pilot-direct-commit` — committed at `.claude/agents/pilot-direct-commit.md` in the cloned repo (project scope). Replies with `DIRECT_COMMIT_AGENT_REACHED`.
+- `pilot-setup-placed` — written into `~/.claude/agents/pilot-setup-placed.md` by the environment setup script (user scope). Replies with `SETUP_PLACED_AGENT_REACHED`.
 
 ## Steps
 
@@ -18,8 +18,15 @@ The cloned repo for this routine is `psd401/psd-claude-plugins`. Two test agents
 Run these and capture output verbatim:
 
 ```bash
+pwd
+echo "--- project-scope agents (cloned repo) ---"
 ls -la .claude/agents/ 2>&1 || echo "directory missing"
-cat .claude/setup-marker.log 2>&1 || echo "marker log missing"
+echo "--- user-scope agents ---"
+ls -la ~/.claude/agents/ 2>&1 || echo "user-scope directory missing"
+echo "--- setup marker log ---"
+cat ~/.claude/setup-marker.log 2>&1 || echo "marker log missing"
+echo "--- where is psd-claude-plugins cloned? ---"
+find / -maxdepth 5 -name "psd-claude-plugins" -type d 2>/dev/null | head -5
 ```
 
 ### Step 2 — Direct-commit test (H1)
