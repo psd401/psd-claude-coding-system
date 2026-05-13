@@ -193,21 +193,38 @@ ${DIAGNOSIS_BRIEF}
 
 Create the issue:
 
+If Step 5.5 set `IS_PROTECTED_PATH_ISSUE=true`, append this section to the issue body BEFORE creation so it's visible to whoever picks it up:
+
+```
+## Routine note
+
+This issue was triaged but flagged `lfg-skip` because the diagnosis indicates the fix touches Claude Code settings, hooks, agents, skills, MCP config, devcontainer, or workflow files. Autonomous routines cannot edit these paths (they require human approval for every write). Please implement this fix manually rather than relying on `/lfg` or the lfg routine.
+```
+
+Build the label list and create the issue:
+
 ```bash
+LABELS="triaged-from-freshservice"
+if [ "$IS_PROTECTED_PATH_ISSUE" = "true" ]; then
+  LABELS="${LABELS},lfg-skip"
+fi
+
 gh issue create \
   --repo "$TARGET_REPO" \
   --title "[FS#${TID}] ${SUBJECT}" \
   --body-file /tmp/issue-body-${TID}.md \
-  --label "triaged-from-freshservice"
+  --label "$LABELS"
 ```
 
 Capture the URL emitted by `gh issue create`. Parse the issue number from the URL.
 
-If the label `triaged-from-freshservice` doesn't exist in the target repo, the command may fail. Pre-create it:
+If a target label doesn't exist in the target repo, pre-create it:
 
 ```bash
 gh label create triaged-from-freshservice --repo "$TARGET_REPO" \
   --description "Auto-created by FreshService triage routine" --color "1d76db" 2>/dev/null || true
+gh label create lfg-skip --repo "$TARGET_REPO" \
+  --description "Do not let the lfg routine touch this issue" --color "5319e7" 2>/dev/null || true
 ```
 
 ### Step 7 — Update FreshService
