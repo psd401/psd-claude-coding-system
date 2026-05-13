@@ -38,26 +38,27 @@ You operate against these three:
 
 ## Workflow
 
-### Step 1 — Verify environment
+### Step 1 — Bootstrap
+
+Run the in-session bootstrap. This materializes plugin agents and skills into the session's HOME (`~/.claude/agents/` and `~/.claude/skills/`) by copying from the already-cloned psd-claude-plugins. It runs every fire — no caching layer in front of it.
 
 ```bash
-echo "=== lfg routine environment check ==="
-echo "Agents installed: $(ls ~/.claude/agents/ 2>/dev/null | wc -l)"
-for expected in work-researcher.md test-specialist.md work-validator.md security-analyst-specialist.md learning-writer.md; do
-  if [ -f ~/.claude/agents/$expected ]; then echo "  ✓ $expected"; else echo "  ✗ MISSING: $expected"; fi
-done
+bash $(find / -maxdepth 5 -type f -path "*/psd-claude-plugins/routines/shared/bootstrap.sh" 2>/dev/null | head -1)
+```
 
+If bootstrap exits non-zero, abort: post no labels, no PR, no comment. Exit 1.
+
+After bootstrap succeeds, verify the cloned repo locations and `gh` auth:
+
+```bash
 echo "Cloned repos:"
 for d in aistudio psd-workflow-automation psd-claude-plugins; do
   found=$(find / -maxdepth 4 -name "$d" -type d -not -path "*/tmp/*" 2>/dev/null | head -1)
   echo "  $d → ${found:-not found}"
 done
 
-git --version
 gh auth status 2>&1 | head -3
 ```
-
-If any of the five expected agents is missing, abort: post no labels, no PR, no comment. Exit 1.
 
 ### Step 2 — Find one issue to work
 

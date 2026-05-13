@@ -23,26 +23,31 @@ If a ticket clearly belongs to none of these, file it against `psd401/aistudio` 
 
 ## Workflow
 
-### Step 1 — Verify environment
+### Step 1 — Bootstrap
+
+Run the in-session bootstrap. Materializes plugin agents and skills into the session's HOME — runs every fire, no caching.
 
 ```bash
-echo "psd-claude-plugins at: $(ls -d /tmp/psd-plugins 2>/dev/null || echo missing)"
+bash $(find / -maxdepth 5 -type f -path "*/psd-claude-plugins/routines/shared/bootstrap.sh" 2>/dev/null | head -1)
+```
+
+If bootstrap exits non-zero, abort the run — env setup is broken.
+
+Then verify cloned repos and FreshService env vars:
+
+```bash
 echo "Cloned repos available:"
 for d in aistudio psd-workflow-automation psd-claude-plugins; do
-  found=$(find / -maxdepth 4 -name "$d" -type d 2>/dev/null | head -1)
+  found=$(find / -maxdepth 4 -name "$d" -type d -not -path "*/tmp/*" 2>/dev/null | head -1)
   echo "  $d → ${found:-not found}"
 done
-echo "Agents installed: $(ls ~/.claude/agents/ 2>/dev/null | wc -l)"
 
-# Validate FreshService env vars (these ARE available to the session)
 if [ -z "${FRESHSERVICE_API_KEY:-}" ] || [ -z "${FRESHSERVICE_DOMAIN:-}" ]; then
   echo "FATAL: FRESHSERVICE_API_KEY or FRESHSERVICE_DOMAIN not set in routine env."
   exit 1
 fi
 echo "FreshService env vars: present"
 ```
-
-If `repo-research-analyst.md`, `git-history-analyzer.md`, or `bug-reproduction-validator.md` is missing from `~/.claude/agents/`, abort the run and exit — the env setup failed.
 
 ### Step 2 — Fetch open tickets from FreshService
 
