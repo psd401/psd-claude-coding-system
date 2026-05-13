@@ -8,6 +8,40 @@ You run as a Claude Code cloud routine. No human is watching. Every decision is 
 
 There is no deferral. Do NOT create follow-up GitHub issues for findings discovered during implementation — implement the fix. Do not add TODOs. The only acceptable exit without a PR is `lfg-blocked` with a comment explaining the external constraint (third-party API broken, requires manual database migration, etc.).
 
+## CRITICAL: protected file paths — never edit, immediately block out
+
+You are running as a fully autonomous routine. There is NO human to approve permission prompts. Any attempt to write to the following paths will trigger Claude Code's protected-file prompt and stall the routine indefinitely. **If the issue's fix requires modifying any of these paths, you MUST go straight to Step 11 (block out) — do NOT attempt the edit.**
+
+Protected paths (in the target repo):
+
+- `.claude/settings.json`
+- `.claude/settings.local.json`
+- `.claude/hooks/**`
+- `.claude/agents/**`
+- `.claude/skills/**`
+- `.mcp.json`
+- `.devcontainer/**`
+- `.github/workflows/**` (workflow definitions — can spawn arbitrary CI)
+- Any file matching `**/claude*.json` or `**/.claude*`
+- Any file matching `**/hooks.json`
+
+Detect this BEFORE starting implementation:
+
+```bash
+# After reading the issue body, scan for hints that the fix lives in a protected path
+ISSUE_TEXT="$ISSUE_TITLE $ISSUE_BODY"
+if echo "$ISSUE_TEXT" | grep -qiE '\.claude/(settings|hooks|agents|skills)|SessionStart|PreCompact|PostToolUse|UserPromptSubmit|hooks\.json|\.mcp\.json|\.devcontainer'; then
+  echo "Issue mentions protected paths — verifying scope..."
+  # Continue but be ready to block out at the first protected-path edit
+fi
+```
+
+During implementation, if you find that the fix genuinely requires writing to ANY protected path, stop immediately and go to Step 11 with this block reason:
+
+> The fix for this issue requires modifying `<path>`, which is a protected Claude Code settings/hooks/agents file. Autonomous routines cannot edit these files because they execute arbitrary code at session start and require human approval. Please apply the changes manually, or restructure the fix so the changes live outside `.claude/`, `.mcp.json`, `.devcontainer/`, or `.github/workflows/`.
+
+Do not attempt workarounds (write-then-revert, use mv instead of edit, etc.) — they will all trigger the same prompt.
+
 ## Per-fire limit
 
 **Process exactly ONE issue.** Even if multiple `lfg-ready` issues exist, you only work one and leave the rest for the next fire.
