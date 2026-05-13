@@ -42,8 +42,8 @@ And `cd`s between them as needed.
 
 | Routine | Cadence | Per-fire | Status |
 |---------|---------|----------|--------|
-| [triage](./triage/README.md) | every 12h | up to 5 tickets | built — pending first-run test |
-| lfg | every 6h | 1 issue | not built yet |
+| [triage](./triage/README.md) | every 12h | up to 5 tickets | built — first-run tested |
+| [lfg](./lfg/README.md) | every 6h | 1 issue | built — pending first-run test |
 | pr-fix | every 4-6h | per repo | not built yet |
 
 ## Why not plugins?
