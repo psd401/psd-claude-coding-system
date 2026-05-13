@@ -96,8 +96,18 @@ TARGET_REPO_PATH=$(find / -maxdepth 4 -name "$(basename $TARGET_REPO)" -type d -
 cd "$TARGET_REPO_PATH"
 echo "Working in: $(pwd)"
 
-DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo main)
-git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"
+# Determine the PR base branch. PSD convention (see CLAUDE.md in each repo)
+# is to target `dev`, not `main`. Fall back to default branch if `dev`
+# doesn't exist in this repo.
+if git ls-remote --exit-code --heads origin dev >/dev/null 2>&1; then
+  PR_BASE="dev"
+else
+  PR_BASE=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo main)
+fi
+echo "PR base branch: $PR_BASE"
+
+# Branch from the PR base — same branch we'll target with the PR
+git checkout "$PR_BASE" && git pull origin "$PR_BASE"
 
 gh issue view "$ISSUE_NUMBER" --repo "$TARGET_REPO"
 gh issue view "$ISSUE_NUMBER" --repo "$TARGET_REPO" --comments
@@ -160,7 +170,7 @@ Fix any failures the agent reports. Iterate until the agent returns clean or you
 ### Step 8 — Validation
 
 ```bash
-CHANGED_FILES=$(git diff --name-only "$DEFAULT_BRANCH"...HEAD)
+CHANGED_FILES=$(git diff --name-only "$PR_BASE"...HEAD)
 ```
 
 ```
@@ -190,6 +200,7 @@ fi
 git push -u origin "$BRANCH"
 
 PR_URL=$(gh pr create --repo "$TARGET_REPO" \
+  --base "$PR_BASE" \
   --title "feat: #$ISSUE_NUMBER — $ISSUE_TITLE" \
   --body "## Summary
 Implements #$ISSUE_NUMBER
@@ -247,7 +258,7 @@ gh pr edit "$PR_NUMBER" --repo "$TARGET_REPO" --body "<updated body with securit
 Only reached if Steps 5–10 hit a wall you can't get past.
 
 ```bash
-git checkout "$DEFAULT_BRANCH"
+git checkout "${PR_BASE:-main}"
 git branch -D "$BRANCH" 2>/dev/null || true
 # Don't push the broken branch.
 
