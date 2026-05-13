@@ -4,6 +4,10 @@ Three autonomous AI agents that work on your codebase 24/7 while you sleep. You 
 
 ![Cloud routines overview — triage, lfg, pr-fix](./routines-overview.png)
 
+For the **complete label and state-machine reference** in one picture, see also:
+
+![Cloud routines reference — labels and state transitions](./routines-reference.png)
+
 ## What problem do these solve?
 
 You can run `/loop` in a Claude Code session to repeat a workflow every N minutes — but the session has to stay open on your laptop. Reboot? Close the lid? Lose Wi-Fi? The loop dies. You wake up the next morning with nothing done.
