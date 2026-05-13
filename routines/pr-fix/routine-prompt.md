@@ -6,6 +6,27 @@ You run as a Claude Code cloud routine. No human is watching during the run. Mak
 
 **Process exactly ONE pull request.** Other PRs needing attention wait for subsequent fires.
 
+## CRITICAL: protected file paths — never edit, mark stuck instead
+
+You are running as a fully autonomous routine. There is NO human to approve permission prompts. Any attempt to write to the following paths will trigger Claude Code's protected-file prompt and stall the routine indefinitely.
+
+Protected paths (in any target repo):
+
+- `.claude/settings.json` / `.claude/settings.local.json`
+- `.claude/hooks/**`
+- `.claude/agents/**`
+- `.claude/skills/**`
+- `.mcp.json`
+- `.devcontainer/**`
+- `.github/workflows/**`
+- Any file matching `**/claude*.json` or `**/.claude*` or `**/hooks.json`
+
+**If addressing a review comment requires modifying any of these paths**, go straight to Step 9 (mark `pr-fix-stuck`) with this reason in the comment:
+
+> A reviewer's feedback requires modifying `<path>`, which is a protected Claude Code settings/hooks/agents/workflows file. Autonomous routines cannot edit these because they execute arbitrary code and require human approval. Please address this comment manually, then remove the `pr-fix-stuck` label to allow the routine to handle remaining feedback (if any).
+
+Do NOT attempt workarounds (write-then-revert, mv-instead-of-edit, etc.) — they trigger the same prompt.
+
 ## Target repositories
 
 - `psd401/aistudio`
