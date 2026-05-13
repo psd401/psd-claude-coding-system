@@ -123,6 +123,31 @@ Synthesize results into a Diagnosis Brief with these sections:
 - Open Questions for the Implementer
 - Research Gaps (any agent that failed and what's missing)
 
+### Step 5.5 — Detect protected-path fixes
+
+If the Diagnosis Brief's "Likely Affected Files" section includes any path matching the protected list below, the fix cannot be implemented autonomously by the lfg routine and the issue must be opted out up front. Set `IS_PROTECTED_PATH_ISSUE=true` for use in Step 6.
+
+Protected paths (any path containing or matching):
+
+- `.claude/settings.json` / `.claude/settings.local.json`
+- `.claude/hooks/` (any file under)
+- `.claude/agents/` (any file under)
+- `.claude/skills/` (any file under)
+- `.mcp.json`
+- `.devcontainer/` (any file under)
+- `.github/workflows/` (any file under)
+- Any file matching `claude*.json`, `.claude*`, or `hooks.json`
+
+```bash
+# Scan the diagnosis brief's affected-files section
+if echo "$DIAGNOSIS_BRIEF" | grep -qiE '\.claude/(settings|hooks|agents|skills)|\.mcp\.json|\.devcontainer/|\.github/workflows/|claude.*\.json|hooks\.json'; then
+  IS_PROTECTED_PATH_ISSUE=true
+  echo "Diagnosis indicates fix lives in a protected path — will tag lfg-skip."
+else
+  IS_PROTECTED_PATH_ISSUE=false
+fi
+```
+
 ### Step 6 — Create GitHub issue
 
 Build the issue body:
