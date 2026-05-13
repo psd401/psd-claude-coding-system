@@ -44,16 +44,16 @@ for repo in psd401/aistudio psd401/psd-workflow-automation psd401/psd-claude-plu
 done
 ```
 
-### 4. Verify FreshService workspace ID
+### 4. FreshService workspace ID
 
-The routine prompt assumes Software Development workspace ID = 2. Confirm:
+Confirmed Software Development workspace ID = 13 (verified 2026-05-12). The prompt has this hardcoded. If FreshService is ever reorganized:
 
 ```bash
 curl -u "$FRESHSERVICE_API_KEY:X" \
   "https://psd401.freshservice.com/api/v2/workspaces" | jq '.workspaces[] | {id, name}'
 ```
 
-If the Software Development workspace has a different ID, edit `routine-prompt.md` Step 2 and update the routine.
+Then edit `routine-prompt.md` Step 2 and re-paste into the routine.
 
 ## First-run testing
 

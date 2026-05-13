@@ -33,6 +33,13 @@ for d in aistudio psd-workflow-automation psd-claude-plugins; do
   echo "  $d → ${found:-not found}"
 done
 echo "Agents installed: $(ls ~/.claude/agents/ 2>/dev/null | wc -l)"
+
+# Validate FreshService env vars (these ARE available to the session)
+if [ -z "${FRESHSERVICE_API_KEY:-}" ] || [ -z "${FRESHSERVICE_DOMAIN:-}" ]; then
+  echo "FATAL: FRESHSERVICE_API_KEY or FRESHSERVICE_DOMAIN not set in routine env."
+  exit 1
+fi
+echo "FreshService env vars: present"
 ```
 
 If `repo-research-analyst.md`, `git-history-analyzer.md`, or `bug-reproduction-validator.md` is missing from `~/.claude/agents/`, abort the run and exit — the env setup failed.
@@ -45,11 +52,11 @@ Query the software-dev workspace for tickets in Open or Pending status:
 # Software development workspace tickets, open + pending, sorted oldest first
 curl -s -u "${FRESHSERVICE_API_KEY}:X" \
   -H "Content-Type: application/json" \
-  "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/tickets?workspace_id=2&filter=new_and_my_open&per_page=50&order_by=created_at&order_type=asc" \
+  "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/tickets?workspace_id=13&filter=new_and_my_open&per_page=50&order_by=created_at&order_type=asc" \
   -o /tmp/fs-open-tickets.json
 ```
 
-(Workspace ID 2 = Software Development. If that's wrong for the current FreshService config, use `/api/v2/workspaces` to discover, but log the discrepancy.)
+(Workspace ID 13 = Software Development, confirmed 2026-05-12. If FreshService API returns no tickets and the workspace exists, re-verify with `/api/v2/workspaces`.)
 
 For each ticket in the response, fetch its conversations and look for an existing `[claude-routine-triaged]` marker in any private note. Skip any ticket that has the marker. Build a list of untriaged tickets, ordered by priority (Urgent → High → Medium → Low) then by created_at ascending.
 

@@ -14,9 +14,12 @@
 #   5. Validates FRESHSERVICE_API_KEY and FRESHSERVICE_DOMAIN env vars are
 #      set (without printing them).
 #
-# Required env vars (set in the routine env config):
+# Env vars required by the SESSION (not this setup script):
 #   - FRESHSERVICE_API_KEY — API key for psd401.freshservice.com
 #   - FRESHSERVICE_DOMAIN  — should be "psd401"
+# Set these in the routine env config. They are injected into the session,
+# not the setup phase — so this script does NOT validate them. The session
+# prompt's Step 1 verifies them at session start instead.
 #
 # Required network access (set in env config):
 #   - Trusted is fine for github.com / api.github.com
@@ -34,16 +37,9 @@ echo "whoami: $(whoami 2>/dev/null || echo unknown)"
 echo "--- existing $HOME contents ---"
 ls -la "$HOME" 2>&1 | head -20 || true
 
-# Validate required env vars (without printing values)
-MISSING_VARS=""
-[ -z "${FRESHSERVICE_API_KEY:-}" ] && MISSING_VARS="$MISSING_VARS FRESHSERVICE_API_KEY"
-[ -z "${FRESHSERVICE_DOMAIN:-}" ] && MISSING_VARS="$MISSING_VARS FRESHSERVICE_DOMAIN"
-if [ -n "$MISSING_VARS" ]; then
-  echo "ERROR: missing required env vars:$MISSING_VARS" >&2
-  echo "Set them in the routine's cloud environment configuration." >&2
-  exit 1
-fi
-echo "Required env vars: present"
+# NOTE: setup script does not see env vars set in the routine env config —
+# those are injected into the session, not the setup phase. Env-var validation
+# happens at session start, not here.
 
 # Clone psd-claude-plugins fresh — always pull main
 PLUGINS_DIR="/tmp/psd-plugins"
