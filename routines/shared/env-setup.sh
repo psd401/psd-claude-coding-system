@@ -48,35 +48,61 @@ echo "Cloning psd-claude-plugins (main)..."
 git clone --depth 1 --branch main https://github.com/psd401/psd-claude-plugins.git "$PLUGINS_DIR" 2>&1 | tail -5
 echo "Clone HEAD: $(cd "$PLUGINS_DIR" && git rev-parse --short HEAD) $(cd "$PLUGINS_DIR" && git log -1 --pretty=%s)"
 
-# Materialize agents into user scope
-AGENTS_DIR="$HOME/.claude/agents"
-mkdir -p "$AGENTS_DIR"
+# IMPORTANT: setup script runs as root (HOME=/root) but the session runs as
+# user `user` (HOME=/home/user). $HOME in the setup script context is NOT
+# where the session reads ~/.claude/. We must write to BOTH /root and
+# /home/user so that whichever user the session ends up running as, the
+# agents/skills are discoverable.
+TARGET_HOMES=("/root" "/home/user")
+
+# Materialize agents into user scope, for every plausible session HOME
 AGENT_COUNT=0
-while IFS= read -r agent_file; do
-  cp "$agent_file" "$AGENTS_DIR/"
-  AGENT_COUNT=$((AGENT_COUNT + 1))
-done < <(find "$PLUGINS_DIR/plugins/psd-coding-system/agents" -name "*.md" -type f)
-echo "Agents installed to $AGENTS_DIR: $AGENT_COUNT"
+for th in "${TARGET_HOMES[@]}"; do
+  AGENTS_DIR="$th/.claude/agents"
+  mkdir -p "$AGENTS_DIR"
+  count=0
+  while IFS= read -r agent_file; do
+    cp "$agent_file" "$AGENTS_DIR/"
+    count=$((count + 1))
+  done < <(find "$PLUGINS_DIR/plugins/psd-coding-system/agents" -name "*.md" -type f)
+  echo "Agents installed to $AGENTS_DIR: $count"
+  AGENT_COUNT=$count
 
-# Materialize skills into user scope (both plugins' skills)
-SKILLS_DIR="$HOME/.claude/skills"
-mkdir -p "$SKILLS_DIR"
-SKILL_COUNT=0
-for plugin_skills_root in "$PLUGINS_DIR/plugins/psd-coding-system/skills" "$PLUGINS_DIR/plugins/psd-productivity/skills"; do
-  [ -d "$plugin_skills_root" ] || continue
-  while IFS= read -r skill_md; do
-    skill_dir="$(dirname "$skill_md")"
-    skill_name="$(basename "$skill_dir")"
-    rm -rf "$SKILLS_DIR/$skill_name"
-    cp -r "$skill_dir" "$SKILLS_DIR/$skill_name"
-    SKILL_COUNT=$((SKILL_COUNT + 1))
-  done < <(find "$plugin_skills_root" -mindepth 2 -maxdepth 2 -name "SKILL.md" -type f)
+  # Ownership: if /home/user has a non-root owner, chown after writing
+  if [ "$th" = "/home/user" ] && [ -d /home/user ]; then
+    chown -R --reference=/home/user "$th/.claude" 2>/dev/null || true
+  fi
 done
-echo "Skills installed to $SKILLS_DIR: $SKILL_COUNT"
 
-# Sanity-check a couple of expected agents
-for expected in repo-research-analyst.md git-history-analyzer.md bug-reproduction-validator.md; do
-  if [ -f "$AGENTS_DIR/$expected" ]; then
+# Materialize skills into user scope (both plugins' skills), for every HOME
+SKILL_COUNT=0
+for th in "${TARGET_HOMES[@]}"; do
+  SKILLS_DIR="$th/.claude/skills"
+  mkdir -p "$SKILLS_DIR"
+  count=0
+  for plugin_skills_root in "$PLUGINS_DIR/plugins/psd-coding-system/skills" "$PLUGINS_DIR/plugins/psd-productivity/skills"; do
+    [ -d "$plugin_skills_root" ] || continue
+    while IFS= read -r skill_md; do
+      skill_dir="$(dirname "$skill_md")"
+      skill_name="$(basename "$skill_dir")"
+      rm -rf "$SKILLS_DIR/$skill_name"
+      cp -r "$skill_dir" "$SKILLS_DIR/$skill_name"
+      count=$((count + 1))
+    done < <(find "$plugin_skills_root" -mindepth 2 -maxdepth 2 -name "SKILL.md" -type f)
+  done
+  echo "Skills installed to $SKILLS_DIR: $count"
+  SKILL_COUNT=$count
+
+  if [ "$th" = "/home/user" ] && [ -d /home/user ]; then
+    chown -R --reference=/home/user "$th/.claude" 2>/dev/null || true
+  fi
+done
+
+# Sanity-check a couple of expected agents (checking /home/user since that's
+# where the session reads from in practice)
+echo "--- sanity check against /home/user/.claude/agents/ ---"
+for expected in repo-research-analyst.md git-history-analyzer.md bug-reproduction-validator.md work-researcher.md test-specialist.md work-validator.md security-analyst-specialist.md learning-writer.md; do
+  if [ -f "/home/user/.claude/agents/$expected" ]; then
     echo "  ✓ $expected"
   else
     echo "  ✗ MISSING: $expected" >&2
