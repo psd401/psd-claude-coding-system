@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Cloud routines for triage, lfg, and pr-fix** (no plugin version bump — routines are infrastructure, not part of `/plugin install` distribution):
+  - **`routines/triage`** — autonomous FreshService → GitHub triage. Runs twice daily (cron `0 6,18 * * *`). Polls software-dev workspace (ID 13), filters by `[claude-routine-triaged]` private-note marker, classifies tickets to `psd401/aistudio` / `psd401/psd-workflow-automation` / `psd401/psd-claude-plugins`, runs full Phase 1.5 diagnosis fan-out (`repo-research-analyst` + `git-history-analyzer` + `bug-reproduction-validator`), files an issue, posts private note (with diagnosis brief) + public reply to FreshService. Per-fire cap of 5 tickets.
+  - **`routines/lfg`** — autonomous end-to-end implementation for issues labeled `lfg-ready`. Runs every 6 hours (cron `0 */6 * * *`). Label state machine: `lfg-ready` → `lfg-in-progress` → `lfg-pr-open` / `lfg-blocked`. Branches `claude/lfg-issue-<N>-<slug>` from `dev` (PSD convention), runs research + implement + test + validate + security-audit, opens PR targeting `dev`. One issue per fire. Honors `lfg-skip` opt-out label.
+  - **`routines/pr-fix`** — autonomous PR review-feedback handler for open PRs across the three target repos. Runs every 4 hours at `:30` (cron `30 */4 * * *`), staggered from lfg. Uses the same `<!-- review-pr:round:N:timestamp:T:sha:S -->` marker convention as the `/review-pr` skill so interactive and routine runs interleave without re-processing comments. Detects "no actionable info" situations (only discussion/already-addressed/stylistic comments + no failing CI) and tags `pr-fix-stuck` to stop re-checking. Marks `pr-fix-done` when fully clean. Honors `pr-fix-skip` opt-out.
+  - **`routines/shared/bootstrap.sh`** — in-session bootstrap invoked as Step 1 of every routine prompt. Locates the already-cloned `psd-claude-plugins`, copies all plugin agents into `$HOME/.claude/agents/` and skills into `$HOME/.claude/skills/`. Bypasses cloud-env setup-script caching by running in-session every fire, writing to the session user's own HOME — no user/HOME mismatch.
+  - **`routines/shared/env-setup.sh`** — cloud env setup script for the shared `psd-automation` environment. Installs `gh` CLI from the official `cli.github.com` apt repo (stable tools belong in cached setup; agents do not).
+  - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
+  - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
+
 ## [2.13.1] - 2026-04-29
 
 ### Fixed
