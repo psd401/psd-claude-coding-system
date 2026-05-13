@@ -2,6 +2,8 @@
 
 Production Claude Code routines that run on Anthropic's cloud infrastructure (claude.ai/code/routines), not on Hagel's machine. They survive reboots, network changes, and sleep — unlike the local `/loop` they replace.
 
+> **New here?** Read [`docs/routines/GETTING-STARTED.md`](../docs/routines/GETTING-STARTED.md) first — that's the user-facing guide with the infographic, setup walkthrough, and troubleshooting. This file is the architecture reference for people extending the system.
+
 ## The architecture
 
 All routines share one cloud environment (`psd-automation`) whose setup script clones `psd-claude-plugins` fresh from `main` on every fire and materializes every plugin agent + skill into `~/.claude/agents/` and `~/.claude/skills/`. This is **Pattern 1**, validated by the `agent-discovery-check` pilot (issues #61 and #62, now closed).
