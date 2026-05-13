@@ -37,6 +37,27 @@ echo "whoami: $(whoami 2>/dev/null || echo unknown)"
 echo "--- existing $HOME contents ---"
 ls -la "$HOME" 2>&1 | head -20 || true
 
+# Install GitHub CLI (gh). The base image doesn't include it. This belongs
+# in setup (not the in-session bootstrap) because the cached layer is the
+# right place for a stable package install.
+if ! command -v gh >/dev/null 2>&1; then
+  echo "--- installing GitHub CLI (gh) ---"
+  apt-get update -qq >/dev/null 2>&1
+  if curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg status=none 2>/dev/null \
+     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null \
+     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        > /etc/apt/sources.list.d/github-cli.list \
+     && apt-get update -qq >/dev/null 2>&1 \
+     && apt-get install -y -qq gh >/dev/null 2>&1; then
+    echo "gh installed: $(gh --version | head -1)"
+  else
+    echo "WARN: gh install failed — routines will need to use GitHub MCP tools as fallback" >&2
+  fi
+else
+  echo "gh already present: $(gh --version | head -1)"
+fi
+
 # NOTE: setup script does not see env vars set in the routine env config —
 # those are injected into the session, not the setup phase. Env-var validation
 # happens at session start, not here.
