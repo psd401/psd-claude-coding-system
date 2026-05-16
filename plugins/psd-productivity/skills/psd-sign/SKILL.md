@@ -28,8 +28,8 @@ These are embedded in the workflow and should not need to change unless PSD's Ap
 
 - macOS with Xcode Command Line Tools installed
 - PSD Developer ID certificates installed on the machine (both Application and Installer)
-- An Apple ID that is a member of the PSD Apple Developer account
-- An app-specific password for that Apple ID (generate at https://appleid.apple.com)
+- A notarytool keychain profile stored on the machine — create once with:
+  `xcrun notarytool store-credentials "<profile-name>" --apple-id <your@psd401.net> --team-id 87DL7L9GU6 --password <app-specific-password>`
 - A built `.app` bundle ready for signing
 
 ## Workflow
@@ -37,10 +37,9 @@ These are embedded in the workflow and should not need to change unless PSD's Ap
 When invoked, collect the following from the user before proceeding:
 
 1. **App path** — full path to the `.app` bundle (may be provided as an argument)
-2. **Apple ID** — the `@psd401.net` account with Developer ID access
-3. **App-specific password** — SECURITY: never log, echo, or store this value
-4. **Version number** — semver string for the package (e.g., `1.0.0`)
-5. **Bundle identifier** — defaults to `net.psd401.<appname-lowercase>`
+2. **Notary keychain profile** — name of the keychain profile for `notarytool` (create once with `xcrun notarytool store-credentials`)
+3. **Version number** — semver string for the package (e.g., `1.0.0`)
+4. **Bundle identifier** — defaults to `net.psd401.<appname-lowercase>`
 
 Confirm the configuration with the user, then run each step sequentially. Stop immediately on any failure and report the error.
 
@@ -76,9 +75,7 @@ Submit to Apple's notary service and wait for approval. This typically takes 2-1
 
 ```bash
 xcrun notarytool submit "/tmp/${APP_NAME}.zip" \
-  --apple-id "$APPLE_ID" \
-  --team-id 87DL7L9GU6 \
-  --password "$APP_PASSWORD" \
+  --keychain-profile "$NOTARY_KEYCHAIN_PROFILE" \
   --wait
 ```
 
@@ -114,9 +111,7 @@ Submit the installer package to Apple's notary service and staple.
 
 ```bash
 xcrun notarytool submit "$HOME/Desktop/${APP_NAME}.pkg" \
-  --apple-id "$APPLE_ID" \
-  --team-id 87DL7L9GU6 \
-  --password "$APP_PASSWORD" \
+  --keychain-profile "$NOTARY_KEYCHAIN_PROFILE" \
   --wait
 xcrun stapler staple "$HOME/Desktop/${APP_NAME}.pkg"
 ```
@@ -153,5 +148,5 @@ The signed, notarized `.pkg` is placed on the user's Desktop at `~/Desktop/${APP
 ## Troubleshooting
 
 - **"no identity found"** — Developer ID certificates are not installed. Open Keychain Access and verify both `Developer ID Application` and `Developer ID Installer` certs are present for Peninsula School District.
-- **Notarization rejected** — Check the log with `xcrun notarytool log <submission-id> --apple-id ... --team-id 87DL7L9GU6 --password ...`
+- **Notarization rejected** — Check the log with `xcrun notarytool log <submission-id> --keychain-profile <profile-name>`
 - **"not valid on disk"** from `spctl` — The app was modified after signing. Re-run from Step 1.
